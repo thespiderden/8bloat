@@ -1,5 +1,6 @@
 {{template "header.tmpl"}}
-<h1> THREAD </h1>
+<div class="page-title"> Thread </div>
+{{template "navigation.tmpl"}}
 
 {{range .Context.Ancestors}}
 {{template "status.tmpl" .}}

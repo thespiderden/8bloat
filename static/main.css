@@ -36,6 +36,7 @@
 
 .status-emoji {
 	height: 20px;
+	margin-bottom: -4px;
 	witdth: auto;
 }
 
@@ -46,6 +47,7 @@
 
 .status-action {
 	display: flex;
+	margin-top: 4px;
 }
 
 .status-action a {
@@ -74,4 +76,34 @@
 
 .icon.dripicons-retweet.retweeted {
 	color: green;
+}
+
+.status-image,
+.status-video {
+	max-height: 180px;
+	width: auto;
+}
+
+.page-title {
+	font-size: 23pt;
+}
+
+.navigation {
+	margin: 4px 0;
+}
+
+.navigation a {
+	margin-right: 8px;
+}
+
+.timeline-post-form {
+	margin: 8px 0;
+}
+
+.signin-form {
+	margin: 8px 0;
+}
+
+.signin-form input {
+	margin: 4px 0;
 }
