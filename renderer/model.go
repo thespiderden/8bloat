@@ -24,17 +24,19 @@ func NewTimelinePageTemplateData(statuses []*mastodon.Status, hasNext bool, next
 }
 
 type ThreadPageTemplateData struct {
-	Status    *mastodon.Status
-	Context   *mastodon.Context
-	PostReply bool
-	ReplyToID string
+	Status       *mastodon.Status
+	Context      *mastodon.Context
+	PostReply    bool
+	ReplyToID    string
+	ReplyContent string
 }
 
-func NewThreadPageTemplateData(status *mastodon.Status, context *mastodon.Context, postReply bool, replyToID string) *ThreadPageTemplateData {
+func NewThreadPageTemplateData(status *mastodon.Status, context *mastodon.Context, postReply bool, replyToID string, replyContent string) *ThreadPageTemplateData {
 	return &ThreadPageTemplateData{
-		Status:    status,
-		Context:   context,
-		PostReply: postReply,
-		ReplyToID: replyToID,
+		Status:       status,
+		Context:      context,
+		PostReply:    postReply,
+		ReplyToID:    replyToID,
+		ReplyContent: replyContent,
 	}
 }

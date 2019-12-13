@@ -246,7 +246,17 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *ma
 		return
 	}
 
-	data := renderer.NewThreadPageTemplateData(status, context, reply, id)
+	var content string
+	if reply {
+		content += status.Account.Acct + " "
+		for _, m := range status.Mentions {
+			content += m.Acct + " "
+		}
+	}
+
+	fmt.Println("content", content)
+
+	data := renderer.NewThreadPageTemplateData(status, context, reply, id, content)
 	err = svc.renderer.RenderThreadPage(ctx, client, data)
 	if err != nil {
 		return
