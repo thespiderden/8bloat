@@ -1,0 +1,24 @@
+{{template "header.tmpl"}}
+<h1> THREAD </h1>
+
+{{range .Context.Ancestors}}
+{{template "status.tmpl" .}}
+{{end}}
+
+{{template "status.tmpl" .Status}}
+{{if .PostReply}}
+<form class="timeline-post-form" action="/post" method="POST">
+	<input type="hidden" name="reply_to_id" value="{{.ReplyToID}}" />
+	<label for="post-content"> Reply to {{.Status.Account.DisplayName}} </label>
+	<br/>
+	<textarea id="post-content" name="content" class="post-content" cols="50" rows="5"></textarea>
+	<br/>
+	<button type="submit"> Post </button>
+</form>
+{{end}}
+
+{{range .Context.Descendants}}
+{{template "status.tmpl" .}}
+{{end}}
+
+{{template "footer.tmpl"}}

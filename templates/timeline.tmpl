@@ -1,0 +1,22 @@
+{{template "header.tmpl"}}
+<h1> TIMELINE </h1>
+
+<form class="timeline-post-form" action="/post" method="POST">
+	<label for="post-content"> New Post </label>
+	<br/>
+	<textarea id="post-content" name="content" class="post-content" cols="50" rows="5"></textarea>
+	<br/>
+	<button type="submit"> Post </button>
+</form>
+
+{{range .Statuses}}
+{{template "status.tmpl" .}}
+{{end}}
+
+{{if .HasNext}}
+	<a href="{{.NextLink}}"> next </a>
+{{end}}
+{{if .HasPrev}}
+	<a href="{{.PrevLink}}"> next </a>
+{{end}}
+{{template "footer.tmpl"}}

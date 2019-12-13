@@ -1,0 +1,77 @@
+.status-container {
+	display: flex;
+	margin: 16px 0;
+}
+
+.status-content {
+	margin: 8px 0;
+}
+
+.status-content p {
+	margin: 0px;
+}
+
+.status-profile-img {
+	height: 48px;
+	width: 48px;
+	object-fit: contain;
+}
+
+.status {
+	margin: 0 8px;
+}
+
+.status a {
+	text-decoration: none;
+}
+
+.status-dname {
+	font-weight: 800;
+}
+
+.status-uname {
+	font-style: italic;
+	font-size: 10pt;
+}
+
+.status-emoji {
+	height: 20px;
+	witdth: auto;
+}
+
+.name-emoji {
+	height: 20px;
+	witdth: auto;
+}
+
+.status-action {
+	display: flex;
+}
+
+.status-action a {
+	display: flex;
+	margin: 0 4px;
+	width: 64px;
+	text-decoration: none;
+	color: #333333;
+}
+
+.status-action a:hover {
+	color: #777777;
+}
+
+.status-action .icon {
+	margin: 0 4px 0 0;
+}
+
+.status-action a.status-time {
+	width: auto;
+}
+
+.icon.dripicons-star.liked {
+	color: yellow;
+}
+
+.icon.dripicons-retweet.retweeted {
+	color: green;
+}
