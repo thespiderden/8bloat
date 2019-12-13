@@ -29,11 +29,15 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		http.FileServer(http.Dir(path.Join(".", staticDir)))))
 
 	r.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		err := s.ServeHomePage(ctx, w)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
-			return
+		location := "/signin"
+
+		sessionID, _ := req.Cookie("session_id")
+		if sessionID != nil && len(sessionID.Value) > 0 {
+			location = "/timeline"
 		}
+
+		w.Header().Add("Location", location)
+		w.WriteHeader(http.StatusSeeOther)
 	}).Methods(http.MethodGet)
 
 	r.HandleFunc("/signin", func(w http.ResponseWriter, req *http.Request) {
@@ -157,9 +161,20 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 
-		w.Header().Add("Location", req.Header.Get("Referer"))
+		location := "/timeline"
+		if len(replyToID) > 0 {
+			location = "/thread/" + replyToID
+		}
+		w.Header().Add("Location", location)
 		w.WriteHeader(http.StatusSeeOther)
 	}).Methods(http.MethodPost)
+
+	r.HandleFunc("/signout", func(w http.ResponseWriter, req *http.Request) {
+		// TODO remove session from database
+		w.Header().Add("Set-Cookie", fmt.Sprintf("session_id=;max-age=0"))
+		w.Header().Add("Location", "/")
+		w.WriteHeader(http.StatusSeeOther)
+	}).Methods(http.MethodGet)
 
 	return r
 }
