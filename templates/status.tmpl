@@ -8,6 +8,27 @@
 			<span class="status-uname"> {{.Account.Acct}} </span>
 		</div>
 		<div class="status-content"> {{WithEmojis .Content .Emojis}} </div>
+		<div class="status-media-container">
+		{{range .MediaAttachments}}
+		{{if eq .Type "image"}}
+		<a href="{{.URL}}" target="_blank">
+			<img class="status-image" src="{{.URL}}" alt="status-image" />
+		</a>
+		{{else if eq .Type "audio"}}
+		<audio class="status-audio" controls preload="none">
+			<source src="{{.URL}}">
+			<p> Your browser doesn't support HTML5 audio </p>
+		</audio>
+		{{else if eq .Type "video"}}
+		<video class="status-video" controls preload="none">
+			<source src="{{.URL}}">
+			<p> Your browser doesn't support HTML5 video </p>
+		</video>
+		{{else}}
+		<a href="{{.URL}}" target="_blank"> attachment </a>
+		{{end}}
+		{{end}}
+		</div>
 		<div class="status-action"> 
 			<a class="status-you" href="/thread/{{.ID}}?reply=true" title="reply"> 
 				<span class="icon dripicons-reply"></span> 
