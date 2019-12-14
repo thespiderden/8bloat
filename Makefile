@@ -1,7 +1,6 @@
 .POSIX:
 
 GO=go
-#GOFLAGS=-mod=vendor
 
 all: web
 
