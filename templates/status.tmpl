@@ -4,7 +4,7 @@
 		<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
 		<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span>  
 		<span class="icon dripicons-retweet retweeted"></span> 
-		repeated
+		retweeted
 	</div>
 	{{template "status" .Reblog}}
 	{{else}}
