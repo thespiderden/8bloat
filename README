@@ -1,0 +1,51 @@
+Web - A web client for Mastodon Network
+
+Features:
+
+- Does not require JavaScript to display text, images, audio and videos.
+
+
+Requirements:
+
+- Go 1.11
+- SQLite3
+
+
+External dependencies:
+
+- Fork of go-masodon (https://github.com/mattn/go-mastodon)
+- go-sqlite3 (https://github.com/mattn/go-sqlite3)
+- gorilla/mux (https://github.com/gorilla/mux)
+
+
+Building and Installation:
+
+Make sure you have GO and SQLite3 installed. Other dependencies will be 
+downloaded automatically.
+
+Typing make will build the binary 
+$ make
+
+Edit the provided config file. See the default.conf file for more details.
+$ ed default.conf
+
+Run the binary
+$ ./web
+
+You can also setup a reverse HTTP proxy serve the website over TLS connection.
+
+
+Notes:
+
+You will need to clear the database if you change config values for client_name, 
+client_scope or client_website.
+
+
+License:
+
+To the extent possible under law, the author have dedicated all copyright and
+related and neighboring rights to this software to the public domain worldwide.
+This software is distributed without any warranty.
+
+You should have received a copy of the CC0 Public Domain Dedication along with
+this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>. 
