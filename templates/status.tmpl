@@ -1,64 +1,78 @@
-<div class="status-container">
-	<div>
+<div class="status-container-container">
+	{{if .Reblog}}
+	<div class="retweet-info">
 		<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+		<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span>  
+		<span class="icon dripicons-retweet retweeted"></span> 
+		repeated
 	</div>
-	<div class="status"> 
-		<div class="status-name">
-			<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span> 
-			<span class="status-uname"> {{.Account.Acct}} </span>
+	{{template "status" .Reblog}}
+	{{else}}
+	{{block "status" .}}
+	<div class="status-container">
+		<div>
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
 		</div>
-		<div class="status-content"> {{WithEmojis .Content .Emojis}} </div>
-		<div class="status-media-container">
-		{{range .MediaAttachments}}
-		{{if eq .Type "image"}}
-		<a href="{{.URL}}" target="_blank">
-			<img class="status-image" src="{{.URL}}" alt="status-image" />
-		</a>
-		{{else if eq .Type "audio"}}
-		<audio class="status-audio" controls preload="none">
-			<source src="{{.URL}}">
-			<p> Your browser doesn't support HTML5 audio </p>
-		</audio>
-		{{else if eq .Type "video"}}
-		<video class="status-video" controls preload="none">
-			<source src="{{.URL}}">
-			<p> Your browser doesn't support HTML5 video </p>
-		</video>
-		{{else}}
-		<a href="{{.URL}}" target="_blank"> attachment </a>
-		{{end}}
-		{{end}}
-		</div>
-		<div class="status-action"> 
-			<a class="status-you" href="/thread/{{.ID}}?reply=true" title="reply"> 
-				<span class="icon dripicons-reply"></span> 
-				<span> {{DisplayInteractionCount .RepliesCount}} </span>
+		<div class="status"> 
+			<div class="status-name">
+				<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span> 
+				<span class="status-uname"> {{.Account.Acct}} </span>
+			</div>
+			<div class="status-content"> {{WithEmojis .Content .Emojis}} </div>
+			<div class="status-media-container">
+			{{range .MediaAttachments}}
+			{{if eq .Type "image"}}
+			<a href="{{.URL}}" target="_blank">
+				<img class="status-image" src="{{.URL}}" alt="status-image" />
 			</a>
-			{{if .Reblogged}}
-			<a class="status-retweet" href="/unretweet/{{.ID}}" title="undo repost"> 
-				<span class="icon dripicons-retweet retweeted"></span> 
-				<span> {{DisplayInteractionCount .ReblogsCount}} </span>
-			</a>
+			{{else if eq .Type "audio"}}
+			<audio class="status-audio" controls preload="none">
+				<source src="{{.URL}}">
+				<p> Your browser doesn't support HTML5 audio </p>
+			</audio>
+			{{else if eq .Type "video"}}
+			<video class="status-video" controls preload="none">
+				<source src="{{.URL}}">
+				<p> Your browser doesn't support HTML5 video </p>
+			</video>
 			{{else}}
-			<a class="status-retweet" href="/retweet/{{.ID}}" title="repost"> 
-				<span class="icon dripicons-retweet"></span> 
-				<span> {{DisplayInteractionCount .ReblogsCount}} </span>
-			</a>
+			<a href="{{.URL}}" target="_blank"> attachment </a>
 			{{end}}
-			{{if .Favourited}}
-			<a class="status-like" href="/unlike/{{.ID}}" title="unlike"> 
-				<span class="icon dripicons-star liked"></span> 
-				<span> {{DisplayInteractionCount .FavouritesCount}} </span>
-			</a>
-			{{else}}
-			<a class="status-like" href="/like/{{.ID}}" title="like"> 
-				<span class="icon dripicons-star"></span> 
-				<span> {{DisplayInteractionCount .FavouritesCount}} </span>
-			</a>
 			{{end}}
-			<a class="status-time" href="/thread/{{.ID}}"> 
-				<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{.CreatedAt}}"> {{TimeSince .CreatedAt}} </time> 
-			</a>
+			</div>
+			<div class="status-action"> 
+				<a class="status-you" href="/thread/{{.ID}}?reply=true" title="reply"> 
+					<span class="icon dripicons-reply"></span> 
+					<span> {{DisplayInteractionCount .RepliesCount}} </span>
+				</a>
+				{{if .Reblogged}}
+				<a class="status-retweet" href="/unretweet/{{.ID}}" title="undo repost"> 
+					<span class="icon dripicons-retweet retweeted"></span> 
+					<span> {{DisplayInteractionCount .ReblogsCount}} </span>
+				</a>
+				{{else}}
+				<a class="status-retweet" href="/retweet/{{.ID}}" title="repost"> 
+					<span class="icon dripicons-retweet"></span> 
+					<span> {{DisplayInteractionCount .ReblogsCount}} </span>
+				</a>
+				{{end}}
+				{{if .Favourited}}
+				<a class="status-like" href="/unlike/{{.ID}}" title="unlike"> 
+					<span class="icon dripicons-star liked"></span> 
+					<span> {{DisplayInteractionCount .FavouritesCount}} </span>
+				</a>
+				{{else}}
+				<a class="status-like" href="/like/{{.ID}}" title="like"> 
+					<span class="icon dripicons-star"></span> 
+					<span> {{DisplayInteractionCount .FavouritesCount}} </span>
+				</a>
+				{{end}}
+				<a class="status-time" href="/thread/{{.ID}}"> 
+					<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{.CreatedAt}}"> {{TimeSince .CreatedAt}} </time> 
+				</a>
+			</div>
 		</div>
 	</div>
+	{{end}}
+	{{end}}
 </div>

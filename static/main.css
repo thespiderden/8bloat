@@ -1,6 +1,9 @@
+.status-container-container {
+	margin: 16px 0;
+}
+
 .status-container {
 	display: flex;
-	margin: 16px 0;
 }
 
 .status-content {
@@ -106,4 +109,23 @@
 
 .signin-form input {
 	margin: 4px 0;
+}
+
+.retweet-info {
+	margin: 8px 0 4px 24px;	
+}
+
+.retweet-info .status-profile-img {
+	height: 24px;
+	width: 24px;
+	margin-bottom: -8px;
+	object-fit: contain;
+}
+
+.retweet-info .status-dname{
+	margin-left: 4px
+}
+
+.retweet-info .icon.dripicons-retweet.retweeted {
+	vertical-align: sub;
 }
