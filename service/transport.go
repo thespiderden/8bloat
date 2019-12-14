@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"path"
 
@@ -153,9 +154,18 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
-		content := req.FormValue("content")
-		replyToID := req.FormValue("reply_to_id")
-		id, err := s.PostTweet(ctx, w, nil, content, replyToID)
+
+		err := req.ParseMultipartForm(4 << 20)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+
+		content := getMultipartFormValue(req.MultipartForm, "content")
+		replyToID := getMultipartFormValue(req.MultipartForm, "reply_to_id")
+		files := req.MultipartForm.File["attachments"]
+
+		id, err := s.PostTweet(ctx, w, nil, content, replyToID, files)
 		if err != nil {
 			s.ServeErrorPage(ctx, w, err)
 			return
@@ -177,4 +187,15 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}).Methods(http.MethodGet)
 
 	return r
+}
+
+func getMultipartFormValue(mf *multipart.Form, key string) (val string) {
+	vals, ok := mf.Value[key]
+	if !ok {
+		return ""
+	}
+	if len(vals) < 1 {
+		return ""
+	}
+	return vals[0]
 }

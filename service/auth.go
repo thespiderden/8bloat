@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"mastodon"
+	"mime/multipart"
 	"web/model"
 )
 
@@ -142,10 +143,10 @@ func (s *authService) UnRetweet(ctx context.Context, client io.Writer, c *mastod
 	return s.Service.UnRetweet(ctx, client, c, id)
 }
 
-func (s *authService) PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string) (id string, err error) {
+func (s *authService) PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
 	}
-	return s.Service.PostTweet(ctx, client, c, content, replyToID)
+	return s.Service.PostTweet(ctx, client, c, content, replyToID, files)
 }

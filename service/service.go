@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"path"
@@ -36,7 +37,7 @@ type Service interface {
 	UnLike(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	UnRetweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
-	PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string) (id string, err error)
+	PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error)
 }
 
 type service struct {
@@ -292,10 +293,20 @@ func (svc *service) UnRetweet(ctx context.Context, client io.Writer, c *mastodon
 	return
 }
 
-func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string) (id string, err error) {
+func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error) {
+	var mediaIds []string
+	for _, f := range files {
+		a, err := c.UploadMediaFromMultipartFileHeader(ctx, f)
+		if err != nil {
+			return "", err
+		}
+		mediaIds = append(mediaIds, a.ID)
+	}
+
 	tweet := &mastodon.Toot{
 		Status:      content,
 		InReplyToID: replyToID,
+		MediaIDs:    mediaIds,
 	}
 
 	s, err := c.PostStatus(ctx, tweet)

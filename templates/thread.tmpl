@@ -8,11 +8,13 @@
 
 {{template "status.tmpl" .Status}}
 {{if .PostReply}}
-<form class="timeline-post-form" action="/post" method="POST">
+<form class="timeline-post-form" action="/post" method="POST" enctype="multipart/form-data">
 	<input type="hidden" name="reply_to_id" value="{{.ReplyToID}}" />
 	<label for="post-content"> Reply to {{.Status.Account.DisplayName}} </label>
 	<br/>
 	<textarea id="post-content" name="content" class="post-content" cols="50" rows="5">{{.ReplyContent}}</textarea>
+	<br/>
+	Attachments <input id="post-file-picker" type="file" name="attachments" multiple>
 	<br/>
 	<button type="submit"> Post </button>
 </form>
