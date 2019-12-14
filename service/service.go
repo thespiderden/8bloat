@@ -246,15 +246,22 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *ma
 		return
 	}
 
-	var content string
-	if reply {
-		content += status.Account.Acct + " "
-		for _, m := range status.Mentions {
-			content += m.Acct + " "
-		}
+	u, err := c.GetAccountCurrentUser(ctx)
+	if err != nil {
+		return
 	}
 
-	fmt.Println("content", content)
+	var content string
+	if reply {
+		if u.ID != status.Account.ID {
+			content += "@" + status.Account.Acct + " "
+		}
+		for _, m := range status.Mentions {
+			if u.ID != m.ID {
+				content += "@" + m.Acct + " "
+			}
+		}
+	}
 
 	data := renderer.NewThreadPageTemplateData(status, context, reply, id, content)
 	err = svc.renderer.RenderThreadPage(ctx, client, data)
