@@ -1,4 +1,4 @@
-<div id="status-{{.ID}}" class="status-container-container">
+<div id="status-{{if .Reblog}}{{.Reblog.ID}}{{else}}{{.ID}}{{end}}" class="status-container-container">
 	{{if .Reblog}}
 	<div class="retweet-info">
 		<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
@@ -67,7 +67,7 @@
 					<span> {{DisplayInteractionCount .FavouritesCount}} </span>
 				</a>
 				{{end}}
-				<a class="status-time" href="/thread/{{.ID}}"> 
+				<a class="status-time" href="/thread/{{.ID}}#status-{{.ID}}"> 
 					<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{.CreatedAt}}"> {{TimeSince .CreatedAt}} </time> 
 				</a>
 			</div>

@@ -108,7 +108,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 
-		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
 		w.WriteHeader(http.StatusSeeOther)
 	}).Methods(http.MethodGet)
 
@@ -121,7 +121,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 
-		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
 		w.WriteHeader(http.StatusSeeOther)
 	}).Methods(http.MethodGet)
 
@@ -134,7 +134,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 
-		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
 		w.WriteHeader(http.StatusSeeOther)
 	}).Methods(http.MethodGet)
 
@@ -147,7 +147,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 
-		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
 		w.WriteHeader(http.StatusSeeOther)
 	}).Methods(http.MethodGet)
 
@@ -155,15 +155,15 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		ctx := getContextWithSession(context.Background(), req)
 		content := req.FormValue("content")
 		replyToID := req.FormValue("reply_to_id")
-		err := s.PostTweet(ctx, w, nil, content, replyToID)
+		id, err := s.PostTweet(ctx, w, nil, content, replyToID)
 		if err != nil {
 			s.ServeErrorPage(ctx, w, err)
 			return
 		}
 
-		location := "/timeline"
+		location := "/timeline" + "#status-" + id
 		if len(replyToID) > 0 {
-			location = "/thread/" + replyToID
+			location = "/thread/" + replyToID + "#status-" + id
 		}
 		w.Header().Add("Location", location)
 		w.WriteHeader(http.StatusSeeOther)

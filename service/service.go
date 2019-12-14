@@ -36,7 +36,7 @@ type Service interface {
 	UnLike(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	UnRetweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
-	PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string) (err error)
+	PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string) (id string, err error)
 }
 
 type service struct {
@@ -292,11 +292,16 @@ func (svc *service) UnRetweet(ctx context.Context, client io.Writer, c *mastodon
 	return
 }
 
-func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string) (err error) {
+func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string) (id string, err error) {
 	tweet := &mastodon.Toot{
 		Status:      content,
 		InReplyToID: replyToID,
 	}
-	_, err = c.PostStatus(ctx, tweet)
-	return
+
+	s, err := c.PostStatus(ctx, tweet)
+	if err != nil {
+		return
+	}
+
+	return s.ID, nil
 }

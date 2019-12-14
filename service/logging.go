@@ -108,7 +108,7 @@ func (s *loggingService) UnRetweet(ctx context.Context, client io.Writer, c *mas
 	return s.Service.UnRetweet(ctx, client, c, id)
 }
 
-func (s *loggingService) PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string) (err error) {
+func (s *loggingService) PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string) (id string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, content=%v, reply_to_id=%v, took=%v, err=%v\n",
 			"PostTweet", content, replyToID, time.Since(begin), err)
