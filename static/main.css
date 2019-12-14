@@ -129,3 +129,9 @@
 .retweet-info .icon.dripicons-retweet.retweeted {
 	vertical-align: sub;
 }
+
+.post-content {
+	padding: 4px;
+	font-size: 11pt;
+	font-family: initial;
+}
