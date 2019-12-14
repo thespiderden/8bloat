@@ -1,4 +1,4 @@
-<div class="status-container-container">
+<div id="status-{{.ID}}" class="status-container-container">
 	{{if .Reblog}}
 	<div class="retweet-info">
 		<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
@@ -41,7 +41,7 @@
 			{{end}}
 			</div>
 			<div class="status-action"> 
-				<a class="status-you" href="/thread/{{.ID}}?reply=true" title="reply"> 
+				<a class="status-you" href="/thread/{{.ID}}?reply=true#status-{{.ID}}" title="reply"> 
 					<span class="icon dripicons-reply"></span> 
 					<span> {{DisplayInteractionCount .RepliesCount}} </span>
 				</a>
