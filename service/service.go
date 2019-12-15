@@ -207,10 +207,9 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 	var nextLink, prevLink string
 
 	var pg = mastodon.Pagination{
-		MaxID:   maxID,
-		SinceID: sinceID,
-		MinID:   minID,
-		Limit:   20,
+		MaxID: maxID,
+		MinID: minID,
+		Limit: 20,
 	}
 
 	statuses, err := c.GetTimelineHome(ctx, &pg)
@@ -218,13 +217,30 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		return err
 	}
 
+	if len(maxID) > 0 && len(statuses) > 0 {
+		hasPrev = true
+		prevLink = fmt.Sprintf("/timeline?min_id=%s", statuses[0].ID)
+	}
+	if len(minID) > 0 && len(pg.MinID) > 0 {
+		newStatuses, err := c.GetTimelineHome(ctx, &mastodon.Pagination{MinID: pg.MinID, Limit: 20})
+		if err != nil {
+			return err
+		}
+		newStatusesLen := len(newStatuses)
+		if newStatusesLen == 20 {
+			hasPrev = true
+			prevLink = fmt.Sprintf("/timeline?min_id=%s", pg.MinID)
+		} else {
+			i := 20 - newStatusesLen - 1
+			if len(statuses) > i {
+				hasPrev = true
+				prevLink = fmt.Sprintf("/timeline?min_id=%s", statuses[i].ID)
+			}
+		}
+	}
 	if len(pg.MaxID) > 0 {
 		hasNext = true
 		nextLink = fmt.Sprintf("/timeline?max_id=%s", pg.MaxID)
-	}
-	if len(pg.SinceID) > 0 {
-		hasPrev = true
-		prevLink = fmt.Sprintf("/timeline?since_id=%s", pg.SinceID)
 	}
 
 	data := renderer.NewTimelinePageTemplateData(statuses, hasNext, nextLink, hasPrev, prevLink)

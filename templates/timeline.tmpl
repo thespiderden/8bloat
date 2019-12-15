@@ -16,10 +16,12 @@
 {{template "status.tmpl" .}}
 {{end}}
 
-{{if .HasNext}}
-	<a href="{{.NextLink}}"> next </a>
-{{end}}
-{{if .HasPrev}}
-	<a href="{{.PrevLink}}"> next </a>
-{{end}}
+<div class="pagination">
+	{{if .HasPrev}}
+		<a href="{{.PrevLink}}">prev</a>
+	{{end}}
+	{{if .HasNext}}
+		<a href="{{.NextLink}}">next</a>
+	{{end}}
+</div>
 {{template "footer.tmpl"}}

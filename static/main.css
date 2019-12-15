@@ -135,3 +135,11 @@
 	font-size: 11pt;
 	font-family: initial;
 }
+
+.pagination {
+	margin: 4px;
+}
+
+.pagination a {
+	margin: 0 8px;
+}
