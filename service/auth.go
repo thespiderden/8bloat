@@ -111,6 +111,14 @@ func (s *authService) ServeThreadPage(ctx context.Context, client io.Writer, c *
 	return s.Service.ServeThreadPage(ctx, client, c, id, reply)
 }
 
+func (s *authService) ServeNotificationPage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, minID string) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeNotificationPage(ctx, client, c, maxID, minID)
+}
+
 func (s *authService) Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {

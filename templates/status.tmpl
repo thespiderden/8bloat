@@ -11,13 +11,17 @@
 	{{block "status" .}}
 	<div class="status-container">
 		<div>
+			{{if ne .Account.ID ""}}
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+			{{end}}
 		</div>
 		<div class="status"> 
+			{{if ne .Account.ID ""}}
 			<div class="status-name">
 				<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span> 
 				<span class="status-uname"> {{.Account.Acct}} </span>
 			</div>
+			{{end}}
 			<div class="status-content"> {{WithEmojis .Content .Emojis}} </div>
 			<div class="status-media-container">
 			{{range .MediaAttachments}}

@@ -1,0 +1,59 @@
+{{template "header.tmpl"}}
+{{template "navigation.tmpl" .NavbarData}}
+<div class="page-title"> Notifications </div>
+
+{{range .Notifications}}
+<div class="notification-container {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
+	{{if eq .Type "follow"}}
+	<div class="notification-follow-container">
+		<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+		<div>
+			<div>
+				<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span>  
+				<span class="icon dripicons-user-group"></span> 
+				followed you
+			</div>
+			<div class="notification-follow-uname">
+				@{{.Account.Acct}}
+			</div>
+		</div>
+	</div>
+
+	{{else if eq .Type "mention"}}
+	{{template "status" .Status}}
+
+	{{else if eq .Type "reblog"}}
+	<div class="notification-retweet-container">
+		<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+		<div>
+			<div>
+				<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span>  
+				<span class="icon dripicons-retweet retweeted"></span> 
+				retweeted your post
+			</div>
+			{{template "status" .Status}}
+		</div>
+	</div>
+
+	{{else if eq .Type "favourite"}}
+	<div class="notification-like-container">
+		<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+		<div>
+			<div>
+				<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span>  
+				<span class="icon dripicons-star liked"></span> 
+				liked your post
+			</div>
+			{{template "status" .Status}}
+		</div>
+	</div>
+	{{end}}
+</div>
+{{end}}
+
+<div class="pagination">
+	{{if .HasNext}}
+		<a href="{{.NextLink}}">next</a>
+	{{end}}
+</div>
+{{template "footer.tmpl"}}

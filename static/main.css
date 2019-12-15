@@ -17,11 +17,10 @@
 .status-profile-img {
 	height: 48px;
 	width: 48px;
-	object-fit: contain;
+	margin-right: 8px;
 }
 
 .status {
-	margin: 0 8px;
 }
 
 .status a {
@@ -119,7 +118,6 @@
 	height: 24px;
 	width: 24px;
 	margin-bottom: -8px;
-	object-fit: contain;
 }
 
 .retweet-info .status-dname{
@@ -142,4 +140,24 @@
 
 .pagination a {
 	margin: 0 8px;
+}
+
+.notification-container {
+	margin: 4px 0;
+	padding: 4px 4px;
+	border-left: 4px solid transparent;
+}
+
+.notification-container.unread {
+	border-color: #777777;
+}
+
+.notification-follow-container,
+.notification-like-container,
+.notification-retweet-container {
+	display: flex;
+}
+
+.notification-follow-uname {
+	margin-top: 8px;
 }

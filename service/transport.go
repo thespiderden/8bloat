@@ -179,6 +179,19 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		w.WriteHeader(http.StatusSeeOther)
 	}).Methods(http.MethodPost)
 
+	r.HandleFunc("/notifications", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+
+		maxID := req.URL.Query().Get("max_id")
+		minID := req.URL.Query().Get("min_id")
+
+		err := s.ServeNotificationPage(ctx, w, nil, maxID, minID)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodGet)
+
 	r.HandleFunc("/signout", func(w http.ResponseWriter, req *http.Request) {
 		// TODO remove session from database
 		w.Header().Add("Set-Cookie", fmt.Sprintf("session_id=;max-age=0"))

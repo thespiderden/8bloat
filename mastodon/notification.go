@@ -4,16 +4,22 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 )
 
+type NotificationPleroma struct {
+	IsSeen bool `json:"is_seen"`
+}
+
 // Notification hold information for mastodon notification.
 type Notification struct {
-	ID        string    `json:"id"`
-	Type      string    `json:"type"`
-	CreatedAt time.Time `json:"created_at"`
-	Account   Account   `json:"account"`
-	Status    *Status   `json:"status"`
+	ID        string               `json:"id"`
+	Type      string               `json:"type"`
+	CreatedAt time.Time            `json:"created_at"`
+	Account   Account              `json:"account"`
+	Status    *Status              `json:"status"`
+	Pleroma   *NotificationPleroma `json:"pleroma"`
 }
 
 // GetNotifications return notifications.
@@ -39,4 +45,12 @@ func (c *Client) GetNotification(ctx context.Context, id string) (*Notification,
 // ClearNotifications clear notifications.
 func (c *Client) ClearNotifications(ctx context.Context) error {
 	return c.doAPI(ctx, http.MethodPost, "/api/v1/notifications/clear", nil, nil, nil)
+}
+
+// ReadNotifications marks notifications as read
+// Currenly only works for Pleroma
+func (c *Client) ReadNotifications(ctx context.Context, maxID string) error {
+	params := url.Values{}
+	params.Set("max_id", maxID)
+	return c.doAPI(ctx, http.MethodPost, "/api/v1/pleroma/notifications/read", params, nil, nil)
 }

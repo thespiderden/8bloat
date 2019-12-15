@@ -77,6 +77,14 @@ func (s *loggingService) ServeThreadPage(ctx context.Context, client io.Writer, 
 	return s.Service.ServeThreadPage(ctx, client, c, id, reply)
 }
 
+func (s *loggingService) ServeNotificationPage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, minID string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, max_id=%v, min_id=%v, took=%v, err=%v\n",
+			"ServeNotificationPage", maxID, minID, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeNotificationPage(ctx, client, c, maxID, minID)
+}
+
 func (s *loggingService) Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",

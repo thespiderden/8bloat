@@ -1,4 +1,5 @@
 <div class="navigation">
 	<a href="/timeline">home</a>
+	<a href="/notifications">notifications{{if gt .NotificationCount 0}} ({{.NotificationCount}}){{end}}</a>
 	<a href="/signout">sign out</a>
 </div>

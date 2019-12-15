@@ -1,6 +1,6 @@
 {{template "header.tmpl"}}
+{{template "navigation.tmpl" .NavbarData}}
 <div class="page-title"> Thread </div>
-{{template "navigation.tmpl"}}
 
 {{range .Context.Ancestors}}
 {{template "status.tmpl" .}}

@@ -17,6 +17,7 @@ type Renderer interface {
 	RenderSigninPage(ctx context.Context, writer io.Writer) (err error)
 	RenderTimelinePage(ctx context.Context, writer io.Writer, data *TimelinePageTemplateData) (err error)
 	RenderThreadPage(ctx context.Context, writer io.Writer, data *ThreadPageTemplateData) (err error)
+	RenderNotificationPage(ctx context.Context, writer io.Writer, data *NotificationPageTemplateData) (err error)
 }
 
 type renderer struct {
@@ -58,6 +59,10 @@ func (r *renderer) RenderTimelinePage(ctx context.Context, writer io.Writer, dat
 
 func (r *renderer) RenderThreadPage(ctx context.Context, writer io.Writer, data *ThreadPageTemplateData) (err error) {
 	return r.template.ExecuteTemplate(writer, "thread.tmpl", data)
+}
+
+func (r *renderer) RenderNotificationPage(ctx context.Context, writer io.Writer, data *NotificationPageTemplateData) (err error) {
+	return r.template.ExecuteTemplate(writer, "notification.tmpl", data)
 }
 
 func WithEmojis(content string, emojis []mastodon.Emoji) string {

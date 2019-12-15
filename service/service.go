@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -33,6 +32,7 @@ type Service interface {
 	ServeSigninPage(ctx context.Context, client io.Writer) (err error)
 	ServeTimelinePage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, sinceID string, minID string) (err error)
 	ServeThreadPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, reply bool) (err error)
+	ServeNotificationPage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, minID string) (err error)
 	Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	UnLike(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
@@ -219,7 +219,7 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 
 	if len(maxID) > 0 && len(statuses) > 0 {
 		hasPrev = true
-		prevLink = fmt.Sprintf("/timeline?min_id=%s", statuses[0].ID)
+		prevLink = "/timeline?min_id=" + statuses[0].ID
 	}
 	if len(minID) > 0 && len(pg.MinID) > 0 {
 		newStatuses, err := c.GetTimelineHome(ctx, &mastodon.Pagination{MinID: pg.MinID, Limit: 20})
@@ -229,21 +229,26 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		newStatusesLen := len(newStatuses)
 		if newStatusesLen == 20 {
 			hasPrev = true
-			prevLink = fmt.Sprintf("/timeline?min_id=%s", pg.MinID)
+			prevLink = "/timeline?min_id=" + pg.MinID
 		} else {
 			i := 20 - newStatusesLen - 1
 			if len(statuses) > i {
 				hasPrev = true
-				prevLink = fmt.Sprintf("/timeline?min_id=%s", statuses[i].ID)
+				prevLink = "/timeline?min_id=" + statuses[i].ID
 			}
 		}
 	}
 	if len(pg.MaxID) > 0 {
 		hasNext = true
-		nextLink = fmt.Sprintf("/timeline?max_id=%s", pg.MaxID)
+		nextLink = "/timeline?max_id=" + pg.MaxID
 	}
 
-	data := renderer.NewTimelinePageTemplateData(statuses, hasNext, nextLink, hasPrev, prevLink)
+	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	data := renderer.NewTimelinePageTemplateData(statuses, hasNext, nextLink, hasPrev, prevLink, navbarData)
 	err = svc.renderer.RenderTimelinePage(ctx, client, data)
 	if err != nil {
 		return
@@ -280,11 +285,88 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *ma
 		}
 	}
 
-	data := renderer.NewThreadPageTemplateData(status, context, reply, id, content)
+	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	data := renderer.NewThreadPageTemplateData(status, context, reply, id, content, navbarData)
 	err = svc.renderer.RenderThreadPage(ctx, client, data)
 	if err != nil {
 		return
 	}
+
+	return
+}
+
+func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, minID string) (err error) {
+	var hasNext bool
+	var nextLink string
+
+	var pg = mastodon.Pagination{
+		MaxID: maxID,
+		MinID: minID,
+		Limit: 20,
+	}
+
+	notifications, err := c.GetNotifications(ctx, &pg)
+	if err != nil {
+		return
+	}
+
+	var unreadCount int
+	for i := range notifications {
+		switch notifications[i].Type {
+		case "reblog", "favourite":
+			if notifications[i].Status != nil {
+				notifications[i].Status.Account.ID = ""
+			}
+		}
+		if notifications[i].Pleroma != nil && notifications[i].Pleroma.IsSeen {
+			unreadCount++
+		}
+	}
+
+	if unreadCount > 0 {
+		err := c.ReadNotifications(ctx, notifications[0].ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(pg.MaxID) > 0 {
+		hasNext = true
+		nextLink = "/notifications?max_id=" + pg.MaxID
+	}
+
+	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	data := renderer.NewNotificationPageTemplateData(notifications, hasNext, nextLink, navbarData)
+	err = svc.renderer.RenderNotificationPage(ctx, client, data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (svc *service) getNavbarTemplateData(ctx context.Context, client io.Writer, c *mastodon.Client) (data *renderer.NavbarTemplateData, err error) {
+	notifications, err := c.GetNotifications(ctx, nil)
+	if err != nil {
+		return
+	}
+
+	var notificationCount int
+	for i := range notifications {
+		if notifications[i].Pleroma != nil && !notifications[i].Pleroma.IsSeen {
+			notificationCount++
+		}
+	}
+
+	data = renderer.NewNavbarTemplateData(notificationCount)
 
 	return
 }
