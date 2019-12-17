@@ -8,19 +8,17 @@ Features:
 Requirements:
 
 - Go 1.11
-- SQLite3
 
 
 External dependencies:
 
 - Fork of go-masodon (https://github.com/mattn/go-mastodon)
-- go-sqlite3 (https://github.com/mattn/go-sqlite3)
 - gorilla/mux (https://github.com/gorilla/mux)
 
 
 Building and Installation:
 
-Make sure you have GO and SQLite3 installed. Other dependencies will be 
+Make sure you have GO installed. Other dependencies will be 
 downloaded automatically.
 
 Typing make will build the binary 
