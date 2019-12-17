@@ -107,7 +107,7 @@ func (svc *service) GetAuthUrl(ctx context.Context, instance string) (
 		}
 	}
 
-	u, err := url.Parse(path.Join(instance, "/oauth/authorize"))
+	u, err := url.Parse("/oauth/authorize")
 	if err != nil {
 		return
 	}
@@ -119,7 +119,7 @@ func (svc *service) GetAuthUrl(ctx context.Context, instance string) (
 	q.Set("redirect_uri", svc.clientWebsite+"/oauth_callback")
 	u.RawQuery = q.Encode()
 
-	redirectUrl = u.String()
+	redirectUrl = instanceURL + u.String()
 
 	return
 }
