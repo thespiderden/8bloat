@@ -9,7 +9,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	"path"
 	"strings"
 
 	"mastodon"
@@ -64,14 +63,18 @@ func NewService(clientName string, clientScope string, clientWebsite string,
 
 func (svc *service) GetAuthUrl(ctx context.Context, instance string) (
 	redirectUrl string, sessionID string, err error) {
-	if !strings.HasPrefix(instance, "https://") {
-		instance = "https://" + instance
+	var instanceURL string
+	if strings.HasPrefix(instance, "https://") {
+		instanceURL = instance
+		instance = strings.TrimPrefix(instance, "https://")
+	} else {
+		instanceURL = "https://" + instance
 	}
 
 	sessionID = util.NewSessionId()
 	err = svc.sessionRepo.Add(model.Session{
-		ID:          sessionID,
-		InstanceURL: instance,
+		ID:             sessionID,
+		InstanceDomain: instance,
 	})
 	if err != nil {
 		return
@@ -85,7 +88,7 @@ func (svc *service) GetAuthUrl(ctx context.Context, instance string) (
 
 		var mastoApp *mastodon.Application
 		mastoApp, err = mastodon.RegisterApp(ctx, &mastodon.AppConfig{
-			Server:       instance,
+			Server:       instanceURL,
 			ClientName:   svc.clientName,
 			Scopes:       svc.clientScope,
 			Website:      svc.clientWebsite,
@@ -96,9 +99,10 @@ func (svc *service) GetAuthUrl(ctx context.Context, instance string) (
 		}
 
 		app = model.App{
-			InstanceURL:  instance,
-			ClientID:     mastoApp.ClientID,
-			ClientSecret: mastoApp.ClientSecret,
+			InstanceDomain: instance,
+			InstanceURL:    instanceURL,
+			ClientID:       mastoApp.ClientID,
+			ClientSecret:   mastoApp.ClientSecret,
 		}
 
 		err = svc.appRepo.Add(app)
@@ -136,7 +140,7 @@ func (svc *service) GetUserToken(ctx context.Context, sessionID string, c *masto
 		return
 	}
 
-	app, err := svc.appRepo.Get(session.InstanceURL)
+	app, err := svc.appRepo.Get(session.InstanceDomain)
 	if err != nil {
 		return
 	}

@@ -1,54 +1,33 @@
 package repository
 
 import (
-	"database/sql"
-
+	"web/kv"
 	"web/model"
 )
 
 type appRepository struct {
-	db *sql.DB
+	db *kv.Database
 }
 
-func NewAppRepository(db *sql.DB) (*appRepository, error) {
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS app 
-		(instance_url varchar, client_id varchar, client_secret varchar)`,
-	)
-	if err != nil {
-		return nil, err
-	}
-
+func NewAppRepository(db *kv.Database) *appRepository {
 	return &appRepository{
 		db: db,
-	}, nil
+	}
 }
 
 func (repo *appRepository) Add(a model.App) (err error) {
-	_, err = repo.db.Exec("INSERT INTO app VALUES (?, ?, ?)", a.InstanceURL, a.ClientID, a.ClientSecret)
+	err = repo.db.Set(a.InstanceDomain, a.Marshal())
 	return
 }
 
-func (repo *appRepository) Update(instanceURL string, clientID string, clientSecret string) (err error) {
-	_, err = repo.db.Exec("UPDATE app SET client_id = ?, client_secret = ? where instance_url = ?", clientID, clientSecret, instanceURL)
-	return
-}
-
-func (repo *appRepository) Get(instanceURL string) (a model.App, err error) {
-	rows, err := repo.db.Query("SELECT * FROM app WHERE instance_url = ?", instanceURL)
+func (repo *appRepository) Get(instanceDomain string) (a model.App, err error) {
+	data, err := repo.db.Get(instanceDomain)
 	if err != nil {
-		return
-	}
-	defer rows.Close()
-
-	if !rows.Next() {
 		err = model.ErrAppNotFound
 		return
 	}
 
-	err = rows.Scan(&a.InstanceURL, &a.ClientID, &a.ClientSecret)
-	if err != nil {
-		return
-	}
+	err = a.Unmarshal(instanceDomain, data)
 
 	return
 }

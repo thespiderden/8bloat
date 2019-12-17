@@ -1,19 +1,18 @@
 package main
 
 import (
-	"database/sql"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"web/config"
+	"web/kv"
 	"web/renderer"
 	"web/repository"
 	"web/service"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func init() {
@@ -35,21 +34,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db, err := sql.Open("sqlite3", config.DatabasePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-	sessionRepo, err := repository.NewSessionRepository(db)
-	if err != nil {
+	err = os.Mkdir(config.DatabasePath, 0755)
+	if err != nil && !os.IsExist(err) {
 		log.Fatal(err)
 	}
 
-	appRepo, err := repository.NewAppRepository(db)
+	sessionDB, err := kv.NewDatabse(filepath.Join(config.DatabasePath, "session"))
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	appDB, err := kv.NewDatabse(filepath.Join(config.DatabasePath, "app"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	sessionRepo := repository.NewSessionRepository(sessionDB)
+	appRepo := repository.NewAppRepository(appDB)
 
 	var logger *log.Logger
 	if len(config.Logfile) < 1 {

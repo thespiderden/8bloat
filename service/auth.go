@@ -40,12 +40,12 @@ func (s *authService) getClient(ctx context.Context) (c *mastodon.Client, err er
 	if err != nil {
 		return nil, ErrInvalidSession
 	}
-	client, err := s.appRepo.Get(session.InstanceURL)
+	client, err := s.appRepo.Get(session.InstanceDomain)
 	if err != nil {
 		return
 	}
 	c = mastodon.NewClient(&mastodon.Config{
-		Server:       session.InstanceURL,
+		Server:       client.InstanceURL,
 		ClientID:     client.ClientID,
 		ClientSecret: client.ClientSecret,
 		AccessToken:  session.AccessToken,
