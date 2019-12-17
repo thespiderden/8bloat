@@ -38,7 +38,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 
 		w.Header().Add("Location", location)
-		w.WriteHeader(http.StatusSeeOther)
+		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodGet)
 
 	r.HandleFunc("/signin", func(w http.ResponseWriter, req *http.Request) {
@@ -59,7 +59,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		w.Header().Add("Set-Cookie", fmt.Sprintf("session_id=%s;max-age=%s", sessionId, cookieAge))
 		w.Header().Add("Location", url)
-		w.WriteHeader(http.StatusSeeOther)
+		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/oauth_callback", func(w http.ResponseWriter, req *http.Request) {
@@ -72,7 +72,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 
 		w.Header().Add("Location", "/timeline")
-		w.WriteHeader(http.StatusSeeOther)
+		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodGet)
 
 	r.HandleFunc("/timeline", func(w http.ResponseWriter, req *http.Request) {
@@ -110,7 +110,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 
 		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
-		w.WriteHeader(http.StatusSeeOther)
+		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodGet)
 
 	r.HandleFunc("/unlike/{id}", func(w http.ResponseWriter, req *http.Request) {
@@ -123,7 +123,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 
 		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
-		w.WriteHeader(http.StatusSeeOther)
+		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodGet)
 
 	r.HandleFunc("/retweet/{id}", func(w http.ResponseWriter, req *http.Request) {
@@ -136,7 +136,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 
 		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
-		w.WriteHeader(http.StatusSeeOther)
+		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodGet)
 
 	r.HandleFunc("/unretweet/{id}", func(w http.ResponseWriter, req *http.Request) {
@@ -149,7 +149,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 
 		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
-		w.WriteHeader(http.StatusSeeOther)
+		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodGet)
 
 	r.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
@@ -176,7 +176,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			location = "/thread/" + replyToID + "#status-" + id
 		}
 		w.Header().Add("Location", location)
-		w.WriteHeader(http.StatusSeeOther)
+		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/notifications", func(w http.ResponseWriter, req *http.Request) {
@@ -196,7 +196,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		// TODO remove session from database
 		w.Header().Add("Set-Cookie", fmt.Sprintf("session_id=;max-age=0"))
 		w.Header().Add("Location", "/")
-		w.WriteHeader(http.StatusSeeOther)
+		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodGet)
 
 	return r
