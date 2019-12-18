@@ -10,6 +10,15 @@ import (
 	"time"
 )
 
+type StatusPleroma struct {
+	InReplyToAccountAcct string `json:"in_reply_to_account_acct"`
+}
+
+type ReplyInfo struct {
+	ID     string `json:"id"`
+	Number int    `json:"number"`
+}
+
 // Status is struct to hold status.
 type Status struct {
 	ID                 string       `json:"id"`
@@ -38,6 +47,13 @@ type Status struct {
 	Application        Application  `json:"application"`
 	Language           string       `json:"language"`
 	Pinned             interface{}  `json:"pinned"`
+
+	// Custom fields
+	Pleroma         StatusPleroma          `json:"pleroma"`
+	HideAccountInfo bool                   `json:"hide_account_info"`
+	ShowReplies     bool                   `json:"show_replies"`
+	ReplyMap        map[string][]ReplyInfo `json:"reply_map"`
+	ReplyNumber     int                    `json:"reply_number"`
 }
 
 // Context hold information for mastodon context.

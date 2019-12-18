@@ -267,26 +267,38 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *ma
 		return
 	}
 
-	context, err := c.GetStatusContext(ctx, id)
-	if err != nil {
-		return
-	}
-
 	u, err := c.GetAccountCurrentUser(ctx)
 	if err != nil {
 		return
 	}
 
 	var content string
+	var replyToID string
 	if reply {
+		replyToID = id
 		if u.ID != status.Account.ID {
 			content += "@" + status.Account.Acct + " "
 		}
-		for _, m := range status.Mentions {
-			if u.ID != m.ID {
-				content += "@" + m.Acct + " "
+		for i := range status.Mentions {
+			if status.Mentions[i].ID != u.ID && status.Mentions[i].ID != status.Account.ID {
+				content += "@" + status.Mentions[i].Acct + " "
 			}
 		}
+	}
+
+	context, err := c.GetStatusContext(ctx, id)
+	if err != nil {
+		return
+	}
+
+	statuses := append(append(context.Ancestors, status), context.Descendants...)
+
+	replyMap := make(map[string][]mastodon.ReplyInfo)
+
+	for i := range statuses {
+		statuses[i].ShowReplies = true
+		statuses[i].ReplyMap = replyMap
+		addToReplyMap(replyMap, statuses[i].InReplyToID, statuses[i].ID, i+1)
 	}
 
 	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
@@ -294,7 +306,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *ma
 		return
 	}
 
-	data := renderer.NewThreadPageTemplateData(status, context, reply, id, content, navbarData)
+	data := renderer.NewThreadPageTemplateData(statuses, reply, replyToID, content, replyMap, navbarData)
 	err = svc.renderer.RenderThreadPage(ctx, client, data)
 	if err != nil {
 		return
@@ -323,7 +335,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 		switch notifications[i].Type {
 		case "reblog", "favourite":
 			if notifications[i].Status != nil {
-				notifications[i].Status.Account.ID = ""
+				notifications[i].Status.HideAccountInfo = true
 			}
 		}
 		if notifications[i].Pleroma != nil && notifications[i].Pleroma.IsSeen {
@@ -417,4 +429,20 @@ func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *mastodon
 	}
 
 	return s.ID, nil
+}
+
+func addToReplyMap(m map[string][]mastodon.ReplyInfo, key interface{}, val string, number int) {
+	if key == nil {
+		return
+	}
+	keyStr, ok := key.(string)
+	if !ok {
+		return
+	}
+	_, ok = m[keyStr]
+	if !ok {
+		m[keyStr] = []mastodon.ReplyInfo{}
+	}
+
+	m[keyStr] = append(m[keyStr], mastodon.ReplyInfo{val, number})
 }

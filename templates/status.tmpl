@@ -11,17 +11,30 @@
 	{{block "status" .}}
 	<div class="status-container">
 		<div>
-			{{if ne .Account.ID ""}}
+			{{if not .HideAccountInfo}}
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
 			{{end}}
 		</div>
 		<div class="status"> 
-			{{if ne .Account.ID ""}}
+			{{if not .HideAccountInfo}}
 			<div class="status-name">
 				<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span> 
 				<span class="status-uname"> {{.Account.Acct}} </span>
 			</div>
 			{{end}}
+			<div class="status-reply-container">
+				{{if .InReplyToID}}
+				<span class="icon dripicons-forward"></span> 
+				<a class="status-reply-to" href="{{if not .ShowReplies}}/thread/{{.InReplyToID}}{{end}}#status-{{.InReplyToID}}"> reply to {{.Pleroma.InReplyToAccountAcct}} </a>
+				{{if index .ReplyMap .ID}} <span class="status-reply-info-divider"> - </span> {{end}}
+				{{end}}
+				{{if .ShowReplies}}
+				{{if index .ReplyMap .ID}} <span class="status-reply-text"> replies: </span> {{end}}
+				{{range index .ReplyMap .ID}}
+				<a class="status-reply" href="#status-{{.ID}}">#{{.Number}}</a>
+				{{end}}
+				{{end}}
+			</div>
 			<div class="status-content"> {{WithEmojis .Content .Emojis}} </div>
 			<div class="status-media-container">
 			{{range .MediaAttachments}}
