@@ -1,5 +1,11 @@
 .status-container-container {
 	margin: 16px 0;
+	padding: 0 4px;
+	border-left: 4px solid transparent;
+}
+
+.status-container-container:target {
+	border-color: #777777;
 }
 
 .status-container {
@@ -145,8 +151,8 @@
 }
 
 .notification-container {
-	margin: 4px 0;
-	padding: 4px 4px;
+	margin: 16px 0;
+	padding: 0 4px;
 	border-left: 4px solid transparent;
 }
 
