@@ -37,17 +37,15 @@ func NewTimelinePageTemplateData(statuses []*mastodon.Status, hasNext bool, next
 
 type ThreadPageTemplateData struct {
 	Statuses     []*mastodon.Status
-	PostReply    bool
 	ReplyToID    string
 	ReplyContent string
 	ReplyMap     map[string][]mastodon.ReplyInfo
 	NavbarData   *NavbarTemplateData
 }
 
-func NewThreadPageTemplateData(statuses []*mastodon.Status, postReply bool, replyToID string, replyContent string, replyMap map[string][]mastodon.ReplyInfo, navbarData *NavbarTemplateData) *ThreadPageTemplateData {
+func NewThreadPageTemplateData(statuses []*mastodon.Status, replyToID string, replyContent string, replyMap map[string][]mastodon.ReplyInfo, navbarData *NavbarTemplateData) *ThreadPageTemplateData {
 	return &ThreadPageTemplateData{
 		Statuses:     statuses,
-		PostReply:    postReply,
 		ReplyToID:    replyToID,
 		ReplyContent: replyContent,
 		ReplyMap:     replyMap,

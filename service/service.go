@@ -306,7 +306,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *ma
 		return
 	}
 
-	data := renderer.NewThreadPageTemplateData(statuses, reply, replyToID, content, replyMap, navbarData)
+	data := renderer.NewThreadPageTemplateData(statuses, replyToID, content, replyMap, navbarData)
 	err = svc.renderer.RenderThreadPage(ctx, client, data)
 	if err != nil {
 		return
