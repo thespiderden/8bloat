@@ -1,5 +1,5 @@
 .status-container-container {
-	margin: 16px 0;
+	margin: 16px 0 16px -4px;
 	padding: 0 4px;
 	border-left: 4px solid transparent;
 }
@@ -14,6 +14,7 @@
 
 .status-content {
 	margin: 4px 0 8px 0;
+	word-wrap: anywhere;
 }
 
 .status-content p {
@@ -90,6 +91,7 @@
 .status-image,
 .status-video {
 	max-height: 180px;
+	max-width: 220px;
 	width: auto;
 }
 
@@ -140,6 +142,7 @@
 	padding: 4px;
 	font-size: 11pt;
 	font-family: initial;
+	max-width: 100%;
 }
 
 .pagination {
@@ -151,7 +154,7 @@
 }
 
 .notification-container {
-	margin: 16px 0;
+	margin: 16px 0 16px -4px;
 	padding: 0 4px;
 	border-left: 4px solid transparent;
 }
@@ -191,4 +194,16 @@
 
 .status-reply-info-divider {
 	margin: 0 4px;
+}
+
+.post-content-container {
+	padding-right: 8px;
+}
+
+.error-text {
+	margin: 8px 0;
+}
+
+.post-attachment-div {
+	margin: 2px 0;
 }

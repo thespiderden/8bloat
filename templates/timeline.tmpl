@@ -4,11 +4,12 @@
 
 <form class="timeline-post-form" action="/post" method="POST" enctype="multipart/form-data">
 	<label for="post-content"> New Post </label>
-	<br/>
-	<textarea id="post-content" name="content" class="post-content" cols="50" rows="5"></textarea>
-	<br/>
-	Attachments <input id="post-file-picker" type="file" name="attachments" multiple>
-	<br/>
+	<div class="post-content-container">
+		<textarea id="post-content" name="content" class="post-content" cols="50" rows="5"></textarea>
+	</div>
+	<div class="post-attachment-div">
+		Attachments <input id="post-file-picker" type="file" name="attachments" multiple>
+	</div>
 	<button type="submit"> Post </button>
 </form>
 
