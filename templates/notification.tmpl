@@ -6,7 +6,9 @@
 <div class="notification-container {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
 	{{if eq .Type "follow"}}
 	<div class="notification-follow-container">
-		<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+		<a href="/user/{{.Account.ID}}" >
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+		</a>
 		<div>
 			<div>
 				<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span>  
@@ -24,7 +26,9 @@
 
 	{{else if eq .Type "reblog"}}
 	<div class="notification-retweet-container">
-		<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+		<a href="/user/{{.Account.ID}}" >
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+		</a>
 		<div>
 			<div>
 				<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span>  
@@ -37,7 +41,9 @@
 
 	{{else if eq .Type "favourite"}}
 	<div class="notification-like-container">
-		<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+		<a href="/user/{{.Account.ID}}" >
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+		</a>
 		<div>
 			<div>
 				<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span>  

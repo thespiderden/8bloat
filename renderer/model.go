@@ -68,3 +68,21 @@ func NewNotificationPageTemplateData(notifications []*mastodon.Notification, has
 		NavbarData:    navbarData,
 	}
 }
+
+type UserPageTemplateData struct {
+	User       *mastodon.Account
+	Statuses   []*mastodon.Status
+	HasNext    bool
+	NextLink   string
+	NavbarData *NavbarTemplateData
+}
+
+func NewUserPageTemplateData(user *mastodon.Account, statuses []*mastodon.Status, hasNext bool, nextLink string, navbarData *NavbarTemplateData) *UserPageTemplateData {
+	return &UserPageTemplateData{
+		User:       user,
+		Statuses:   statuses,
+		HasNext:    hasNext,
+		NextLink:   nextLink,
+		NavbarData: navbarData,
+	}
+}

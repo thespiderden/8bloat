@@ -32,11 +32,14 @@ type Service interface {
 	ServeTimelinePage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, sinceID string, minID string) (err error)
 	ServeThreadPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, reply bool) (err error)
 	ServeNotificationPage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, minID string) (err error)
+	ServeUserPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, maxID string, minID string) (err error)
 	Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	UnLike(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	UnRetweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error)
+	Follow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
+	UnFollow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 }
 
 type service struct {
@@ -369,6 +372,45 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 	return
 }
 
+func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, maxID string, minID string) (err error) {
+	user, err := c.GetAccount(ctx, id)
+	if err != nil {
+		return
+	}
+
+	var hasNext bool
+	var nextLink string
+
+	var pg = mastodon.Pagination{
+		MaxID: maxID,
+		MinID: minID,
+		Limit: 20,
+	}
+
+	statuses, err := c.GetAccountStatuses(ctx, id, &pg)
+	if err != nil {
+		return
+	}
+
+	if len(pg.MaxID) > 0 {
+		hasNext = true
+		nextLink = "/user/" + id + "?max_id=" + pg.MaxID
+	}
+
+	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	data := renderer.NewUserPageTemplateData(user, statuses, hasNext, nextLink, navbarData)
+	err = svc.renderer.RenderUserPage(ctx, client, data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (svc *service) getNavbarTemplateData(ctx context.Context, client io.Writer, c *mastodon.Client) (data *renderer.NavbarTemplateData, err error) {
 	notifications, err := c.GetNotifications(ctx, nil)
 	if err != nil {
@@ -429,6 +471,16 @@ func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *mastodon
 	}
 
 	return s.ID, nil
+}
+
+func (svc *service) Follow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+	_, err = c.AccountFollow(ctx, id)
+	return
+}
+
+func (svc *service) UnFollow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+	_, err = c.AccountUnfollow(ctx, id)
+	return
 }
 
 func addToReplyMap(m map[string][]mastodon.ReplyInfo, key interface{}, val string, number int) {

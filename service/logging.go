@@ -85,6 +85,14 @@ func (s *loggingService) ServeNotificationPage(ctx context.Context, client io.Wr
 	return s.Service.ServeNotificationPage(ctx, client, c, maxID, minID)
 }
 
+func (s *loggingService) ServeUserPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, maxID string, minID string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, max_id=%v, min_id=%v, took=%v, err=%v\n",
+			"ServeUserPage", id, maxID, minID, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeUserPage(ctx, client, c, id, maxID, minID)
+}
+
 func (s *loggingService) Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
@@ -123,4 +131,20 @@ func (s *loggingService) PostTweet(ctx context.Context, client io.Writer, c *mas
 			"PostTweet", content, replyToID, time.Since(begin), err)
 	}(time.Now())
 	return s.Service.PostTweet(ctx, client, c, content, replyToID, files)
+}
+
+func (s *loggingService) Follow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"Follow", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.Follow(ctx, client, c, id)
+}
+
+func (s *loggingService) UnFollow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"UnFollow", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.UnFollow(ctx, client, c, id)
 }

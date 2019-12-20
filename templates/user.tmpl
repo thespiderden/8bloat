@@ -1,0 +1,54 @@
+{{template "header.tmpl"}}
+{{template "navigation.tmpl" .NavbarData}}
+<div class="page-title"> User </div>
+
+<div class="user-info-container">
+<div>
+	<div class="user-profile-img-container">
+		<img class="user-profile-img" src="{{.User.AvatarStatic}}" alt="profile-avatar" />
+	</div>
+	<div class="user-profile-details-container">
+		<div>
+			<span class="status-dname"> {{WithEmojis .User.DisplayName .User.Emojis}} </span>  
+			<span class="status-uname"> {{.User.Acct}} </span>
+		</div>
+		<div>
+			<span> {{if .User.Pleroma.Relationship.FollowedBy}} follows you - {{end}} </span>  
+			{{if .User.Pleroma.Relationship.Following}} 
+			<form class="d-inline" action="/unfollow/{{.User.ID}}" method="post">
+			    <input type="submit" value="unfollow" class="btn-link">
+			</form>
+			{{end}} 
+			{{if .User.Pleroma.Relationship.Requested}} 
+			<form class="d-inline" action="/unfollow/{{.User.ID}}" method="post">
+			    <input type="submit" value="cancel request" class="btn-link">
+			</form>
+			{{end}} 
+			{{if not .User.Pleroma.Relationship.Following}} 
+			<form class="d-inline" action="/follow/{{.User.ID}}" method="post">
+			    <input type="submit" value="{{if .User.Pleroma.Relationship.Requested}}resend request{{else}}follow{{end}}" class="btn-link">
+			</form>
+			{{end}} 
+		</div>
+		<div>
+			{{.User.StatusesCount}} statuses - {{.User.FollowingCount}} following - {{.User.FollowersCount}} followers
+		</div>
+	</div>
+	<div class="user-profile-decription">
+	{{.User.Note}}
+	</div>
+</div>
+</div>
+
+{{range .Statuses}}
+{{template "status.tmpl" .}}
+{{end}}
+
+<div class="pagination">
+	{{if .HasNext}}
+		<a href="{{.NextLink}}">next</a>
+	{{end}}
+</div>
+
+{{template "footer.tmpl"}}
+

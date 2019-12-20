@@ -9,27 +9,32 @@ import (
 	"time"
 )
 
+type AccountPleroma struct {
+	Relationship Relationship `json:"relationship"`
+}
+
 // Account hold information for mastodon account.
 type Account struct {
-	ID             string    `json:"id"`
-	Username       string    `json:"username"`
-	Acct           string    `json:"acct"`
-	DisplayName    string    `json:"display_name"`
-	Locked         bool      `json:"locked"`
-	CreatedAt      time.Time `json:"created_at"`
-	FollowersCount int64     `json:"followers_count"`
-	FollowingCount int64     `json:"following_count"`
-	StatusesCount  int64     `json:"statuses_count"`
-	Note           string    `json:"note"`
-	URL            string    `json:"url"`
-	Avatar         string    `json:"avatar"`
-	AvatarStatic   string    `json:"avatar_static"`
-	Header         string    `json:"header"`
-	HeaderStatic   string    `json:"header_static"`
-	Emojis         []Emoji   `json:"emojis"`
-	Moved          *Account  `json:"moved"`
-	Fields         []Field   `json:"fields"`
-	Bot            bool      `json:"bot"`
+	ID             string         `json:"id"`
+	Username       string         `json:"username"`
+	Acct           string         `json:"acct"`
+	DisplayName    string         `json:"display_name"`
+	Locked         bool           `json:"locked"`
+	CreatedAt      time.Time      `json:"created_at"`
+	FollowersCount int64          `json:"followers_count"`
+	FollowingCount int64          `json:"following_count"`
+	StatusesCount  int64          `json:"statuses_count"`
+	Note           string         `json:"note"`
+	URL            string         `json:"url"`
+	Avatar         string         `json:"avatar"`
+	AvatarStatic   string         `json:"avatar_static"`
+	Header         string         `json:"header"`
+	HeaderStatic   string         `json:"header_static"`
+	Emojis         []Emoji        `json:"emojis"`
+	Moved          *Account       `json:"moved"`
+	Fields         []Field        `json:"fields"`
+	Bot            bool           `json:"bot"`
+	Pleroma        AccountPleroma `json:"pleroma"`
 }
 
 // Field is a Mastodon account profile field.

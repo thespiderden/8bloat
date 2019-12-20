@@ -15,14 +15,6 @@ var (
 	cookieAge = "31536000"
 )
 
-func getContextWithSession(ctx context.Context, req *http.Request) context.Context {
-	sessionID, err := req.Cookie("session_id")
-	if err != nil {
-		return ctx
-	}
-	return context.WithValue(ctx, "session_id", sessionID.Value)
-}
-
 func NewHandler(s Service, staticDir string) http.Handler {
 	r := mux.NewRouter()
 
@@ -192,6 +184,50 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 	}).Methods(http.MethodGet)
 
+	r.HandleFunc("/user/{id}", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+
+		id, _ := mux.Vars(req)["id"]
+		maxID := req.URL.Query().Get("max_id")
+		minID := req.URL.Query().Get("min_id")
+
+		err := s.ServeUserPage(ctx, w, nil, id, maxID, minID)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodGet)
+
+	r.HandleFunc("/follow/{id}", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.Follow(ctx, w, nil, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}).Methods(http.MethodPost)
+
+	r.HandleFunc("/unfollow/{id}", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.UnFollow(ctx, w, nil, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}).Methods(http.MethodPost)
+
 	r.HandleFunc("/signout", func(w http.ResponseWriter, req *http.Request) {
 		// TODO remove session from database
 		w.Header().Add("Set-Cookie", fmt.Sprintf("session_id=;max-age=0"))
@@ -200,6 +236,14 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}).Methods(http.MethodGet)
 
 	return r
+}
+
+func getContextWithSession(ctx context.Context, req *http.Request) context.Context {
+	sessionID, err := req.Cookie("session_id")
+	if err != nil {
+		return ctx
+	}
+	return context.WithValue(ctx, "session_id", sessionID.Value)
 }
 
 func getMultipartFormValue(mf *multipart.Form, key string) (val string) {

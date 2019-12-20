@@ -119,6 +119,14 @@ func (s *authService) ServeNotificationPage(ctx context.Context, client io.Write
 	return s.Service.ServeNotificationPage(ctx, client, c, maxID, minID)
 }
 
+func (s *authService) ServeUserPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, maxID string, minID string) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeUserPage(ctx, client, c, id, maxID, minID)
+}
+
 func (s *authService) Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
@@ -157,4 +165,20 @@ func (s *authService) PostTweet(ctx context.Context, client io.Writer, c *mastod
 		return
 	}
 	return s.Service.PostTweet(ctx, client, c, content, replyToID, files)
+}
+
+func (s *authService) Follow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.Follow(ctx, client, c, id)
+}
+
+func (s *authService) UnFollow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.UnFollow(ctx, client, c, id)
 }
