@@ -113,7 +113,7 @@ func TimeSince(t time.Time) string {
 		return strconv.Itoa(int(mo)) + "mo"
 	}
 
-	y := m / 12
+	y := mo / 12
 	return strconv.Itoa(int(y)) + "y"
 }
 
