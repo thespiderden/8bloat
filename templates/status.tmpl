@@ -4,7 +4,7 @@
 		<a href="/user/{{.Account.ID}}" >
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
 		</a>
-		<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span>  
+		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
 		<span class="icon dripicons-retweet retweeted"></span> 
 		retweeted
 	</div>
@@ -22,7 +22,7 @@
 		<div class="status"> 
 			{{if not .HideAccountInfo}}
 			<div class="status-name">
-				<span class="status-dname"> {{WithEmojis .Account.DisplayName .Account.Emojis}} </span> 
+				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span> 
 				<a href="/user/{{.Account.ID}}" >
 					<span class="status-uname"> {{.Account.Acct}} </span>
 				</a>
@@ -41,7 +41,7 @@
 				{{end}}
 				{{end}}
 			</div>
-			<div class="status-content"> {{WithEmojis .Content .Emojis}} </div>
+			<div class="status-content"> {{StatusContentFilter .Content .Emojis .Mentions}} </div>
 			<div class="status-media-container">
 			{{range .MediaAttachments}}
 			{{if eq .Type "image"}}

@@ -9,7 +9,7 @@
 	</div>
 	<div class="user-profile-details-container">
 		<div>
-			<span class="status-dname"> {{WithEmojis .User.DisplayName .User.Emojis}} </span>  
+			<span class="status-dname"> {{EmojiFilter .User.DisplayName .User.Emojis}} </span>  
 			<span class="status-uname"> {{.User.Acct}} </span>
 		</div>
 		<div>

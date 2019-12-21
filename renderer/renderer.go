@@ -28,7 +28,8 @@ type renderer struct {
 func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 	t := template.New("default")
 	t, err = t.Funcs(template.FuncMap{
-		"WithEmojis":              WithEmojis,
+		"EmojiFilter":             EmojiFilter,
+		"StatusContentFilter":     StatusContentFilter,
 		"DisplayInteractionCount": DisplayInteractionCount,
 		"TimeSince":               TimeSince,
 		"FormatTimeRFC3339":       FormatTimeRFC3339,
@@ -70,12 +71,24 @@ func (r *renderer) RenderUserPage(ctx context.Context, writer io.Writer, data *U
 	return r.template.ExecuteTemplate(writer, "user.tmpl", data)
 }
 
-func WithEmojis(content string, emojis []mastodon.Emoji) string {
-	var emojiNameContentPair []string
+
+func EmojiFilter(content string, emojis []mastodon.Emoji) string {
+	var replacements []string
 	for _, e := range emojis {
-		emojiNameContentPair = append(emojiNameContentPair, ":"+e.ShortCode+":", "<img class=\"status-emoji\" src=\""+e.URL+"\" alt=\""+e.ShortCode+"\" />")
+		replacements = append(replacements, ":"+e.ShortCode+":", "<img class=\"status-emoji\" src=\""+e.URL+"\" alt=\""+e.ShortCode+"\" />")
 	}
-	return strings.NewReplacer(emojiNameContentPair...).Replace(content)
+	return strings.NewReplacer(replacements...).Replace(content)
+}
+
+func StatusContentFilter(content string, emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
+	var replacements []string
+	for _, e := range emojis {
+		replacements = append(replacements, ":"+e.ShortCode+":", "<img class=\"status-emoji\" src=\""+e.URL+"\" alt=\""+e.ShortCode+"\" />")
+	}
+	for _, m := range mentions {
+		replacements = append(replacements, "\""+m.URL+"\"", "\"/user/"+m.ID+"\"")
+	}
+	return strings.NewReplacer(replacements...).Replace(content)
 }
 
 func DisplayInteractionCount(c int64) string {
