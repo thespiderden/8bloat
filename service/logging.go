@@ -4,9 +4,9 @@ import (
 	"context"
 	"io"
 	"log"
-	"mastodon"
 	"mime/multipart"
 	"time"
+	"web/model"
 )
 
 type loggingService struct {
@@ -27,7 +27,7 @@ func (s *loggingService) GetAuthUrl(ctx context.Context, instance string) (
 	return s.Service.GetAuthUrl(ctx, instance)
 }
 
-func (s *loggingService) GetUserToken(ctx context.Context, sessionID string, c *mastodon.Client,
+func (s *loggingService) GetUserToken(ctx context.Context, sessionID string, c *model.Client,
 	code string) (token string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, session_id=%v, code=%v, took=%v, err=%v\n",
@@ -61,7 +61,7 @@ func (s *loggingService) ServeSigninPage(ctx context.Context, client io.Writer) 
 }
 
 func (s *loggingService) ServeTimelinePage(ctx context.Context, client io.Writer,
-	c *mastodon.Client, maxID string, sinceID string, minID string) (err error) {
+	c *model.Client, maxID string, sinceID string, minID string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, max_id=%v, since_id=%v, min_id=%v, took=%v, err=%v\n",
 			"ServeTimelinePage", maxID, sinceID, minID, time.Since(begin), err)
@@ -69,7 +69,7 @@ func (s *loggingService) ServeTimelinePage(ctx context.Context, client io.Writer
 	return s.Service.ServeTimelinePage(ctx, client, c, maxID, sinceID, minID)
 }
 
-func (s *loggingService) ServeThreadPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, reply bool) (err error) {
+func (s *loggingService) ServeThreadPage(ctx context.Context, client io.Writer, c *model.Client, id string, reply bool) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, reply=%v, took=%v, err=%v\n",
 			"ServeThreadPage", id, reply, time.Since(begin), err)
@@ -77,7 +77,7 @@ func (s *loggingService) ServeThreadPage(ctx context.Context, client io.Writer, 
 	return s.Service.ServeThreadPage(ctx, client, c, id, reply)
 }
 
-func (s *loggingService) ServeNotificationPage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, minID string) (err error) {
+func (s *loggingService) ServeNotificationPage(ctx context.Context, client io.Writer, c *model.Client, maxID string, minID string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, max_id=%v, min_id=%v, took=%v, err=%v\n",
 			"ServeNotificationPage", maxID, minID, time.Since(begin), err)
@@ -85,7 +85,7 @@ func (s *loggingService) ServeNotificationPage(ctx context.Context, client io.Wr
 	return s.Service.ServeNotificationPage(ctx, client, c, maxID, minID)
 }
 
-func (s *loggingService) ServeUserPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, maxID string, minID string) (err error) {
+func (s *loggingService) ServeUserPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, max_id=%v, min_id=%v, took=%v, err=%v\n",
 			"ServeUserPage", id, maxID, minID, time.Since(begin), err)
@@ -93,7 +93,7 @@ func (s *loggingService) ServeUserPage(ctx context.Context, client io.Writer, c 
 	return s.Service.ServeUserPage(ctx, client, c, id, maxID, minID)
 }
 
-func (s *loggingService) ServeAboutPage(ctx context.Context, client io.Writer, c *mastodon.Client) (err error) {
+func (s *loggingService) ServeAboutPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, took=%v, err=%v\n",
 			"ServeAboutPage", time.Since(begin), err)
@@ -101,7 +101,7 @@ func (s *loggingService) ServeAboutPage(ctx context.Context, client io.Writer, c
 	return s.Service.ServeAboutPage(ctx, client, c)
 }
 
-func (s *loggingService) Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *loggingService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"Like", id, time.Since(begin), err)
@@ -109,7 +109,7 @@ func (s *loggingService) Like(ctx context.Context, client io.Writer, c *mastodon
 	return s.Service.Like(ctx, client, c, id)
 }
 
-func (s *loggingService) UnLike(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *loggingService) UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"UnLike", id, time.Since(begin), err)
@@ -117,7 +117,7 @@ func (s *loggingService) UnLike(ctx context.Context, client io.Writer, c *mastod
 	return s.Service.UnLike(ctx, client, c, id)
 }
 
-func (s *loggingService) Retweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *loggingService) Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"Retweet", id, time.Since(begin), err)
@@ -125,7 +125,7 @@ func (s *loggingService) Retweet(ctx context.Context, client io.Writer, c *masto
 	return s.Service.Retweet(ctx, client, c, id)
 }
 
-func (s *loggingService) UnRetweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *loggingService) UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"UnRetweet", id, time.Since(begin), err)
@@ -133,7 +133,7 @@ func (s *loggingService) UnRetweet(ctx context.Context, client io.Writer, c *mas
 	return s.Service.UnRetweet(ctx, client, c, id)
 }
 
-func (s *loggingService) PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error) {
+func (s *loggingService) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, content=%v, reply_to_id=%v, took=%v, err=%v\n",
 			"PostTweet", content, replyToID, time.Since(begin), err)
@@ -141,7 +141,7 @@ func (s *loggingService) PostTweet(ctx context.Context, client io.Writer, c *mas
 	return s.Service.PostTweet(ctx, client, c, content, replyToID, files)
 }
 
-func (s *loggingService) Follow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *loggingService) Follow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"Follow", id, time.Since(begin), err)
@@ -149,7 +149,7 @@ func (s *loggingService) Follow(ctx context.Context, client io.Writer, c *mastod
 	return s.Service.Follow(ctx, client, c, id)
 }
 
-func (s *loggingService) UnFollow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *loggingService) UnFollow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"UnFollow", id, time.Since(begin), err)

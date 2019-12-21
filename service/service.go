@@ -26,21 +26,21 @@ var (
 type Service interface {
 	ServeHomePage(ctx context.Context, client io.Writer) (err error)
 	GetAuthUrl(ctx context.Context, instance string) (url string, sessionID string, err error)
-	GetUserToken(ctx context.Context, sessionID string, c *mastodon.Client, token string) (accessToken string, err error)
+	GetUserToken(ctx context.Context, sessionID string, c *model.Client, token string) (accessToken string, err error)
 	ServeErrorPage(ctx context.Context, client io.Writer, err error)
 	ServeSigninPage(ctx context.Context, client io.Writer) (err error)
-	ServeTimelinePage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, sinceID string, minID string) (err error)
-	ServeThreadPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, reply bool) (err error)
-	ServeNotificationPage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, minID string) (err error)
-	ServeUserPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, maxID string, minID string) (err error)
-	ServeAboutPage(ctx context.Context, client io.Writer, c *mastodon.Client) (err error)
-	Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
-	UnLike(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
-	Retweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
-	UnRetweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
-	PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error)
-	Follow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
-	UnFollow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
+	ServeTimelinePage(ctx context.Context, client io.Writer, c *model.Client, maxID string, sinceID string, minID string) (err error)
+	ServeThreadPage(ctx context.Context, client io.Writer, c *model.Client, id string, reply bool) (err error)
+	ServeNotificationPage(ctx context.Context, client io.Writer, c *model.Client, maxID string, minID string) (err error)
+	ServeUserPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error)
+	ServeAboutPage(ctx context.Context, client io.Writer, c *model.Client) (err error)
+	Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
+	UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
+	Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
+	UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
+	PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error)
+	Follow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
+	UnFollow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 }
 
 type service struct {
@@ -132,7 +132,7 @@ func (svc *service) GetAuthUrl(ctx context.Context, instance string) (
 	return
 }
 
-func (svc *service) GetUserToken(ctx context.Context, sessionID string, c *mastodon.Client,
+func (svc *service) GetUserToken(ctx context.Context, sessionID string, c *model.Client,
 	code string) (token string, err error) {
 	if len(code) < 1 {
 		err = ErrInvalidArgument
@@ -209,7 +209,7 @@ func (svc *service) ServeSigninPage(ctx context.Context, client io.Writer) (err 
 }
 
 func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
-	c *mastodon.Client, maxID string, sinceID string, minID string) (err error) {
+	c *model.Client, maxID string, sinceID string, minID string) (err error) {
 
 	var hasNext, hasPrev bool
 	var nextLink, prevLink string
@@ -265,7 +265,7 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 	return
 }
 
-func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, reply bool) (err error) {
+func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *model.Client, id string, reply bool) (err error) {
 	status, err := c.GetStatus(ctx, id)
 	if err != nil {
 		return
@@ -323,7 +323,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *ma
 	return
 }
 
-func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, minID string) (err error) {
+func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer, c *model.Client, maxID string, minID string) (err error) {
 	var hasNext bool
 	var nextLink string
 
@@ -377,7 +377,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 	return
 }
 
-func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, maxID string, minID string) (err error) {
+func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
 	user, err := c.GetAccount(ctx, id)
 	if err != nil {
 		return
@@ -416,7 +416,7 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mast
 	return
 }
 
-func (svc *service) ServeAboutPage(ctx context.Context, client io.Writer, c *mastodon.Client) (err error) {
+func (svc *service) ServeAboutPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
 	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
 	if err != nil {
 		return
@@ -431,7 +431,7 @@ func (svc *service) ServeAboutPage(ctx context.Context, client io.Writer, c *mas
 	return
 }
 
-func (svc *service) getNavbarTemplateData(ctx context.Context, client io.Writer, c *mastodon.Client) (data *renderer.NavbarTemplateData, err error) {
+func (svc *service) getNavbarTemplateData(ctx context.Context, client io.Writer, c *model.Client) (data *renderer.NavbarTemplateData, err error) {
 	notifications, err := c.GetNotifications(ctx, nil)
 	if err != nil {
 		return
@@ -449,27 +449,27 @@ func (svc *service) getNavbarTemplateData(ctx context.Context, client io.Writer,
 	return
 }
 
-func (svc *service) Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (svc *service) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	_, err = c.Favourite(ctx, id)
 	return
 }
 
-func (svc *service) UnLike(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (svc *service) UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	_, err = c.Unfavourite(ctx, id)
 	return
 }
 
-func (svc *service) Retweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (svc *service) Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	_, err = c.Reblog(ctx, id)
 	return
 }
 
-func (svc *service) UnRetweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (svc *service) UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	_, err = c.Unreblog(ctx, id)
 	return
 }
 
-func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error) {
+func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error) {
 	var mediaIds []string
 	for _, f := range files {
 		a, err := c.UploadMediaFromMultipartFileHeader(ctx, f)
@@ -493,12 +493,12 @@ func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *mastodon
 	return s.ID, nil
 }
 
-func (svc *service) Follow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (svc *service) Follow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	_, err = c.AccountFollow(ctx, id)
 	return
 }
 
-func (svc *service) UnFollow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (svc *service) UnFollow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	_, err = c.AccountUnfollow(ctx, id)
 	return
 }
@@ -507,6 +507,7 @@ func addToReplyMap(m map[string][]mastodon.ReplyInfo, key interface{}, val strin
 	if key == nil {
 		return
 	}
+
 	keyStr, ok := key.(string)
 	if !ok {
 		return

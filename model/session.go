@@ -9,9 +9,10 @@ var (
 )
 
 type Session struct {
-	ID             string `json:"id"`
-	InstanceDomain string `json:"instance_domain"`
-	AccessToken    string `json:"access_token"`
+	ID             string   `json:"id"`
+	InstanceDomain string   `json:"instance_domain"`
+	AccessToken    string   `json:"access_token"`
+	Settings       Settings `json:"settings"`
 }
 
 type SessionRepository interface {

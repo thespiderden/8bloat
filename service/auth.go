@@ -31,7 +31,7 @@ func getSessionID(ctx context.Context) (sessionID string, err error) {
 	return sessionID, nil
 }
 
-func (s *authService) getClient(ctx context.Context) (c *mastodon.Client, err error) {
+func (s *authService) getClient(ctx context.Context) (c *model.Client, err error) {
 	sessionID, err := getSessionID(ctx)
 	if err != nil {
 		return nil, ErrInvalidSession
@@ -44,12 +44,13 @@ func (s *authService) getClient(ctx context.Context) (c *mastodon.Client, err er
 	if err != nil {
 		return
 	}
-	c = mastodon.NewClient(&mastodon.Config{
+	mc := mastodon.NewClient(&mastodon.Config{
 		Server:       client.InstanceURL,
 		ClientID:     client.ClientID,
 		ClientSecret: client.ClientSecret,
 		AccessToken:  session.AccessToken,
 	})
+	c = &model.Client{Client: mc}
 	return c, nil
 }
 
@@ -58,7 +59,7 @@ func (s *authService) GetAuthUrl(ctx context.Context, instance string) (
 	return s.Service.GetAuthUrl(ctx, instance)
 }
 
-func (s *authService) GetUserToken(ctx context.Context, sessionID string, c *mastodon.Client,
+func (s *authService) GetUserToken(ctx context.Context, sessionID string, c *model.Client,
 	code string) (token string, err error) {
 	sessionID, err = getSessionID(ctx)
 	if err != nil {
@@ -95,7 +96,7 @@ func (s *authService) ServeSigninPage(ctx context.Context, client io.Writer) (er
 }
 
 func (s *authService) ServeTimelinePage(ctx context.Context, client io.Writer,
-	c *mastodon.Client, maxID string, sinceID string, minID string) (err error) {
+	c *model.Client, maxID string, sinceID string, minID string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -103,7 +104,7 @@ func (s *authService) ServeTimelinePage(ctx context.Context, client io.Writer,
 	return s.Service.ServeTimelinePage(ctx, client, c, maxID, sinceID, minID)
 }
 
-func (s *authService) ServeThreadPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, reply bool) (err error) {
+func (s *authService) ServeThreadPage(ctx context.Context, client io.Writer, c *model.Client, id string, reply bool) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -111,7 +112,7 @@ func (s *authService) ServeThreadPage(ctx context.Context, client io.Writer, c *
 	return s.Service.ServeThreadPage(ctx, client, c, id, reply)
 }
 
-func (s *authService) ServeNotificationPage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, minID string) (err error) {
+func (s *authService) ServeNotificationPage(ctx context.Context, client io.Writer, c *model.Client, maxID string, minID string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -119,7 +120,7 @@ func (s *authService) ServeNotificationPage(ctx context.Context, client io.Write
 	return s.Service.ServeNotificationPage(ctx, client, c, maxID, minID)
 }
 
-func (s *authService) ServeUserPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, maxID string, minID string) (err error) {
+func (s *authService) ServeUserPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -127,7 +128,7 @@ func (s *authService) ServeUserPage(ctx context.Context, client io.Writer, c *ma
 	return s.Service.ServeUserPage(ctx, client, c, id, maxID, minID)
 }
 
-func (s *authService) ServeAboutPage(ctx context.Context, client io.Writer, c *mastodon.Client) (err error) {
+func (s *authService) ServeAboutPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -135,7 +136,7 @@ func (s *authService) ServeAboutPage(ctx context.Context, client io.Writer, c *m
 	return s.Service.ServeAboutPage(ctx, client, c)
 }
 
-func (s *authService) Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *authService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -143,7 +144,7 @@ func (s *authService) Like(ctx context.Context, client io.Writer, c *mastodon.Cl
 	return s.Service.Like(ctx, client, c, id)
 }
 
-func (s *authService) UnLike(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *authService) UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -151,7 +152,7 @@ func (s *authService) UnLike(ctx context.Context, client io.Writer, c *mastodon.
 	return s.Service.UnLike(ctx, client, c, id)
 }
 
-func (s *authService) Retweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *authService) Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -159,7 +160,7 @@ func (s *authService) Retweet(ctx context.Context, client io.Writer, c *mastodon
 	return s.Service.Retweet(ctx, client, c, id)
 }
 
-func (s *authService) UnRetweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *authService) UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -167,7 +168,7 @@ func (s *authService) UnRetweet(ctx context.Context, client io.Writer, c *mastod
 	return s.Service.UnRetweet(ctx, client, c, id)
 }
 
-func (s *authService) PostTweet(ctx context.Context, client io.Writer, c *mastodon.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error) {
+func (s *authService) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -175,7 +176,7 @@ func (s *authService) PostTweet(ctx context.Context, client io.Writer, c *mastod
 	return s.Service.PostTweet(ctx, client, c, content, replyToID, files)
 }
 
-func (s *authService) Follow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *authService) Follow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -183,7 +184,7 @@ func (s *authService) Follow(ctx context.Context, client io.Writer, c *mastodon.
 	return s.Service.Follow(ctx, client, c, id)
 }
 
-func (s *authService) UnFollow(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
+func (s *authService) UnFollow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
