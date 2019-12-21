@@ -86,3 +86,13 @@ func NewUserPageTemplateData(user *mastodon.Account, statuses []*mastodon.Status
 		NavbarData: navbarData,
 	}
 }
+
+type AboutPageTemplateData struct {
+	NavbarData *NavbarTemplateData
+}
+
+func NewAboutPageTemplateData(navbarData *NavbarTemplateData) *AboutPageTemplateData {
+	return &AboutPageTemplateData{
+		NavbarData: navbarData,
+	}
+}

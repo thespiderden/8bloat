@@ -228,6 +228,16 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodPost)
 
+	r.HandleFunc("/about", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+
+		err := s.ServeAboutPage(ctx, w, nil)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodGet)
+
 	r.HandleFunc("/signout", func(w http.ResponseWriter, req *http.Request) {
 		// TODO remove session from database
 		w.Header().Add("Set-Cookie", fmt.Sprintf("session_id=;max-age=0"))

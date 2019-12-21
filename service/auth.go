@@ -127,6 +127,14 @@ func (s *authService) ServeUserPage(ctx context.Context, client io.Writer, c *ma
 	return s.Service.ServeUserPage(ctx, client, c, id, maxID, minID)
 }
 
+func (s *authService) ServeAboutPage(ctx context.Context, client io.Writer, c *mastodon.Client) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeAboutPage(ctx, client, c)
+}
+
 func (s *authService) Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {

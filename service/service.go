@@ -33,6 +33,7 @@ type Service interface {
 	ServeThreadPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, reply bool) (err error)
 	ServeNotificationPage(ctx context.Context, client io.Writer, c *mastodon.Client, maxID string, minID string) (err error)
 	ServeUserPage(ctx context.Context, client io.Writer, c *mastodon.Client, id string, maxID string, minID string) (err error)
+	ServeAboutPage(ctx context.Context, client io.Writer, c *mastodon.Client) (err error)
 	Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	UnLike(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error)
@@ -404,6 +405,21 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mast
 
 	data := renderer.NewUserPageTemplateData(user, statuses, hasNext, nextLink, navbarData)
 	err = svc.renderer.RenderUserPage(ctx, client, data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (svc *service) ServeAboutPage(ctx context.Context, client io.Writer, c *mastodon.Client) (err error) {
+	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	data := renderer.NewAboutPageTemplateData(navbarData)
+	err = svc.renderer.RenderAboutPage(ctx, client, data)
 	if err != nil {
 		return
 	}

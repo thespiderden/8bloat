@@ -19,6 +19,7 @@ type Renderer interface {
 	RenderThreadPage(ctx context.Context, writer io.Writer, data *ThreadPageTemplateData) (err error)
 	RenderNotificationPage(ctx context.Context, writer io.Writer, data *NotificationPageTemplateData) (err error)
 	RenderUserPage(ctx context.Context, writer io.Writer, data *UserPageTemplateData) (err error)
+	RenderAboutPage(ctx context.Context, writer io.Writer, data *AboutPageTemplateData) (err error)
 }
 
 type renderer struct {
@@ -71,6 +72,9 @@ func (r *renderer) RenderUserPage(ctx context.Context, writer io.Writer, data *U
 	return r.template.ExecuteTemplate(writer, "user.tmpl", data)
 }
 
+func (r *renderer) RenderAboutPage(ctx context.Context, writer io.Writer, data *AboutPageTemplateData) (err error) {
+	return r.template.ExecuteTemplate(writer, "about.tmpl", data)
+}
 
 func EmojiFilter(content string, emojis []mastodon.Emoji) string {
 	var replacements []string

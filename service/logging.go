@@ -93,6 +93,14 @@ func (s *loggingService) ServeUserPage(ctx context.Context, client io.Writer, c 
 	return s.Service.ServeUserPage(ctx, client, c, id, maxID, minID)
 }
 
+func (s *loggingService) ServeAboutPage(ctx context.Context, client io.Writer, c *mastodon.Client) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, took=%v, err=%v\n",
+			"ServeAboutPage", time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeAboutPage(ctx, client, c)
+}
+
 func (s *loggingService) Like(ctx context.Context, client io.Writer, c *mastodon.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
