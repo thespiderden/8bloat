@@ -84,7 +84,10 @@ func EmojiFilter(content string, emojis []mastodon.Emoji) string {
 	return strings.NewReplacer(replacements...).Replace(content)
 }
 
-func StatusContentFilter(content string, emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
+func StatusContentFilter(spoiler string, content string, emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
+	if len(spoiler) > 0 {
+		content = spoiler + "<br />" + content
+	}
 	var replacements []string
 	for _, e := range emojis {
 		replacements = append(replacements, ":"+e.ShortCode+":", "<img class=\"status-emoji\" src=\""+e.URL+"\" alt=\""+e.ShortCode+"\" />")

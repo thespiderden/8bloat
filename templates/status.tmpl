@@ -41,7 +41,7 @@
 				{{end}}
 				{{end}}
 			</div>
-			<div class="status-content"> {{StatusContentFilter .Content .Emojis .Mentions}} </div>
+			<div class="status-content"> {{StatusContentFilter .SpoilerText .Content .Emojis .Mentions}} </div>
 			<div class="status-media-container">
 			{{range .MediaAttachments}}
 			{{if eq .Type "image"}}
