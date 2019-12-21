@@ -276,10 +276,9 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *ma
 		return
 	}
 
-	var content string
-	var replyToID string
+	var replyContext *model.ReplyContext
 	if reply {
-		replyToID = id
+		var content string
 		if u.ID != status.Account.ID {
 			content += "@" + status.Account.Acct + " "
 		}
@@ -287,6 +286,11 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *ma
 			if status.Mentions[i].ID != u.ID && status.Mentions[i].ID != status.Account.ID {
 				content += "@" + status.Mentions[i].Acct + " "
 			}
+		}
+		replyContext = &model.ReplyContext{
+			InReplyToID:   id,
+			InReplyToName: status.Account.Acct,
+			ReplyContent:  content,
 		}
 	}
 
@@ -310,7 +314,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *ma
 		return
 	}
 
-	data := renderer.NewThreadPageTemplateData(statuses, replyToID, content, replyMap, navbarData)
+	data := renderer.NewThreadPageTemplateData(statuses, replyContext, replyMap, navbarData)
 	err = svc.renderer.RenderThreadPage(ctx, client, data)
 	if err != nil {
 		return

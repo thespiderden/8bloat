@@ -3,21 +3,11 @@
 <div class="page-title"> Thread </div>
 
 {{range .Statuses}}
-{{template "status.tmpl" .}}
 
-{{if eq .ID $.ReplyToID}}
-<form class="timeline-post-form" action="/post" method="POST" enctype="multipart/form-data">
-	<input type="hidden" name="reply_to_id" value="{{$.ReplyToID}}" />
-	<label for="post-content"> reply to {{.Account.DisplayName}} </label>
-	<div class="post-form-content-container">
-		<textarea id="post-content" name="content" class="post-content" cols="50" rows="5">{{$.ReplyContent}}</textarea>
-	</div>
-	<div>
-		Attachments <input id="post-file-picker" type="file" name="attachments" multiple>
-	</div>
-	<button type="submit"> Post </button>
-</form>
-{{end}}
+{{template "status.tmpl" .}}
+{{if $.ReplyContext}}{{if eq .ID $.ReplyContext.InReplyToID}}
+{{template "postform.tmpl" $.ReplyContext}}
+{{end}}{{end}}
 
 {{end}}
 

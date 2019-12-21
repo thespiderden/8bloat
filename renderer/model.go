@@ -2,6 +2,7 @@ package renderer
 
 import (
 	"mastodon"
+	"web/model"
 )
 
 type NavbarTemplateData struct {
@@ -37,17 +38,15 @@ func NewTimelinePageTemplateData(statuses []*mastodon.Status, hasNext bool, next
 
 type ThreadPageTemplateData struct {
 	Statuses     []*mastodon.Status
-	ReplyToID    string
-	ReplyContent string
+	ReplyContext *model.ReplyContext
 	ReplyMap     map[string][]mastodon.ReplyInfo
 	NavbarData   *NavbarTemplateData
 }
 
-func NewThreadPageTemplateData(statuses []*mastodon.Status, replyToID string, replyContent string, replyMap map[string][]mastodon.ReplyInfo, navbarData *NavbarTemplateData) *ThreadPageTemplateData {
+func NewThreadPageTemplateData(statuses []*mastodon.Status, replyContext *model.ReplyContext, replyMap map[string][]mastodon.ReplyInfo, navbarData *NavbarTemplateData) *ThreadPageTemplateData {
 	return &ThreadPageTemplateData{
 		Statuses:     statuses,
-		ReplyToID:    replyToID,
-		ReplyContent: replyContent,
+		ReplyContext: replyContext,
 		ReplyMap:     replyMap,
 		NavbarData:   navbarData,
 	}
