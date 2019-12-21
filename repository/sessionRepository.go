@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"encoding/json"
 	"web/kv"
 	"web/model"
 )
@@ -16,7 +17,11 @@ func NewSessionRepository(db *kv.Database) *sessionRepository {
 }
 
 func (repo *sessionRepository) Add(s model.Session) (err error) {
-	err = repo.db.Set(s.ID, s.Marshal())
+	data, err := json.Marshal(s)
+	if err != nil {
+		return
+	}
+	err = repo.db.Set(s.ID, data)
 	return
 }
 
@@ -27,14 +32,19 @@ func (repo *sessionRepository) Update(id string, accessToken string) (err error)
 	}
 
 	var s model.Session
-	err = s.Unmarshal(id, data)
+	err = json.Unmarshal(data, &s)
 	if err != nil {
 		return
 	}
 
 	s.AccessToken = accessToken
 
-	return repo.db.Set(id, s.Marshal())
+	data, err = json.Marshal(s)
+	if err != nil {
+		return
+	}
+
+	return repo.db.Set(id, data)
 }
 
 func (repo *sessionRepository) Get(id string) (s model.Session, err error) {
@@ -44,7 +54,10 @@ func (repo *sessionRepository) Get(id string) (s model.Session, err error) {
 		return
 	}
 
-	err = s.Unmarshal(id, data)
+	err = json.Unmarshal(data, &s)
+	if err != nil {
+		return
+	}
 
 	return
 }

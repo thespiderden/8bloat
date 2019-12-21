@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"encoding/json"
 	"web/kv"
 	"web/model"
 )
@@ -16,7 +17,11 @@ func NewAppRepository(db *kv.Database) *appRepository {
 }
 
 func (repo *appRepository) Add(a model.App) (err error) {
-	err = repo.db.Set(a.InstanceDomain, a.Marshal())
+	data, err := json.Marshal(a)
+	if err != nil {
+		return
+	}
+	err = repo.db.Set(a.InstanceDomain, data)
 	return
 }
 
@@ -27,7 +32,10 @@ func (repo *appRepository) Get(instanceDomain string) (a model.App, err error) {
 		return
 	}
 
-	err = a.Unmarshal(instanceDomain, data)
+	err = json.Unmarshal(data, &a)
+	if err != nil {
+		return
+	}
 
 	return
 }

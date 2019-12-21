@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"strings"
 )
 
 var (
@@ -10,9 +9,9 @@ var (
 )
 
 type Session struct {
-	ID             string
-	InstanceDomain string
-	AccessToken    string
+	ID             string `json:"id"`
+	InstanceDomain string `json:"instance_domain"`
+	AccessToken    string `json:"access_token"`
 }
 
 type SessionRepository interface {
@@ -23,27 +22,4 @@ type SessionRepository interface {
 
 func (s Session) IsLoggedIn() bool {
 	return len(s.AccessToken) > 0
-}
-
-func (s *Session) Marshal() []byte {
-	str := s.InstanceDomain + "\n" + s.AccessToken
-	return []byte(str)
-}
-
-func (s *Session) Unmarshal(id string, data []byte) error {
-	str := string(data)
-	lines := strings.Split(str, "\n")
-
-	size := len(lines)
-	if size == 1 {
-		s.InstanceDomain = lines[0]
-	} else if size == 2 {
-		s.InstanceDomain = lines[0]
-		s.AccessToken = lines[1]
-	} else {
-		return errors.New("invalid data")
-	}
-
-	s.ID = id
-	return nil
 }
