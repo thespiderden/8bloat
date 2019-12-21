@@ -5,8 +5,8 @@
 {{range .Statuses}}
 
 {{template "status.tmpl" .}}
-{{if $.ReplyContext}}{{if eq .ID $.ReplyContext.InReplyToID}}
-{{template "postform.tmpl" $.ReplyContext}}
+{{if $.PostContext.ReplyContext}}{{if eq .ID $.PostContext.ReplyContext.InReplyToID}}
+{{template "postform.tmpl" $.PostContext}}
 {{end}}{{end}}
 
 {{end}}

@@ -17,7 +17,6 @@ type Session struct {
 
 type SessionRepository interface {
 	Add(session Session) (err error)
-	Update(sessionID string, accessToken string) (err error)
 	Get(sessionID string) (session Session, err error)
 }
 

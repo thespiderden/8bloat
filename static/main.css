@@ -246,3 +246,14 @@
     font-family: inherit;
     font-size: inherit;
 }
+
+.status-visibility {
+	margin: 0 4px;
+	display: inline-block;
+	color: #444444;
+}
+
+.status-visibility span {
+	font-size: 9pt;
+	vertical-align: bottom;
+}

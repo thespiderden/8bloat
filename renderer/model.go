@@ -16,39 +16,41 @@ func NewNavbarTemplateData(notificationCount int) *NavbarTemplateData {
 }
 
 type TimelinePageTemplateData struct {
-	Statuses   []*mastodon.Status
-	HasNext    bool
-	NextLink   string
-	HasPrev    bool
-	PrevLink   string
-	NavbarData *NavbarTemplateData
+	Statuses    []*mastodon.Status
+	HasNext     bool
+	NextLink    string
+	HasPrev     bool
+	PrevLink    string
+	PostContext model.PostContext
+	NavbarData  *NavbarTemplateData
 }
 
 func NewTimelinePageTemplateData(statuses []*mastodon.Status, hasNext bool, nextLink string, hasPrev bool,
-	prevLink string, navbarData *NavbarTemplateData) *TimelinePageTemplateData {
+	prevLink string, postContext model.PostContext, navbarData *NavbarTemplateData) *TimelinePageTemplateData {
 	return &TimelinePageTemplateData{
-		Statuses:   statuses,
-		HasNext:    hasNext,
-		NextLink:   nextLink,
-		HasPrev:    hasPrev,
-		PrevLink:   prevLink,
-		NavbarData: navbarData,
+		Statuses:    statuses,
+		HasNext:     hasNext,
+		NextLink:    nextLink,
+		HasPrev:     hasPrev,
+		PrevLink:    prevLink,
+		PostContext: postContext,
+		NavbarData:  navbarData,
 	}
 }
 
 type ThreadPageTemplateData struct {
-	Statuses     []*mastodon.Status
-	ReplyContext *model.ReplyContext
-	ReplyMap     map[string][]mastodon.ReplyInfo
-	NavbarData   *NavbarTemplateData
+	Statuses    []*mastodon.Status
+	PostContext model.PostContext
+	ReplyMap    map[string][]mastodon.ReplyInfo
+	NavbarData  *NavbarTemplateData
 }
 
-func NewThreadPageTemplateData(statuses []*mastodon.Status, replyContext *model.ReplyContext, replyMap map[string][]mastodon.ReplyInfo, navbarData *NavbarTemplateData) *ThreadPageTemplateData {
+func NewThreadPageTemplateData(statuses []*mastodon.Status, postContext model.PostContext, replyMap map[string][]mastodon.ReplyInfo, navbarData *NavbarTemplateData) *ThreadPageTemplateData {
 	return &ThreadPageTemplateData{
-		Statuses:     statuses,
-		ReplyContext: replyContext,
-		ReplyMap:     replyMap,
-		NavbarData:   navbarData,
+		Statuses:    statuses,
+		PostContext: postContext,
+		ReplyMap:    replyMap,
+		NavbarData:  navbarData,
 	}
 }
 

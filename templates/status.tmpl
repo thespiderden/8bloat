@@ -26,6 +26,17 @@
 				<a href="/user/{{.Account.ID}}" >
 					<span class="status-uname"> {{.Account.Acct}} </span>
 				</a>
+				<a class="status-visibility" href="{{.URL}}" target="_blank">
+					{{if eq .Visibility "public"}}
+					<span class="icon dripicons-web" title="Public"></span> 
+					{{else if eq .Visibility "unlisted"}}
+					<span class="icon dripicons-lock-open" title="Unlisted"></span> 
+					{{else if eq .Visibility "private"}}
+					<span class="icon dripicons-lock" title="Private"></span> 
+					{{else if eq .Visibility "direct"}}
+					<span class="icon dripicons-mail" title="Direct"></span> 
+					{{end}}
+				</a>
 			</div>
 			{{end}}
 			<div class="status-reply-container">
@@ -68,16 +79,23 @@
 					<span class="icon dripicons-reply"></span> 
 					<span> {{DisplayInteractionCount .RepliesCount}} </span>
 				</a>
-				{{if .Reblogged}}
-				<a class="status-retweet" href="/unretweet/{{.ID}}" title="undo repost"> 
-					<span class="icon dripicons-retweet retweeted"></span> 
-					<span> {{DisplayInteractionCount .ReblogsCount}} </span>
-				</a>
-				{{else}}
-				<a class="status-retweet" href="/retweet/{{.ID}}" title="repost"> 
+				{{if or (eq .Visibility "private") (eq .Visibility "direct")}}
+				<a class="status-retweet" title="this status cannot be retweeted"> 
 					<span class="icon dripicons-retweet"></span> 
 					<span> {{DisplayInteractionCount .ReblogsCount}} </span>
 				</a>
+				{{else}}
+					{{if .Reblogged}}
+					<a class="status-retweet" href="/unretweet/{{.ID}}" title="undo retweet"> 
+						<span class="icon dripicons-retweet retweeted"></span> 
+						<span> {{DisplayInteractionCount .ReblogsCount}} </span>
+					</a>
+					{{else}}
+					<a class="status-retweet" href="/retweet/{{.ID}}" title="retweet"> 
+						<span class="icon dripicons-retweet"></span> 
+						<span> {{DisplayInteractionCount .ReblogsCount}} </span>
+					</a>
+					{{end}}
 				{{end}}
 				{{if .Favourited}}
 				<a class="status-like" href="/unlike/{{.ID}}" title="unlike"> 

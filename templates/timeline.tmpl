@@ -3,7 +3,7 @@
 <div class="page-title"> Timeline </div>
 
 
-{{template "postform.tmpl" }}
+{{template "postform.tmpl" .PostContext}}
 
 {{range .Statuses}}
 {{template "status.tmpl" .}}

@@ -1,15 +1,25 @@
 <form class="post-form" action="/post" method="POST" enctype="multipart/form-data">
-	{{if .}}
-	<input type="hidden" name="reply_to_id" value="{{.InReplyToID}}" />
-	<label for="post-content"> Reply to {{.InReplyToName}} </label>
+	{{if .ReplyContext}}
+	<input type="hidden" name="reply_to_id" value="{{.ReplyContext.InReplyToID}}" />
+	<label for="post-content"> Reply to {{.ReplyContext.InReplyToName}} </label>
 	{{else}}
 	<label for="post-content"> New post </label>
 	{{end}}
 	<div class="post-form-content-container">
-		<textarea id="post-content" name="content" class="post-content" cols="50" rows="5">{{if .}}{{.ReplyContent}}{{end}}</textarea>
+		<textarea id="post-content" name="content" class="post-content" cols="50" rows="5">{{if .ReplyContext}}{{.ReplyContext.ReplyContent}}{{end}}</textarea>
 	</div>
 	<div>
-		Attachments <input id="post-file-picker" type="file" name="attachments" multiple>
+		<label for ="post-visilibity"> Visibility </label>
+		<select id="post-visilibity" type="file" name="visibility">
+			<option value="public" {{if eq .DefaultVisibility "public"}}selected{{end}}>Public</option>
+			<option value="unlisted" {{if eq .DefaultVisibility "unlisted"}}selected{{end}}>Unlisted</option>
+			<option value="private" {{if eq .DefaultVisibility "private"}}selected{{end}}>Private</option>
+			<option value="direct" {{if eq .DefaultVisibility "direct"}}selected{{end}}>Direct</option>
+		</select>
+	</div>
+	<div>
+		<label for ="post-file-picker"> Attachments </label>
+		<input id="post-file-picker" type="file" name="attachments" multiple>
 	</div>
 	<button type="submit"> Post </button>
 </form>

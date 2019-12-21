@@ -38,7 +38,7 @@ type Service interface {
 	UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
-	PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error)
+	PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, visibility string, files []*multipart.FileHeader) (id string, err error)
 	Follow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	UnFollow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 }
@@ -251,12 +251,16 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		nextLink = "/timeline?max_id=" + pg.MaxID
 	}
 
+	postContext := model.PostContext{
+		DefaultVisibility: c.Session.Settings.DefaultVisibility,
+	}
+
 	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
 	if err != nil {
 		return
 	}
 
-	data := renderer.NewTimelinePageTemplateData(statuses, hasNext, nextLink, hasPrev, prevLink, navbarData)
+	data := renderer.NewTimelinePageTemplateData(statuses, hasNext, nextLink, hasPrev, prevLink, postContext, navbarData)
 	err = svc.renderer.RenderTimelinePage(ctx, client, data)
 	if err != nil {
 		return
@@ -276,7 +280,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 		return
 	}
 
-	var replyContext *model.ReplyContext
+	var postContext model.PostContext
 	if reply {
 		var content string
 		if u.ID != status.Account.ID {
@@ -287,10 +291,19 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 				content += "@" + status.Mentions[i].Acct + " "
 			}
 		}
-		replyContext = &model.ReplyContext{
-			InReplyToID:   id,
-			InReplyToName: status.Account.Acct,
-			ReplyContent:  content,
+
+		s, err := c.GetStatus(ctx, id)
+		if err != nil {
+			return err
+		}
+
+		postContext = model.PostContext{
+			DefaultVisibility: s.Visibility,
+			ReplyContext: &model.ReplyContext{
+				InReplyToID:   id,
+				InReplyToName: status.Account.Acct,
+				ReplyContent:  content,
+			},
 		}
 	}
 
@@ -314,7 +327,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 		return
 	}
 
-	data := renderer.NewThreadPageTemplateData(statuses, replyContext, replyMap, navbarData)
+	data := renderer.NewThreadPageTemplateData(statuses, postContext, replyMap, navbarData)
 	err = svc.renderer.RenderThreadPage(ctx, client, data)
 	if err != nil {
 		return
@@ -469,7 +482,7 @@ func (svc *service) UnRetweet(ctx context.Context, client io.Writer, c *model.Cl
 	return
 }
 
-func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, files []*multipart.FileHeader) (id string, err error) {
+func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, visibility string, files []*multipart.FileHeader) (id string, err error) {
 	var mediaIds []string
 	for _, f := range files {
 		a, err := c.UploadMediaFromMultipartFileHeader(ctx, f)
@@ -479,10 +492,17 @@ func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *model.Cl
 		mediaIds = append(mediaIds, a.ID)
 	}
 
+	// save visibility if it's a non-reply post
+	if len(replyToID) < 1 && visibility != c.Session.Settings.DefaultVisibility {
+		c.Session.Settings.DefaultVisibility = visibility
+		svc.sessionRepo.Add(c.Session)
+	}
+
 	tweet := &mastodon.Toot{
 		Status:      content,
 		InReplyToID: replyToID,
 		MediaIDs:    mediaIds,
+		Visibility:  visibility,
 	}
 
 	s, err := c.PostStatus(ctx, tweet)
