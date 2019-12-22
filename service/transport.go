@@ -156,9 +156,11 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		content := getMultipartFormValue(req.MultipartForm, "content")
 		replyToID := getMultipartFormValue(req.MultipartForm, "reply_to_id")
 		visibility := getMultipartFormValue(req.MultipartForm, "visibility")
+		isNSFW := "on" == getMultipartFormValue(req.MultipartForm, "is_nsfw")
+
 		files := req.MultipartForm.File["attachments"]
 
-		id, err := s.PostTweet(ctx, w, nil, content, replyToID, visibility, files)
+		id, err := s.PostTweet(ctx, w, nil, content, replyToID, visibility, isNSFW, files)
 		if err != nil {
 			s.ServeErrorPage(ctx, w, err)
 			return

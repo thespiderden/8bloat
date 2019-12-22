@@ -38,7 +38,7 @@ type Service interface {
 	UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
-	PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, visibility string, files []*multipart.FileHeader) (id string, err error)
+	PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error)
 	Follow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	UnFollow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 }
@@ -482,7 +482,7 @@ func (svc *service) UnRetweet(ctx context.Context, client io.Writer, c *model.Cl
 	return
 }
 
-func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, visibility string, files []*multipart.FileHeader) (id string, err error) {
+func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error) {
 	var mediaIds []string
 	for _, f := range files {
 		a, err := c.UploadMediaFromMultipartFileHeader(ctx, f)
@@ -503,6 +503,7 @@ func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *model.Cl
 		InReplyToID: replyToID,
 		MediaIDs:    mediaIds,
 		Visibility:  visibility,
+		Sensitive:   isNSFW,
 	}
 
 	s, err := c.PostStatus(ctx, tweet)

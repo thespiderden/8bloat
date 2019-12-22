@@ -234,6 +234,8 @@
 .user-profile-img {
 	max-height: 100px;
 	max-width: 100px;
+	object-fit: contain;
+	vertical-align: top;
 }
 
 .user-profile-decription {
@@ -284,6 +286,11 @@
 	position: relative;
 }
 
+.status-profile-img-container .img-link {
+	width: 48px;
+	overflow: hidden;
+}
+
 .status-nsfw-overlay {
 	height: 100%;
 	width: 100%;
@@ -304,4 +311,8 @@
 
 .status-video-container:hover .status-nsfw-overlay {
 	display: none;
+}
+
+.post-form-field>* {
+  vertical-align: middle;
 }
