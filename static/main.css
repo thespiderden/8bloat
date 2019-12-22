@@ -316,3 +316,22 @@
 .post-form-field>* {
   vertical-align: middle;
 }
+
+.emoji {
+	min-width: 220px;
+	display: inline-block;
+	margin-bottom: 2px;
+}
+
+.emoji-img {
+	height: 24px;
+	width: 24px;
+	object-fit: contain;
+	vertical-align: middle;
+
+}
+
+.emoji-shortcode {
+	vertical-align: middle;
+	display: inline-block;
+}

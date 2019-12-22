@@ -241,6 +241,16 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 	}).Methods(http.MethodGet)
 
+	r.HandleFunc("/emojis", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+
+		err := s.ServeEmojiPage(ctx, w, nil)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodGet)
+
 	r.HandleFunc("/signout", func(w http.ResponseWriter, req *http.Request) {
 		// TODO remove session from database
 		w.Header().Add("Set-Cookie", fmt.Sprintf("session_id=;max-age=0"))

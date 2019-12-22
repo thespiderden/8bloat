@@ -125,6 +125,14 @@ func (s *authService) ServeAboutPage(ctx context.Context, client io.Writer, c *m
 	return s.Service.ServeAboutPage(ctx, client, c)
 }
 
+func (s *authService) ServeEmojiPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeEmojiPage(ctx, client, c)
+}
+
 func (s *authService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {

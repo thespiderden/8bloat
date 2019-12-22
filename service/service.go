@@ -34,6 +34,7 @@ type Service interface {
 	ServeNotificationPage(ctx context.Context, client io.Writer, c *model.Client, maxID string, minID string) (err error)
 	ServeUserPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error)
 	ServeAboutPage(ctx context.Context, client io.Writer, c *model.Client) (err error)
+	ServeEmojiPage(ctx context.Context, client io.Writer, c *model.Client) (err error)
 	Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
@@ -437,6 +438,26 @@ func (svc *service) ServeAboutPage(ctx context.Context, client io.Writer, c *mod
 
 	data := renderer.NewAboutPageTemplateData(navbarData)
 	err = svc.renderer.RenderAboutPage(ctx, client, data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (svc *service) ServeEmojiPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
+	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	emojis, err := c.GetInstanceEmojis(ctx)
+	if err != nil {
+		return
+	}
+
+	data := renderer.NewEmojiPageTemplateData(navbarData, emojis)
+	err = svc.renderer.RenderEmojiPage(ctx, client, data)
 	if err != nil {
 		return
 	}

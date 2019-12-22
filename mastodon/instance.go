@@ -63,3 +63,13 @@ func (c *Client) GetInstancePeers(ctx context.Context) ([]string, error) {
 	}
 	return peers, nil
 }
+
+// GetInstanceEmojis return instance emojis.
+func (c *Client) GetInstanceEmojis(ctx context.Context) ([]*Emoji, error) {
+	var emojis []*Emoji
+	err := c.doAPI(ctx, http.MethodGet, "/api/v1/custom_emojis", nil, &emojis, nil)
+	if err != nil {
+		return nil, err
+	}
+	return emojis, nil
+}

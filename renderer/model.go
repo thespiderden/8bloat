@@ -97,3 +97,15 @@ func NewAboutPageTemplateData(navbarData *NavbarTemplateData) *AboutPageTemplate
 		NavbarData: navbarData,
 	}
 }
+
+type EmojiPageTemplateData struct {
+	NavbarData *NavbarTemplateData
+	Emojis     []*mastodon.Emoji
+}
+
+func NewEmojiPageTemplateData(navbarData *NavbarTemplateData, emojis []*mastodon.Emoji) *EmojiPageTemplateData {
+	return &EmojiPageTemplateData{
+		NavbarData: navbarData,
+		Emojis:     emojis,
+	}
+}
