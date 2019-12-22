@@ -76,7 +76,7 @@
 	color: #777777;
 }
 
-.status-action .icon {
+.status-action .fa {
 	margin: 0 4px 0 0;
 }
 
@@ -84,11 +84,11 @@
 	width: auto;
 }
 
-.icon.dripicons-star.liked {
+.fa.liked {
 	color: yellow;
 }
 
-.icon.dripicons-retweet.retweeted {
+.fa.retweeted {
 	color: green;
 }
 
@@ -135,16 +135,11 @@
 .retweet-info .status-profile-img {
 	height: 24px;
 	width: 24px;
-	margin-bottom: -8px;
-	vertical-align: baseline;
+	vertical-align: middle;
 }
 
 .retweet-info .status-dname{
 	margin-left: 4px
-}
-
-.retweet-info .icon.dripicons-retweet.retweeted {
-	vertical-align: sub;
 }
 
 .post-content {
@@ -187,7 +182,7 @@
 	font-size: 10pt
 }
 
-.status-reply-container .icon {
+.status-reply-container .fa {
 	font-size: 10pt;
 	vertical-align: sub;
 	margin-right: -2px;
@@ -334,4 +329,17 @@
 .emoji-shortcode {
 	vertical-align: middle;
 	display: inline-block;
+}
+
+.fa {
+	font-size: 11pt !important;
+	color: #444444;
+}
+
+.post-form-emoji-link {
+	margin-left: 8px;
+}
+
+.post-form-emoji-link i {
+	font-size: 14pt !important;
 }

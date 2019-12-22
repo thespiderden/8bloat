@@ -5,7 +5,7 @@
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-		<span class="icon dripicons-retweet retweeted"></span> 
+		<i class="fa fa-retweet retweeted"></i>
 		retweeted
 	</div>
 	{{template "status" .Reblog}}
@@ -28,23 +28,23 @@
 				</a>
 				<a class="status-visibility">
 					{{if eq .Visibility "public"}}
-					<span class="icon dripicons-web" title="Public"></span> 
+					<i class="fa fa-globe" title="Public"></i>
 					{{else if eq .Visibility "unlisted"}}
-					<span class="icon dripicons-lock-open" title="Unlisted"></span> 
+					<i class="fa fa-unlock-alt" title="Unlisted"></i>
 					{{else if eq .Visibility "private"}}
-					<span class="icon dripicons-lock" title="Private"></span> 
+					<i class="fa fa-lock" title="Private"></i>
 					{{else if eq .Visibility "direct"}}
-					<span class="icon dripicons-mail" title="Direct"></span> 
+					<i class="fa fa-envelop" title="Direct"></i>
 					{{end}}
 				</a>
 				<a class="remote-link" href="{{.URL}}" target="_blank" title="source">
-					<span class="icon dripicons-link"></span> 
+					<i class="fa fa-link"></i>
 				</a>
 			</div>
 			{{end}}
 			<div class="status-reply-container">
 				{{if .InReplyToID}}
-				<span class="icon dripicons-forward"></span> 
+				<i class="fa fa-mail-forward"></i>
 				<a class="status-reply-to" href="{{if not .ShowReplies}}/thread/{{.InReplyToID}}{{end}}#status-{{.InReplyToID}}"> reply to {{.Pleroma.InReplyToAccountAcct}} </a>
 				{{if index .ReplyMap .ID}} <span class="status-reply-info-divider"> - </span> {{end}}
 				{{end}}
@@ -87,35 +87,35 @@
 			</div>
 			<div class="status-action"> 
 				<a class="status-you" href="/thread/{{.ID}}?reply=true#status-{{.ID}}" title="reply"> 
-					<span class="icon dripicons-reply"></span> 
+					<i class="fa fa-reply"></i>
 					<span> {{DisplayInteractionCount .RepliesCount}} </span>
 				</a>
 				{{if or (eq .Visibility "private") (eq .Visibility "direct")}}
 				<a class="status-retweet" title="this status cannot be retweeted"> 
-					<span class="icon dripicons-retweet"></span> 
+					<i class="fa fa-retweet"></i>
 					<span> {{DisplayInteractionCount .ReblogsCount}} </span>
 				</a>
 				{{else}}
 					{{if .Reblogged}}
 					<a class="status-retweet" href="/unretweet/{{.ID}}" title="undo retweet"> 
-						<span class="icon dripicons-retweet retweeted"></span> 
+						<i class="fa fa-retweet retweeted"></i>
 						<span> {{DisplayInteractionCount .ReblogsCount}} </span>
 					</a>
 					{{else}}
 					<a class="status-retweet" href="/retweet/{{.ID}}" title="retweet"> 
-						<span class="icon dripicons-retweet"></span> 
+						<i class="fa fa-retweet"></i>
 						<span> {{DisplayInteractionCount .ReblogsCount}} </span>
 					</a>
 					{{end}}
 				{{end}}
 				{{if .Favourited}}
 				<a class="status-like" href="/unlike/{{.ID}}" title="unlike"> 
-					<span class="icon dripicons-star liked"></span> 
+					<i class="fa fa-star liked"></i>
 					<span> {{DisplayInteractionCount .FavouritesCount}} </span>
 				</a>
 				{{else}}
 				<a class="status-like" href="/like/{{.ID}}" title="like"> 
-					<span class="icon dripicons-star"></span> 
+					<i class="fa fa-star-o"></i>
 					<span> {{DisplayInteractionCount .FavouritesCount}} </span>
 				</a>
 				{{end}}

@@ -14,7 +14,7 @@
 		<div>
 			<div>
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<span class="icon dripicons-user-group"></span> 
+				<i class="fa fa-user-plus"></i>
 				followed you
 			</div>
 			<div class="notification-follow-uname">
@@ -36,7 +36,7 @@
 		<div>
 			<div>
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<span class="icon dripicons-retweet retweeted"></span> 
+				<i class="fa fa-retweet retweeted"></i>
 				retweeted your post
 			</div>
 			{{template "status" .Status}}
@@ -53,7 +53,7 @@
 		<div>
 			<div>
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<span class="icon dripicons-star liked"></span> 
+				<i class="fa fa-star liked"></i>
 				liked your post
 			</div>
 			{{template "status" .Status}}

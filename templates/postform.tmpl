@@ -5,6 +5,9 @@
 	{{else}}
 	<label for="post-content"> New post </label>
 	{{end}}
+	<a class="post-form-emoji-link" href="/emojis" target="_blank">
+		<i class="fa fa-smile-o" title="emoji reference"></i>
+	</a>
 	<div class="post-form-content-container">
 		<textarea id="post-content" name="content" class="post-content" cols="50" rows="5">{{if .ReplyContext}}{{.ReplyContext.ReplyContent}}{{end}}</textarea>
 	</div>
@@ -21,6 +24,8 @@
 		<span class="post-form-field">
 			<input type="checkbox" id="nsfw-checkbox" name="is_nsfw" value="on">
 			<label for="nsfw-checkbox"> Is NSFW </label>
+		</span>
+		<span class="post-form-field">
 		</span>
 	</div>
 	<div>
