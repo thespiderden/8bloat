@@ -61,6 +61,9 @@
 			{{if eq .Type "image"}}
 			<a class="img-link" href="{{.URL}}" target="_blank">
 				<img class="status-image" src="{{.URL}}" alt="status-image" />
+				{{if $.Sensitive}}
+				<div class="status-nsfw-overlay"></div>
+				{{end}}
 			</a>
 			{{else if eq .Type "audio"}}
 			<audio class="status-audio" controls preload="none">
@@ -68,10 +71,15 @@
 				<p> Your browser doesn't support HTML5 audio </p>
 			</audio>
 			{{else if eq .Type "video"}}
-			<video class="status-video" controls preload="none">
-				<source src="{{.URL}}">
-				<p> Your browser doesn't support HTML5 video </p>
-			</video>
+			<div class="status-video-container">
+				<video class="status-video" controls preload="none">
+					<source src="{{.URL}}">
+					<p> Your browser doesn't support HTML5 video </p>
+				</video>
+				{{if $.Sensitive}}
+				<div class="status-nsfw-overlay"></div>
+				{{end}}
+			</div>
 			{{else}}
 			<a href="{{.URL}}" target="_blank"> attachment </a>
 			{{end}}
