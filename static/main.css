@@ -21,11 +21,15 @@
 	margin: 0px;
 }
 
+.status-profile-img-container {
+	margin-right: 8px;
+}
+
 .status-profile-img {
 	height: 48px;
 	width: 48px;
-	margin-right: 8px;
 	object-fit: contain;
+	vertical-align: top;
 }
 
 .status {
@@ -111,6 +115,10 @@
 	margin: 8px 0;
 }
 
+.post-form>div {
+	margin-bottom: 4px;
+}
+
 .signin-form {
 	margin: 8px 0;
 }
@@ -127,7 +135,7 @@
 	height: 24px;
 	width: 24px;
 	margin-bottom: -8px;
-	margin-right: 0px;
+	vertical-align: baseline;
 }
 
 .retweet-info .status-dname{
@@ -248,7 +256,7 @@
 }
 
 .status-visibility {
-	margin: 0 4px;
+	margin-left: 4px;
 	display: inline-block;
 	color: #444444;
 }
@@ -256,4 +264,20 @@
 .status-visibility span {
 	font-size: 9pt;
 	vertical-align: bottom;
+}
+
+.remote-link {
+	margin-left: 4px;
+	display: inline-block;
+	color: #444444;
+	text-decoration: none;
+}
+
+.remote-link span {
+	font-size: 9pt;
+	vertical-align: bottom;
+}
+
+.img-link {
+	display: inline-block;
 }

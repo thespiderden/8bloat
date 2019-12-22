@@ -5,12 +5,17 @@
 <div class="user-info-container">
 <div>
 	<div class="user-profile-img-container">
-		<img class="user-profile-img" src="{{.User.AvatarStatic}}" alt="profile-avatar" />
+		<a class="img-link" href="{{.User.AvatarStatic}}" target="_blank">
+			<img class="user-profile-img" src="{{.User.AvatarStatic}}" alt="profile-avatar" />
+		</a>
 	</div>
 	<div class="user-profile-details-container">
 		<div>
 			<span class="status-dname"> {{EmojiFilter .User.DisplayName .User.Emojis}} </span>  
 			<span class="status-uname"> {{.User.Acct}} </span>
+			<a class="remote-link" href="{{.User.URL}}" target="_blank" title="remote profile">
+				<span class="icon dripicons-link"></span> 
+			</a>
 		</div>
 		<div>
 			<span> {{if .User.Pleroma.Relationship.FollowedBy}} follows you - {{end}} </span>  

@@ -6,9 +6,11 @@
 <div class="notification-container {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
 	{{if eq .Type "follow"}}
 	<div class="notification-follow-container">
-		<a href="/user/{{.Account.ID}}" >
-			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
-		</a>
+		<div class="status-profile-img-container">
+			<a class="img-link" href="/user/{{.Account.ID}}" >
+				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+			</a>
+		</div>
 		<div>
 			<div>
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
@@ -26,9 +28,11 @@
 
 	{{else if eq .Type "reblog"}}
 	<div class="notification-retweet-container">
-		<a href="/user/{{.Account.ID}}" >
-			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
-		</a>
+		<div class="status-profile-img-container">
+			<a class="img-link" href="/user/{{.Account.ID}}" >
+				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+			</a>
+		</div>
 		<div>
 			<div>
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
@@ -41,9 +45,11 @@
 
 	{{else if eq .Type "favourite"}}
 	<div class="notification-like-container">
-		<a href="/user/{{.Account.ID}}" >
-			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
-		</a>
+		<div class="status-profile-img-container">
+			<a class="img-link" href="/user/{{.Account.ID}}" >
+				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
+			</a>
+		</div>
 		<div>
 			<div>
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  

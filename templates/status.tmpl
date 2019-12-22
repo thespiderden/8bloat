@@ -1,7 +1,7 @@
 <div id="status-{{if .Reblog}}{{.Reblog.ID}}{{else}}{{.ID}}{{end}}" class="status-container-container">
 	{{if .Reblog}}
 	<div class="retweet-info">
-		<a href="/user/{{.Account.ID}}" >
+		<a class="img-link" href="/user/{{.Account.ID}}">
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
@@ -12,13 +12,13 @@
 	{{else}}
 	{{block "status" .}}
 	<div class="status-container">
-		<div>
-			{{if not .HideAccountInfo}}
-			<a href="/user/{{.Account.ID}}" >
+		{{if not .HideAccountInfo}}
+		<div class="status-profile-img-container">
+			<a class="img-link" href="/user/{{.Account.ID}}">
 				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
 			</a>
-			{{end}}
 		</div>
+		{{end}}
 		<div class="status"> 
 			{{if not .HideAccountInfo}}
 			<div class="status-name">
@@ -26,7 +26,7 @@
 				<a href="/user/{{.Account.ID}}" >
 					<span class="status-uname"> {{.Account.Acct}} </span>
 				</a>
-				<a class="status-visibility" href="{{.URL}}" target="_blank">
+				<a class="status-visibility">
 					{{if eq .Visibility "public"}}
 					<span class="icon dripicons-web" title="Public"></span> 
 					{{else if eq .Visibility "unlisted"}}
@@ -36,6 +36,9 @@
 					{{else if eq .Visibility "direct"}}
 					<span class="icon dripicons-mail" title="Direct"></span> 
 					{{end}}
+				</a>
+				<a class="remote-link" href="{{.URL}}" target="_blank" title="source">
+					<span class="icon dripicons-link"></span> 
 				</a>
 			</div>
 			{{end}}
@@ -56,7 +59,7 @@
 			<div class="status-media-container">
 			{{range .MediaAttachments}}
 			{{if eq .Type "image"}}
-			<a href="{{.URL}}" target="_blank">
+			<a class="img-link" href="{{.URL}}" target="_blank">
 				<img class="status-image" src="{{.URL}}" alt="status-image" />
 			</a>
 			{{else if eq .Type "audio"}}

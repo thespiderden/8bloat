@@ -79,7 +79,7 @@ func (r *renderer) RenderAboutPage(ctx context.Context, writer io.Writer, data *
 func EmojiFilter(content string, emojis []mastodon.Emoji) string {
 	var replacements []string
 	for _, e := range emojis {
-		replacements = append(replacements, ":"+e.ShortCode+":", "<img class=\"status-emoji\" src=\""+e.URL+"\" alt=\""+e.ShortCode+"\" />")
+		replacements = append(replacements, ":"+e.ShortCode+":", "<img class=\"status-emoji\" src=\""+e.URL+"\" alt=\""+e.ShortCode+"\" title=\""+e.ShortCode+"\" />")
 	}
 	return strings.NewReplacer(replacements...).Replace(content)
 }
@@ -90,7 +90,7 @@ func StatusContentFilter(spoiler string, content string, emojis []mastodon.Emoji
 	}
 	var replacements []string
 	for _, e := range emojis {
-		replacements = append(replacements, ":"+e.ShortCode+":", "<img class=\"status-emoji\" src=\""+e.URL+"\" alt=\""+e.ShortCode+"\" />")
+		replacements = append(replacements, ":"+e.ShortCode+":", "<img class=\"status-emoji\" src=\""+e.URL+"\" alt=\""+e.ShortCode+"\" title=\""+e.ShortCode+"\" />")
 	}
 	for _, m := range mentions {
 		replacements = append(replacements, "\""+m.URL+"\"", "\"/user/"+m.ID+"\"")
