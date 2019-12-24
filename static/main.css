@@ -13,12 +13,16 @@
 }
 
 .status-content {
-	margin: 4px 0 8px 0;
+	margin: 4px 0;
 	word-wrap: anywhere;
 }
 
 .status-content p {
 	margin: 0px;
+}
+
+.status-media-container {
+	margin: 4px 0;
 }
 
 .status-profile-img-container {
@@ -60,16 +64,15 @@
 }
 
 .status-action {
-	display: flex;
 	margin-top: 4px;
 }
 
 .status-action a {
-	display: flex;
-	margin: 0 4px;
-	width: 64px;
+	display: inline-block;
+	min-width: 64px;
 	text-decoration: none;
 	color: #333333;
+	vertical-align: middle;
 }
 
 .status-action a:hover {
