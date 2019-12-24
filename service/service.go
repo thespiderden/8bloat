@@ -478,7 +478,12 @@ func (svc *service) getNavbarTemplateData(ctx context.Context, client io.Writer,
 		}
 	}
 
-	data = renderer.NewNavbarTemplateData(notificationCount)
+	u, err := c.GetAccountCurrentUser(ctx)
+	if err != nil {
+		return
+	}
+
+	data = renderer.NewNavbarTemplateData(notificationCount, u)
 
 	return
 }

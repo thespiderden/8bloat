@@ -6,12 +6,14 @@ import (
 )
 
 type NavbarTemplateData struct {
+	User              *mastodon.Account
 	NotificationCount int
 }
 
-func NewNavbarTemplateData(notificationCount int) *NavbarTemplateData {
+func NewNavbarTemplateData(notificationCount int, user *mastodon.Account) *NavbarTemplateData {
 	return &NavbarTemplateData{
 		NotificationCount: notificationCount,
+		User:              user,
 	}
 }
 

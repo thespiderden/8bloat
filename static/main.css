@@ -104,14 +104,6 @@
 	font-size: 23pt;
 }
 
-.navigation {
-	margin: 4px 0;
-}
-
-.navigation a {
-	margin-right: 8px;
-}
-
 .post-form {
 	margin: 8px 0;
 }
@@ -343,3 +335,33 @@
 .post-form-emoji-link i {
 	font-size: 14pt !important;
 }
+
+.user-info {
+	margin-bottom: 8px;
+}
+
+.user-info-img-container {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.user-info-img {
+	max-height: 64px;
+	max-width: 64px;
+	object-fit: contain;
+	vertical-align: middle;
+}
+
+.user-info-details-container {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.user-info-details-container>div {
+	margin-bottom: 4px;
+}
+
+.nav-link {
+	margin-right: 2px;
+}
+
