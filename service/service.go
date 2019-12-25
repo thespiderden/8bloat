@@ -21,6 +21,7 @@ var (
 	ErrInvalidArgument = errors.New("invalid argument")
 	ErrInvalidToken    = errors.New("invalid token")
 	ErrInvalidClient   = errors.New("invalid client")
+	ErrInvalidTimeline = errors.New("invalid timeline")
 )
 
 type Service interface {
@@ -29,7 +30,7 @@ type Service interface {
 	GetUserToken(ctx context.Context, sessionID string, c *model.Client, token string) (accessToken string, err error)
 	ServeErrorPage(ctx context.Context, client io.Writer, err error)
 	ServeSigninPage(ctx context.Context, client io.Writer) (err error)
-	ServeTimelinePage(ctx context.Context, client io.Writer, c *model.Client, maxID string, sinceID string, minID string) (err error)
+	ServeTimelinePage(ctx context.Context, client io.Writer, c *model.Client, timelineType string, maxID string, sinceID string, minID string) (err error)
 	ServeThreadPage(ctx context.Context, client io.Writer, c *model.Client, id string, reply bool) (err error)
 	ServeNotificationPage(ctx context.Context, client io.Writer, c *model.Client, maxID string, minID string) (err error)
 	ServeUserPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error)
@@ -210,7 +211,7 @@ func (svc *service) ServeSigninPage(ctx context.Context, client io.Writer) (err 
 }
 
 func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
-	c *model.Client, maxID string, sinceID string, minID string) (err error) {
+	c *model.Client, timelineType string, maxID string, sinceID string, minID string) (err error) {
 
 	var hasNext, hasPrev bool
 	var nextLink, prevLink string
@@ -221,7 +222,21 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		Limit: 20,
 	}
 
-	statuses, err := c.GetTimelineHome(ctx, &pg)
+	var statuses []*mastodon.Status
+	var title string
+	switch timelineType {
+	default:
+		return ErrInvalidTimeline
+	case "home":
+		statuses, err = c.GetTimelineHome(ctx, &pg)
+		title = "Timeline"
+	case "local":
+		statuses, err = c.GetTimelinePublic(ctx, true, &pg)
+		title = "Local Timeline"
+	case "twkn":
+		statuses, err = c.GetTimelinePublic(ctx, false, &pg)
+		title = "The Whole Known Network"
+	}
 	if err != nil {
 		return err
 	}
@@ -261,7 +276,7 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		return
 	}
 
-	data := renderer.NewTimelinePageTemplateData(statuses, hasNext, nextLink, hasPrev, prevLink, postContext, navbarData)
+	data := renderer.NewTimelinePageTemplateData(title, statuses, hasNext, nextLink, hasPrev, prevLink, postContext, navbarData)
 	err = svc.renderer.RenderTimelinePage(ctx, client, data)
 	if err != nil {
 		return

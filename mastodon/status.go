@@ -192,7 +192,7 @@ func (c *Client) GetTimelineHome(ctx context.Context, pg *Pagination) ([]*Status
 func (c *Client) GetTimelinePublic(ctx context.Context, isLocal bool, pg *Pagination) ([]*Status, error) {
 	params := url.Values{}
 	if isLocal {
-		params.Set("local", "t")
+		params.Set("local", "true")
 	}
 
 	var statuses []*Status

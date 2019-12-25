@@ -61,12 +61,12 @@ func (s *loggingService) ServeSigninPage(ctx context.Context, client io.Writer) 
 }
 
 func (s *loggingService) ServeTimelinePage(ctx context.Context, client io.Writer,
-	c *model.Client, maxID string, sinceID string, minID string) (err error) {
+	c *model.Client, timelineType string, maxID string, sinceID string, minID string) (err error) {
 	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, max_id=%v, since_id=%v, min_id=%v, took=%v, err=%v\n",
-			"ServeTimelinePage", maxID, sinceID, minID, time.Since(begin), err)
+		s.logger.Printf("method=%v, timeline_type=%v, max_id=%v, since_id=%v, min_id=%v, took=%v, err=%v\n",
+			"ServeTimelinePage", timelineType, maxID, sinceID, minID, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.ServeTimelinePage(ctx, client, c, maxID, sinceID, minID)
+	return s.Service.ServeTimelinePage(ctx, client, c, timelineType, maxID, sinceID, minID)
 }
 
 func (s *loggingService) ServeThreadPage(ctx context.Context, client io.Writer, c *model.Client, id string, reply bool) (err error) {

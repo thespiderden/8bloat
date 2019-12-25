@@ -85,12 +85,12 @@ func (s *authService) ServeSigninPage(ctx context.Context, client io.Writer) (er
 }
 
 func (s *authService) ServeTimelinePage(ctx context.Context, client io.Writer,
-	c *model.Client, maxID string, sinceID string, minID string) (err error) {
+	c *model.Client, timelineType string, maxID string, sinceID string, minID string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeTimelinePage(ctx, client, c, maxID, sinceID, minID)
+	return s.Service.ServeTimelinePage(ctx, client, c, timelineType, maxID, sinceID, minID)
 }
 
 func (s *authService) ServeThreadPage(ctx context.Context, client io.Writer, c *model.Client, id string, reply bool) (err error) {

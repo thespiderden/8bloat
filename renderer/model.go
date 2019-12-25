@@ -18,6 +18,7 @@ func NewNavbarTemplateData(notificationCount int, user *mastodon.Account) *Navba
 }
 
 type TimelinePageTemplateData struct {
+	Title       string
 	Statuses    []*mastodon.Status
 	HasNext     bool
 	NextLink    string
@@ -27,9 +28,10 @@ type TimelinePageTemplateData struct {
 	NavbarData  *NavbarTemplateData
 }
 
-func NewTimelinePageTemplateData(statuses []*mastodon.Status, hasNext bool, nextLink string, hasPrev bool,
+func NewTimelinePageTemplateData(title string, statuses []*mastodon.Status, hasNext bool, nextLink string, hasPrev bool,
 	prevLink string, postContext model.PostContext, navbarData *NavbarTemplateData) *TimelinePageTemplateData {
 	return &TimelinePageTemplateData{
+		Title:       title,
 		Statuses:    statuses,
 		HasNext:     hasNext,
 		NextLink:    nextLink,

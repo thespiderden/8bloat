@@ -1,6 +1,6 @@
 <div class="user-info">
 	<div class="user-info-img-container">
-		<a class="img-link" href="/timeline" title="home">
+		<a class="img-link" href="/timeline/home" title="home">
 			<img class="user-info-img" src="{{.User.AvatarStatic}}" alt="profile-avatar" />
 		</a>
 	</div>
@@ -12,8 +12,10 @@
 			</a>
 		</div>
 		<div>
-			<a class="nav-link" href="/timeline">home</a>
+			<a class="nav-link" href="/timeline/home">home</a>
 			<a class="nav-link" href="/notifications">notifications{{if gt .NotificationCount 0}}({{.NotificationCount}}){{end}}</a>
+			<a class="nav-link" href="/timeline/local">local</a>
+			<a class="nav-link" href="/timeline/twkn">twkn</a>
 			<a class="nav-link" href="/about">about</a>
 		</div>
 		<div>

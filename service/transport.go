@@ -26,7 +26,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		sessionID, _ := req.Cookie("session_id")
 		if sessionID != nil && len(sessionID.Value) > 0 {
-			location = "/timeline"
+			location = "/timeline/home"
 		}
 
 		w.Header().Add("Location", location)
@@ -63,18 +63,24 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 
-		w.Header().Add("Location", "/timeline")
+		w.Header().Add("Location", "/timeline/home")
 		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodGet)
 
 	r.HandleFunc("/timeline", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Add("Location", "/timeline/home")
+		w.WriteHeader(http.StatusFound)
+	}).Methods(http.MethodGet)
+
+	r.HandleFunc("/timeline/{type}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
 
+		timelineType, _ := mux.Vars(req)["type"]
 		maxID := req.URL.Query().Get("max_id")
 		sinceID := req.URL.Query().Get("since_id")
 		minID := req.URL.Query().Get("min_id")
 
-		err := s.ServeTimelinePage(ctx, w, nil, maxID, sinceID, minID)
+		err := s.ServeTimelinePage(ctx, w, nil, timelineType, maxID, sinceID, minID)
 		if err != nil {
 			s.ServeErrorPage(ctx, w, err)
 			return
@@ -166,7 +172,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 
-		location := "/timeline" + "#status-" + id
+		location := "/timeline/home" + "#status-" + id
 		if len(replyToID) > 0 {
 			location = "/thread/" + replyToID + "#status-" + id
 		}
