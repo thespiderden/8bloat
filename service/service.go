@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -243,7 +244,7 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 
 	if len(maxID) > 0 && len(statuses) > 0 {
 		hasPrev = true
-		prevLink = "/timeline?min_id=" + statuses[0].ID
+		prevLink = fmt.Sprintf("/timeline/$s?min_id=%s", timelineType, statuses[0].ID)
 	}
 	if len(minID) > 0 && len(pg.MinID) > 0 {
 		newStatuses, err := c.GetTimelineHome(ctx, &mastodon.Pagination{MinID: pg.MinID, Limit: 20})
@@ -253,18 +254,18 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		newStatusesLen := len(newStatuses)
 		if newStatusesLen == 20 {
 			hasPrev = true
-			prevLink = "/timeline?min_id=" + pg.MinID
+			prevLink = fmt.Sprintf("/timeline/%s?min_id=%s", timelineType, pg.MinID)
 		} else {
 			i := 20 - newStatusesLen - 1
 			if len(statuses) > i {
 				hasPrev = true
-				prevLink = "/timeline?min_id=" + statuses[i].ID
+				prevLink = fmt.Sprintf("/timeline/%s?min_id=%s", timelineType, statuses[i].ID)
 			}
 		}
 	}
 	if len(pg.MaxID) > 0 {
 		hasNext = true
-		nextLink = "/timeline?max_id=" + pg.MaxID
+		nextLink = fmt.Sprintf("/timeline/%s?max_id=%s", timelineType, pg.MaxID)
 	}
 
 	postContext := model.PostContext{
