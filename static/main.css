@@ -55,12 +55,12 @@
 .status-emoji {
 	height: 20px;
 	margin-bottom: -4px;
-	witdth: auto;
+	width: auto;
 }
 
 .name-emoji {
 	height: 20px;
-	witdth: auto;
+	width: auto;
 }
 
 .status-action {
