@@ -15,12 +15,12 @@ type Renderer interface {
 	RenderErrorPage(ctx context.Context, writer io.Writer, err error)
 	RenderHomePage(ctx context.Context, writer io.Writer) (err error)
 	RenderSigninPage(ctx context.Context, writer io.Writer) (err error)
-	RenderTimelinePage(ctx context.Context, writer io.Writer, data *TimelinePageTemplateData) (err error)
-	RenderThreadPage(ctx context.Context, writer io.Writer, data *ThreadPageTemplateData) (err error)
-	RenderNotificationPage(ctx context.Context, writer io.Writer, data *NotificationPageTemplateData) (err error)
-	RenderUserPage(ctx context.Context, writer io.Writer, data *UserPageTemplateData) (err error)
-	RenderAboutPage(ctx context.Context, writer io.Writer, data *AboutPageTemplateData) (err error)
-	RenderEmojiPage(ctx context.Context, writer io.Writer, data *EmojiPageTemplateData) (err error)
+	RenderTimelinePage(ctx context.Context, writer io.Writer, data *TimelineData) (err error)
+	RenderThreadPage(ctx context.Context, writer io.Writer, data *ThreadData) (err error)
+	RenderNotificationPage(ctx context.Context, writer io.Writer, data *NotificationData) (err error)
+	RenderUserPage(ctx context.Context, writer io.Writer, data *UserData) (err error)
+	RenderAboutPage(ctx context.Context, writer io.Writer, data *AboutData) (err error)
+	RenderEmojiPage(ctx context.Context, writer io.Writer, data *EmojiData) (err error)
 }
 
 type renderer struct {
@@ -57,27 +57,27 @@ func (r *renderer) RenderSigninPage(ctx context.Context, writer io.Writer) (err 
 	return r.template.ExecuteTemplate(writer, "signin.tmpl", nil)
 }
 
-func (r *renderer) RenderTimelinePage(ctx context.Context, writer io.Writer, data *TimelinePageTemplateData) (err error) {
+func (r *renderer) RenderTimelinePage(ctx context.Context, writer io.Writer, data *TimelineData) (err error) {
 	return r.template.ExecuteTemplate(writer, "timeline.tmpl", data)
 }
 
-func (r *renderer) RenderThreadPage(ctx context.Context, writer io.Writer, data *ThreadPageTemplateData) (err error) {
+func (r *renderer) RenderThreadPage(ctx context.Context, writer io.Writer, data *ThreadData) (err error) {
 	return r.template.ExecuteTemplate(writer, "thread.tmpl", data)
 }
 
-func (r *renderer) RenderNotificationPage(ctx context.Context, writer io.Writer, data *NotificationPageTemplateData) (err error) {
+func (r *renderer) RenderNotificationPage(ctx context.Context, writer io.Writer, data *NotificationData) (err error) {
 	return r.template.ExecuteTemplate(writer, "notification.tmpl", data)
 }
 
-func (r *renderer) RenderUserPage(ctx context.Context, writer io.Writer, data *UserPageTemplateData) (err error) {
+func (r *renderer) RenderUserPage(ctx context.Context, writer io.Writer, data *UserData) (err error) {
 	return r.template.ExecuteTemplate(writer, "user.tmpl", data)
 }
 
-func (r *renderer) RenderAboutPage(ctx context.Context, writer io.Writer, data *AboutPageTemplateData) (err error) {
+func (r *renderer) RenderAboutPage(ctx context.Context, writer io.Writer, data *AboutData) (err error) {
 	return r.template.ExecuteTemplate(writer, "about.tmpl", data)
 }
 
-func (r *renderer) RenderEmojiPage(ctx context.Context, writer io.Writer, data *EmojiPageTemplateData) (err error) {
+func (r *renderer) RenderEmojiPage(ctx context.Context, writer io.Writer, data *EmojiData) (err error) {
 	return r.template.ExecuteTemplate(writer, "emoji.tmpl", data)
 }
 

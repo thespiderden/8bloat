@@ -277,7 +277,17 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		return
 	}
 
-	data := renderer.NewTimelinePageTemplateData(title, statuses, hasNext, nextLink, hasPrev, prevLink, postContext, navbarData)
+	data := &renderer.TimelineData{
+		Title:       title,
+		Statuses:    statuses,
+		HasNext:     hasNext,
+		NextLink:    nextLink,
+		HasPrev:     hasPrev,
+		PrevLink:    prevLink,
+		PostContext: postContext,
+		NavbarData:   navbarData,
+	}
+
 	err = svc.renderer.RenderTimelinePage(ctx, client, data)
 	if err != nil {
 		return
@@ -344,7 +354,13 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 		return
 	}
 
-	data := renderer.NewThreadPageTemplateData(statuses, postContext, replyMap, navbarData)
+	data := &renderer.ThreadData{
+		Statuses:    statuses,
+		PostContext: postContext,
+		ReplyMap:    replyMap,
+		NavbarData:  navbarData,
+	}
+
 	err = svc.renderer.RenderThreadPage(ctx, client, data)
 	if err != nil {
 		return
@@ -398,7 +414,12 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 		return
 	}
 
-	data := renderer.NewNotificationPageTemplateData(notifications, hasNext, nextLink, navbarData)
+	data := &renderer.NotificationData{
+		Notifications: notifications,
+		HasNext:       hasNext,
+		NextLink:      nextLink,
+		NavbarData:    navbarData,
+	}
 	err = svc.renderer.RenderNotificationPage(ctx, client, data)
 	if err != nil {
 		return
@@ -437,7 +458,14 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mode
 		return
 	}
 
-	data := renderer.NewUserPageTemplateData(user, statuses, hasNext, nextLink, navbarData)
+	data := &renderer.UserData{
+		User:       user,
+		Statuses:   statuses,
+		HasNext:    hasNext,
+		NextLink:   nextLink,
+		NavbarData: navbarData,
+	}
+
 	err = svc.renderer.RenderUserPage(ctx, client, data)
 	if err != nil {
 		return
@@ -452,7 +480,9 @@ func (svc *service) ServeAboutPage(ctx context.Context, client io.Writer, c *mod
 		return
 	}
 
-	data := renderer.NewAboutPageTemplateData(navbarData)
+	data := &renderer.AboutData{
+		NavbarData: navbarData,
+	}
 	err = svc.renderer.RenderAboutPage(ctx, client, data)
 	if err != nil {
 		return
@@ -472,7 +502,11 @@ func (svc *service) ServeEmojiPage(ctx context.Context, client io.Writer, c *mod
 		return
 	}
 
-	data := renderer.NewEmojiPageTemplateData(navbarData, emojis)
+	data := &renderer.EmojiData{
+		Emojis:     emojis,
+		NavbarData: navbarData,
+	}
+
 	err = svc.renderer.RenderEmojiPage(ctx, client, data)
 	if err != nil {
 		return
@@ -481,7 +515,7 @@ func (svc *service) ServeEmojiPage(ctx context.Context, client io.Writer, c *mod
 	return
 }
 
-func (svc *service) getNavbarTemplateData(ctx context.Context, client io.Writer, c *model.Client) (data *renderer.NavbarTemplateData, err error) {
+func (svc *service) getNavbarTemplateData(ctx context.Context, client io.Writer, c *model.Client) (data *renderer.NavbarData, err error) {
 	notifications, err := c.GetNotifications(ctx, nil)
 	if err != nil {
 		return
@@ -499,7 +533,10 @@ func (svc *service) getNavbarTemplateData(ctx context.Context, client io.Writer,
 		return
 	}
 
-	data = renderer.NewNavbarTemplateData(notificationCount, u)
+	data = &renderer.NavbarData{
+		User:              u,
+		NotificationCount: notificationCount,
+	}
 
 	return
 }
