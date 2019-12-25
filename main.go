@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"web/config"
@@ -52,6 +53,12 @@ func main() {
 	sessionRepo := repository.NewSessionRepository(sessionDB)
 	appRepo := repository.NewAppRepository(appDB)
 
+	customCSS := config.CustomCSS
+	if !strings.HasPrefix(customCSS, "http://") &&
+		!strings.HasPrefix(customCSS, "https://") {
+		customCSS = "/static/" + customCSS
+	}
+
 	var logger *log.Logger
 	if len(config.Logfile) < 1 {
 		logger = log.New(os.Stdout, "", log.LstdFlags)
@@ -64,7 +71,7 @@ func main() {
 		logger = log.New(lf, "", log.LstdFlags)
 	}
 
-	s := service.NewService(config.ClientName, config.ClientScope, config.ClientWebsite, renderer, sessionRepo, appRepo)
+	s := service.NewService(config.ClientName, config.ClientScope, config.ClientWebsite, customCSS, renderer, sessionRepo, appRepo)
 	s = service.NewAuthService(sessionRepo, appRepo, s)
 	s = service.NewLoggingService(logger, s)
 	handler := service.NewHandler(s, config.StaticDirectory)

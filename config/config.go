@@ -16,6 +16,7 @@ type config struct {
 	StaticDirectory      string
 	TemplatesGlobPattern string
 	DatabasePath         string
+	CustomCSS            string
 	Logfile              string
 }
 
@@ -41,6 +42,7 @@ func getDefaultConfig() *config {
 		StaticDirectory:      "static",
 		TemplatesGlobPattern: "templates/*",
 		DatabasePath:         "database.db",
+		CustomCSS:            "",
 		Logfile:              "",
 	}
 }
@@ -83,6 +85,8 @@ func Parse(r io.Reader) (c *config, err error) {
 			c.TemplatesGlobPattern = val
 		case "database_path":
 			c.DatabasePath = val
+		case "custom_css":
+			c.CustomCSS = val
 		case "logfile":
 			c.Logfile = val
 		default:

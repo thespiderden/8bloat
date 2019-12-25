@@ -5,12 +5,24 @@ import (
 	"web/model"
 )
 
+type HeaderData struct {
+	Title             string
+	NotificationCount int
+	CustomCSS         string
+}
+
 type NavbarData struct {
 	User              *mastodon.Account
 	NotificationCount int
 }
 
+type CommonData struct {
+	HeaderData *HeaderData
+	NavbarData *NavbarData
+}
+
 type TimelineData struct {
+	*CommonData
 	Title       string
 	Statuses    []*mastodon.Status
 	HasNext     bool
@@ -18,36 +30,35 @@ type TimelineData struct {
 	HasPrev     bool
 	PrevLink    string
 	PostContext model.PostContext
-	NavbarData  *NavbarData
 }
 
 type ThreadData struct {
+	*CommonData
 	Statuses    []*mastodon.Status
 	PostContext model.PostContext
 	ReplyMap    map[string][]mastodon.ReplyInfo
-	NavbarData  *NavbarData
 }
 
 type NotificationData struct {
+	*CommonData
 	Notifications []*mastodon.Notification
 	HasNext       bool
 	NextLink      string
-	NavbarData    *NavbarData
 }
 
 type UserData struct {
+	*CommonData
 	User       *mastodon.Account
 	Statuses   []*mastodon.Status
 	HasNext    bool
 	NextLink   string
-	NavbarData *NavbarData
 }
 
 type AboutData struct {
-	NavbarData *NavbarData
+	*CommonData
 }
 
 type EmojiData struct {
 	Emojis     []*mastodon.Emoji
-	NavbarData *NavbarData
+	CommonData *CommonData
 }

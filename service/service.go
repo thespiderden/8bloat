@@ -50,18 +50,20 @@ type service struct {
 	clientName    string
 	clientScope   string
 	clientWebsite string
+	customCSS     string
 	renderer      renderer.Renderer
 	sessionRepo   model.SessionRepository
 	appRepo       model.AppRepository
 }
 
 func NewService(clientName string, clientScope string, clientWebsite string,
-	renderer renderer.Renderer, sessionRepo model.SessionRepository,
+	customCSS string, renderer renderer.Renderer, sessionRepo model.SessionRepository,
 	appRepo model.AppRepository) Service {
 	return &service{
 		clientName:    clientName,
 		clientScope:   clientScope,
 		clientWebsite: clientWebsite,
+		customCSS:     customCSS,
 		renderer:      renderer,
 		sessionRepo:   sessionRepo,
 		appRepo:       appRepo,
@@ -272,7 +274,7 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		DefaultVisibility: c.Session.Settings.DefaultVisibility,
 	}
 
-	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c)
 	if err != nil {
 		return
 	}
@@ -285,7 +287,7 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		HasPrev:     hasPrev,
 		PrevLink:    prevLink,
 		PostContext: postContext,
-		NavbarData:   navbarData,
+		CommonData:  commonData,
 	}
 
 	err = svc.renderer.RenderTimelinePage(ctx, client, data)
@@ -349,7 +351,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 		addToReplyMap(replyMap, statuses[i].InReplyToID, statuses[i].ID, i+1)
 	}
 
-	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c)
 	if err != nil {
 		return
 	}
@@ -358,7 +360,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 		Statuses:    statuses,
 		PostContext: postContext,
 		ReplyMap:    replyMap,
-		NavbarData:  navbarData,
+		CommonData:  commonData,
 	}
 
 	err = svc.renderer.RenderThreadPage(ctx, client, data)
@@ -409,7 +411,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 		nextLink = "/notifications?max_id=" + pg.MaxID
 	}
 
-	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c)
 	if err != nil {
 		return
 	}
@@ -418,7 +420,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 		Notifications: notifications,
 		HasNext:       hasNext,
 		NextLink:      nextLink,
-		NavbarData:    navbarData,
+		CommonData:    commonData,
 	}
 	err = svc.renderer.RenderNotificationPage(ctx, client, data)
 	if err != nil {
@@ -453,7 +455,7 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mode
 		nextLink = "/user/" + id + "?max_id=" + pg.MaxID
 	}
 
-	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c)
 	if err != nil {
 		return
 	}
@@ -463,7 +465,7 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mode
 		Statuses:   statuses,
 		HasNext:    hasNext,
 		NextLink:   nextLink,
-		NavbarData: navbarData,
+		CommonData: commonData,
 	}
 
 	err = svc.renderer.RenderUserPage(ctx, client, data)
@@ -475,13 +477,13 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mode
 }
 
 func (svc *service) ServeAboutPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
-	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c)
 	if err != nil {
 		return
 	}
 
 	data := &renderer.AboutData{
-		NavbarData: navbarData,
+		CommonData: commonData,
 	}
 	err = svc.renderer.RenderAboutPage(ctx, client, data)
 	if err != nil {
@@ -492,7 +494,7 @@ func (svc *service) ServeAboutPage(ctx context.Context, client io.Writer, c *mod
 }
 
 func (svc *service) ServeEmojiPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
-	navbarData, err := svc.getNavbarTemplateData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c)
 	if err != nil {
 		return
 	}
@@ -504,7 +506,7 @@ func (svc *service) ServeEmojiPage(ctx context.Context, client io.Writer, c *mod
 
 	data := &renderer.EmojiData{
 		Emojis:     emojis,
-		NavbarData: navbarData,
+		CommonData: commonData,
 	}
 
 	err = svc.renderer.RenderEmojiPage(ctx, client, data)
@@ -515,27 +517,39 @@ func (svc *service) ServeEmojiPage(ctx context.Context, client io.Writer, c *mod
 	return
 }
 
-func (svc *service) getNavbarTemplateData(ctx context.Context, client io.Writer, c *model.Client) (data *renderer.NavbarData, err error) {
-	notifications, err := c.GetNotifications(ctx, nil)
-	if err != nil {
-		return
+func (svc *service) getCommonData(ctx context.Context, client io.Writer, c *model.Client) (data *renderer.CommonData, err error) {
+	data = new(renderer.CommonData)
+
+	data.HeaderData = &renderer.HeaderData{
+		Title:             "Web",
+		NotificationCount: 0,
+		CustomCSS:         svc.customCSS,
 	}
 
-	var notificationCount int
-	for i := range notifications {
-		if notifications[i].Pleroma != nil && !notifications[i].Pleroma.IsSeen {
-			notificationCount++
+	if c != nil && c.Session.IsLoggedIn() {
+		notifications, err := c.GetNotifications(ctx, nil)
+		if err != nil {
+			return nil, err
 		}
-	}
 
-	u, err := c.GetAccountCurrentUser(ctx)
-	if err != nil {
-		return
-	}
+		var notificationCount int
+		for i := range notifications {
+			if notifications[i].Pleroma != nil && !notifications[i].Pleroma.IsSeen {
+				notificationCount++
+			}
+		}
 
-	data = &renderer.NavbarData{
-		User:              u,
-		NotificationCount: notificationCount,
+		u, err := c.GetAccountCurrentUser(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		data.NavbarData = &renderer.NavbarData{
+			User:              u,
+			NotificationCount: notificationCount,
+		}
+
+		data.HeaderData.NotificationCount = notificationCount
 	}
 
 	return
