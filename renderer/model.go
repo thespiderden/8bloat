@@ -61,10 +61,10 @@ type NotificationData struct {
 
 type UserData struct {
 	*CommonData
-	User       *mastodon.Account
-	Statuses   []*mastodon.Status
-	HasNext    bool
-	NextLink   string
+	User     *mastodon.Account
+	Statuses []*mastodon.Status
+	HasNext  bool
+	NextLink string
 }
 
 type AboutData struct {
@@ -73,19 +73,29 @@ type AboutData struct {
 
 type EmojiData struct {
 	*CommonData
-	Emojis     []*mastodon.Emoji
+	Emojis []*mastodon.Emoji
 }
 
 type LikedByData struct {
 	*CommonData
-	Users []*mastodon.Account
-	HasNext    bool
-	NextLink   string
+	Users    []*mastodon.Account
+	HasNext  bool
+	NextLink string
 }
 
 type RetweetedByData struct {
 	*CommonData
-	Users []*mastodon.Account
-	HasNext    bool
-	NextLink   string
+	Users    []*mastodon.Account
+	HasNext  bool
+	NextLink string
+}
+
+type SearchData struct {
+	*CommonData
+	Q         string
+	Type      string
+	Users     []*mastodon.Account
+	Statuses  []*mastodon.Status
+	HasNext bool
+	NextLink string
 }

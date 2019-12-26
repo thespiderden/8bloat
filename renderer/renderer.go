@@ -23,6 +23,7 @@ type Renderer interface {
 	RenderEmojiPage(ctx context.Context, writer io.Writer, data *EmojiData) (err error)
 	RenderLikedByPage(ctx context.Context, writer io.Writer, data *LikedByData) (err error)
 	RenderRetweetedByPage(ctx context.Context, writer io.Writer, data *RetweetedByData) (err error)
+	RenderSearchPage(ctx context.Context, writer io.Writer, data *SearchData) (err error)
 }
 
 type renderer struct {
@@ -89,6 +90,10 @@ func (r *renderer) RenderLikedByPage(ctx context.Context, writer io.Writer, data
 
 func (r *renderer) RenderRetweetedByPage(ctx context.Context, writer io.Writer, data *RetweetedByData) (err error) {
 	return r.template.ExecuteTemplate(writer, "retweetedby.tmpl", data)
+}
+
+func (r *renderer) RenderSearchPage(ctx context.Context, writer io.Writer, data *SearchData) (err error) {
+	return r.template.ExecuteTemplate(writer, "search.tmpl", data)
 }
 
 func EmojiFilter(content string, emojis []mastodon.Emoji) string {

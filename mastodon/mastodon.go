@@ -336,7 +336,7 @@ type Emoji struct {
 type Results struct {
 	Accounts []*Account `json:"accounts"`
 	Statuses []*Status  `json:"statuses"`
-	Hashtags []string   `json:"hashtags"`
+	// Hashtags []string   `json:"hashtags"`
 }
 
 // Pagination is a struct for specifying the get range.

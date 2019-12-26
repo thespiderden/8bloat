@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"path"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -274,6 +275,30 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		ctx := getContextWithSession(context.Background(), req)
 
 		err := s.ServeEmojiPage(ctx, w, nil)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodGet)
+
+	r.HandleFunc("/search", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+
+		q := req.URL.Query().Get("q")
+		qType := req.URL.Query().Get("type")
+		offsetStr := req.URL.Query().Get("offset")
+
+		var offset int
+		var err error
+		if len(offsetStr) > 1 {
+			offset, err = strconv.Atoi(offsetStr)
+			if err != nil {
+				s.ServeErrorPage(ctx, w, err)
+				return
+			}
+		}
+
+		err = s.ServeSearchPage(ctx, w, nil, q, qType, offset)
 		if err != nil {
 			s.ServeErrorPage(ctx, w, err)
 			return

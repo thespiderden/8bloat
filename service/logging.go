@@ -125,6 +125,14 @@ func (s *loggingService) ServeRetweetedByPage(ctx context.Context, client io.Wri
 	return s.Service.ServeRetweetedByPage(ctx, client, c, id)
 }
 
+func (s *loggingService) ServeSearchPage(ctx context.Context, client io.Writer, c *model.Client, q string, qType string, offset int) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, q=%v, type=%v, offset=%v, took=%v, err=%v\n",
+			"ServeSearchPage", q, qType, offset, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeSearchPage(ctx, client, c, q, qType, offset)
+}
+
 func (s *loggingService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",

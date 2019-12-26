@@ -1,0 +1,37 @@
+{{template "header.tmpl" .HeaderData}}
+{{template "navigation.tmpl" .NavbarData}}
+<div class="page-title"> Search </div>
+
+<div>
+	<form action="/search" method="GET">
+		<span class="post-form-field>
+			<label for="query"> Query </label>
+			<input id="query" name="q" value="{{.Q}}">
+		</span>
+		<span class="post-form-field>
+			<label for="type"> Type </label>
+			<select id="type" name="type">
+				<option value="statuses" {{if eq .Type "statuses"}}selected{{end}}>Statuses</option>
+				<option value="accounts" {{if eq .Type "accounts"}}selected{{end}}>Accounts</option>
+			</select>
+		</span>
+		<button type="submit"> Search </button>
+	</form>
+</div>
+
+{{if eq .Type "statuses"}}
+{{range .Statuses}}
+{{template "status.tmpl" .}}
+{{end}}
+
+{{end}}
+{{if eq .Type "accounts"}}
+{{template "userlist.tmpl" .Users}}
+{{end}}
+
+<div class="pagination">
+	{{if .HasNext}}
+		<a href="{{.NextLink}}">next</a>
+	{{end}}
+</div>
+{{template "footer.tmpl"}}

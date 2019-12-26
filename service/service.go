@@ -39,6 +39,7 @@ type Service interface {
 	ServeEmojiPage(ctx context.Context, client io.Writer, c *model.Client) (err error)
 	ServeLikedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	ServeRetweetedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
+	ServeSearchPage(ctx context.Context, client io.Writer, c *model.Client, q string, qType string, offset int) (err error)
 	Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
@@ -593,6 +594,51 @@ func (svc *service) ServeRetweetedByPage(ctx context.Context, client io.Writer, 
 
 	return
 }
+
+func (svc *service) ServeSearchPage(ctx context.Context, client io.Writer, c *model.Client, q string, qType string, offset int) (err error) {
+	var hasNext bool
+	var nextLink string
+
+	results, err := c.Search(ctx, q, qType, 20, true, offset)
+	if err != nil {
+		return
+	}
+
+	switch qType {
+	case "accounts":
+		hasNext = len(results.Accounts) == 20
+	case "statuses":
+		hasNext = len(results.Statuses) == 20
+	}
+
+	if hasNext {
+		offset += 20
+		nextLink = fmt.Sprintf("/search?q=%s&type=%s&offset=%d", q, qType, offset)
+	}
+
+	commonData, err := svc.getCommonData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	data := &renderer.SearchData{
+		CommonData: commonData,
+		Q:          q,
+		Type:       qType,
+		Users:      results.Accounts,
+		Statuses:   results.Statuses,
+		HasNext:    hasNext,
+		NextLink:   nextLink,
+	}
+
+	err = svc.renderer.RenderSearchPage(ctx, client, data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (svc *service) getCommonData(ctx context.Context, client io.Writer, c *model.Client) (data *renderer.CommonData, err error) {
 	data = new(renderer.CommonData)
 
