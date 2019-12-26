@@ -181,12 +181,12 @@ func (s *authService) UnRetweet(ctx context.Context, client io.Writer, c *model.
 	return s.Service.UnRetweet(ctx, client, c, id)
 }
 
-func (s *authService) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error) {
+func (s *authService) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, format string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
 	}
-	return s.Service.PostTweet(ctx, client, c, content, replyToID, visibility, isNSFW, files)
+	return s.Service.PostTweet(ctx, client, c, content, replyToID, format, visibility, isNSFW, files)
 }
 
 func (s *authService) Follow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {

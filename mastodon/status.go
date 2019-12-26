@@ -266,6 +266,9 @@ func (c *Client) PostStatus(ctx context.Context, toot *Toot) (*Status, error) {
 	if toot.SpoilerText != "" {
 		params.Set("spoiler_text", toot.SpoilerText)
 	}
+	if toot.ContentType != "" {
+		params.Set("content_type", toot.ContentType)
+	}
 
 	var status Status
 	err := c.doAPI(ctx, http.MethodPost, "/api/v1/statuses", params, &status, nil)

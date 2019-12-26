@@ -12,6 +12,14 @@
 		<textarea id="post-content" name="content" class="post-content" cols="50" rows="5">{{if .ReplyContext}}{{.ReplyContext.ReplyContent}}{{end}}</textarea>
 	</div>
 	<div>
+		{{if gt (len .Formats) 0}}
+		<span class="post-form-field">
+			<label for="post-format"> Format </label>
+			<select id="post-format" name="format">
+				{{range .Formats}} <option value="{{.Type}}">{{.Name}}</option> {{end}}
+			</select>
+		</span>
+		{{end}}
 		<span class="post-form-field">
 			<label for="post-visilibity"> Visibility </label>
 			<select id="post-visilibity" name="visibility">
@@ -24,8 +32,6 @@
 		<span class="post-form-field">
 			<input type="checkbox" id="nsfw-checkbox" name="is_nsfw" value="on">
 			<label for="nsfw-checkbox"> Is NSFW </label>
-		</span>
-		<span class="post-form-field">
 		</span>
 	</div>
 	<div>

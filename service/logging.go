@@ -157,12 +157,12 @@ func (s *loggingService) UnRetweet(ctx context.Context, client io.Writer, c *mod
 	return s.Service.UnRetweet(ctx, client, c, id)
 }
 
-func (s *loggingService) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error) {
+func (s *loggingService) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, format string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error) {
 	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, content=%v, reply_to_id=%v, visibility=%v, is_nsfw=%v, took=%v, err=%v\n",
-			"PostTweet", content, replyToID, visibility, isNSFW, time.Since(begin), err)
+		s.logger.Printf("method=%v, content=%v, reply_to_id=%v, format=%v, visibility=%v, is_nsfw=%v, took=%v, err=%v\n",
+			"PostTweet", content, replyToID, format, visibility, isNSFW, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.PostTweet(ctx, client, c, content, replyToID, visibility, isNSFW, files)
+	return s.Service.PostTweet(ctx, client, c, content, replyToID, format, visibility, isNSFW, files)
 }
 
 func (s *loggingService) Follow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {

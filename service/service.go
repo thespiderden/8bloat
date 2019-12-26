@@ -43,7 +43,7 @@ type Service interface {
 	UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
-	PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error)
+	PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, format string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error)
 	Follow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	UnFollow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 }
@@ -53,19 +53,21 @@ type service struct {
 	clientScope   string
 	clientWebsite string
 	customCSS     string
+	postFormats   []model.PostFormat
 	renderer      renderer.Renderer
 	sessionRepo   model.SessionRepository
 	appRepo       model.AppRepository
 }
 
 func NewService(clientName string, clientScope string, clientWebsite string,
-	customCSS string, renderer renderer.Renderer, sessionRepo model.SessionRepository,
-	appRepo model.AppRepository) Service {
+	customCSS string, postFormats []model.PostFormat, renderer renderer.Renderer,
+	sessionRepo model.SessionRepository, appRepo model.AppRepository) Service {
 	return &service{
 		clientName:    clientName,
 		clientScope:   clientScope,
 		clientWebsite: clientWebsite,
 		customCSS:     customCSS,
+		postFormats:   postFormats,
 		renderer:      renderer,
 		sessionRepo:   sessionRepo,
 		appRepo:       appRepo,
@@ -297,6 +299,7 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 
 	postContext := model.PostContext{
 		DefaultVisibility: c.Session.Settings.DefaultVisibility,
+		Formats:           svc.postFormats,
 	}
 
 	commonData, err := svc.getCommonData(ctx, client, c)
@@ -353,6 +356,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 
 		postContext = model.PostContext{
 			DefaultVisibility: s.Visibility,
+			Formats:           svc.postFormats,
 			ReplyContext: &model.ReplyContext{
 				InReplyToID:   id,
 				InReplyToName: status.Account.Acct,
@@ -647,7 +651,7 @@ func (svc *service) UnRetweet(ctx context.Context, client io.Writer, c *model.Cl
 	return
 }
 
-func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error) {
+func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, format string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error) {
 	var mediaIds []string
 	for _, f := range files {
 		a, err := c.UploadMediaFromMultipartFileHeader(ctx, f)
@@ -667,6 +671,7 @@ func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *model.Cl
 		Status:      content,
 		InReplyToID: replyToID,
 		MediaIDs:    mediaIds,
+		ContentType: format,
 		Visibility:  visibility,
 		Sensitive:   isNSFW,
 	}

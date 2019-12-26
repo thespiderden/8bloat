@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"web/model"
 )
 
 type config struct {
@@ -17,6 +18,7 @@ type config struct {
 	TemplatesGlobPattern string
 	DatabasePath         string
 	CustomCSS            string
+	PostFormats          []model.PostFormat
 	Logfile              string
 }
 
@@ -43,7 +45,13 @@ func getDefaultConfig() *config {
 		TemplatesGlobPattern: "templates/*",
 		DatabasePath:         "database.db",
 		CustomCSS:            "",
-		Logfile:              "",
+		PostFormats: []model.PostFormat{
+			model.PostFormat{"Plain Text", "text/plain"},
+			model.PostFormat{"HTML", "text/html"},
+			model.PostFormat{"Markdown", "text/markdown"},
+			model.PostFormat{"BBCode", "text/bbcode"},
+		},
+		Logfile: "",
 	}
 }
 
@@ -87,6 +95,25 @@ func Parse(r io.Reader) (c *config, err error) {
 			c.DatabasePath = val
 		case "custom_css":
 			c.CustomCSS = val
+		case "post_formats":
+			vals := strings.Split(val, ",")
+			var formats []model.PostFormat
+			for _, v := range vals {
+				pair := strings.Split(v, ":")
+				if len(pair) != 2 {
+					return nil, errors.New("invalid config key " + key)
+				}
+				n := strings.TrimSpace(pair[0])
+				t := strings.TrimSpace(pair[1])
+				if len(n) < 1 || len(t) < 1 {
+					return nil, errors.New("invalid config key " + key)
+				}
+				formats = append(formats, model.PostFormat{
+					Name: n,
+					Type: t,
+				})
+			}
+			c.PostFormats = formats
 		case "logfile":
 			c.Logfile = val
 		default:

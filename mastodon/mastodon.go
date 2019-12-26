@@ -273,6 +273,7 @@ type Toot struct {
 	Sensitive   bool     `json:"sensitive"`
 	SpoilerText string   `json:"spoiler_text"`
 	Visibility  string   `json:"visibility"`
+	ContentType string   `json:"content_type"`
 }
 
 // Mention hold information for mention.
