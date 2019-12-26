@@ -109,6 +109,22 @@ func (s *loggingService) ServeEmojiPage(ctx context.Context, client io.Writer, c
 	return s.Service.ServeEmojiPage(ctx, client, c)
 }
 
+func (s *loggingService) ServeLikedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"ServeLikedByPage", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeLikedByPage(ctx, client, c, id)
+}
+
+func (s *loggingService) ServeRetweetedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"ServeRetweetedByPage", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeRetweetedByPage(ctx, client, c, id)
+}
+
 func (s *loggingService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",

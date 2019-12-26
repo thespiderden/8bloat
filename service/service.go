@@ -37,6 +37,8 @@ type Service interface {
 	ServeUserPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error)
 	ServeAboutPage(ctx context.Context, client io.Writer, c *model.Client) (err error)
 	ServeEmojiPage(ctx context.Context, client io.Writer, c *model.Client) (err error)
+	ServeLikedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
+	ServeRetweetedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
@@ -192,25 +194,48 @@ func (svc *service) GetUserToken(ctx context.Context, sessionID string, c *model
 }
 
 func (svc *service) ServeHomePage(ctx context.Context, client io.Writer) (err error) {
-	err = svc.renderer.RenderHomePage(ctx, client)
+	commonData, err := svc.getCommonData(ctx, client, nil)
 	if err != nil {
 		return
 	}
 
-	return
+	data := &renderer.HomePageData{
+		CommonData: commonData,
+	}
+
+	return svc.renderer.RenderHomePage(ctx, client, data)
 }
 
 func (svc *service) ServeErrorPage(ctx context.Context, client io.Writer, err error) {
-	svc.renderer.RenderErrorPage(ctx, client, err)
-}
+	var errStr string
+	if err != nil {
+		errStr = err.Error()
+	}
 
-func (svc *service) ServeSigninPage(ctx context.Context, client io.Writer) (err error) {
-	err = svc.renderer.RenderSigninPage(ctx, client)
+	commonData, err := svc.getCommonData(ctx, client, nil)
 	if err != nil {
 		return
 	}
 
-	return
+	data := &renderer.ErrorData{
+		CommonData: commonData,
+		Error:      errStr,
+	}
+
+	svc.renderer.RenderErrorPage(ctx, client, data)
+}
+
+func (svc *service) ServeSigninPage(ctx context.Context, client io.Writer) (err error) {
+	commonData, err := svc.getCommonData(ctx, client, nil)
+	if err != nil {
+		return
+	}
+
+	data := &renderer.SigninData{
+		CommonData: commonData,
+	}
+
+	return svc.renderer.RenderSigninPage(ctx, client, data)
 }
 
 func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
@@ -517,6 +542,53 @@ func (svc *service) ServeEmojiPage(ctx context.Context, client io.Writer, c *mod
 	return
 }
 
+func (svc *service) ServeLikedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+	likers, err := c.GetFavouritedBy(ctx, id, nil)
+	if err != nil {
+		return
+	}
+
+	commonData, err := svc.getCommonData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	data := &renderer.LikedByData{
+		CommonData: commonData,
+		Users:      likers,
+	}
+
+	err = svc.renderer.RenderLikedByPage(ctx, client, data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (svc *service) ServeRetweetedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+	retweeters, err := c.GetRebloggedBy(ctx, id, nil)
+	if err != nil {
+		return
+	}
+
+	commonData, err := svc.getCommonData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	data := &renderer.RetweetedByData{
+		CommonData: commonData,
+		Users:      retweeters,
+	}
+
+	err = svc.renderer.RenderRetweetedByPage(ctx, client, data)
+	if err != nil {
+		return
+	}
+
+	return
+}
 func (svc *service) getCommonData(ctx context.Context, client io.Writer, c *model.Client) (data *renderer.CommonData, err error) {
 	data = new(renderer.CommonData)
 

@@ -21,6 +21,19 @@ type CommonData struct {
 	NavbarData *NavbarData
 }
 
+type ErrorData struct {
+	*CommonData
+	Error string
+}
+
+type HomePageData struct {
+	*CommonData
+}
+
+type SigninData struct {
+	*CommonData
+}
+
 type TimelineData struct {
 	*CommonData
 	Title       string
@@ -59,6 +72,20 @@ type AboutData struct {
 }
 
 type EmojiData struct {
+	*CommonData
 	Emojis     []*mastodon.Emoji
-	CommonData *CommonData
+}
+
+type LikedByData struct {
+	*CommonData
+	Users []*mastodon.Account
+	HasNext    bool
+	NextLink   string
+}
+
+type RetweetedByData struct {
+	*CommonData
+	Users []*mastodon.Account
+	HasNext    bool
+	NextLink   string
 }

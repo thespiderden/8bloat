@@ -98,6 +98,28 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 	}).Methods(http.MethodGet)
 
+	r.HandleFunc("/likedby/{id}", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.ServeLikedByPage(ctx, w, nil, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodGet)
+
+	r.HandleFunc("/retweetedby/{id}", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.ServeRetweetedByPage(ctx, w, nil, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodGet)
+
 	r.HandleFunc("/like/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
 		id, _ := mux.Vars(req)["id"]

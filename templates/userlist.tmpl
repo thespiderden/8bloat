@@ -1,0 +1,17 @@
+<div class="user-list-container">
+	{{range .}}
+	<div class="user-list-item">
+		<div>
+			<a class="img-link" href="/user/{{.ID}}">
+				<img class="status-profile-img" src="{{.AvatarStatic}}" alt="avatar" />
+			</a>
+		</div>
+		<div>
+			<div class="status-dname"> {{EmojiFilter .DisplayName .Emojis}} </div>  
+			<a class="img-link" href="/user/{{.ID}}">
+				<div class="status-uname"> {{.Acct}} </div>
+			</a>
+		</div>
+	</div>
+	{{end}}
+</div>

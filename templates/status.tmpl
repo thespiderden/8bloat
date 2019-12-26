@@ -85,43 +85,54 @@
 			{{end}}
 			{{end}}
 			</div>
-			<div class="status-action"> 
-				<a class="status-you" href="/thread/{{.ID}}?reply=true#status-{{.ID}}" title="reply"> 
-					<i class="fa fa-reply"></i>
-					<span> {{DisplayInteractionCount .RepliesCount}} </span>
-				</a>
-				{{if or (eq .Visibility "private") (eq .Visibility "direct")}}
-				<a class="status-retweet" title="this status cannot be retweeted"> 
-					<i class="fa fa-retweet"></i>
-					<span> {{DisplayInteractionCount .ReblogsCount}} </span>
-				</a>
-				{{else}}
+			<div class="status-action-container"> 
+				<div class="status-action">
+					<a class="status-you" href="/thread/{{.ID}}?reply=true#status-{{.ID}}" title="reply"> 
+						<i class="fa fa-reply"></i>
+					</a>
+					<a class="status-action-count" href="/thread/{{.ID}}#status-{{.ID}}">
+						<span> {{DisplayInteractionCount .RepliesCount}} </span>
+					</a>
+				</div>
+				<div class="status-action">
+					{{if or (eq .Visibility "private") (eq .Visibility "direct")}}
+					<a class="status-retweet" title="this status cannot be retweeted"> 
+						<i class="fa fa-retweet"></i>
+					</a>
+					{{else}}
 					{{if .Reblogged}}
 					<a class="status-retweet" href="/unretweet/{{.ID}}" title="undo retweet"> 
 						<i class="fa fa-retweet retweeted"></i>
-						<span> {{DisplayInteractionCount .ReblogsCount}} </span>
 					</a>
 					{{else}}
 					<a class="status-retweet" href="/retweet/{{.ID}}" title="retweet"> 
 						<i class="fa fa-retweet"></i>
-						<span> {{DisplayInteractionCount .ReblogsCount}} </span>
 					</a>
 					{{end}}
-				{{end}}
-				{{if .Favourited}}
-				<a class="status-like" href="/unlike/{{.ID}}" title="unlike"> 
-					<i class="fa fa-star liked"></i>
-					<span> {{DisplayInteractionCount .FavouritesCount}} </span>
-				</a>
-				{{else}}
-				<a class="status-like" href="/like/{{.ID}}" title="like"> 
-					<i class="fa fa-star-o"></i>
-					<span> {{DisplayInteractionCount .FavouritesCount}} </span>
-				</a>
-				{{end}}
-				<a class="status-time" href="/thread/{{.ID}}#status-{{.ID}}"> 
-					<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{.CreatedAt}}"> {{TimeSince .CreatedAt}} </time> 
-				</a>
+					{{end}}
+					<a class="status-action-count" href="/retweetedby/{{.ID}}" title="click to see the the list"> 
+						<span> {{DisplayInteractionCount .ReblogsCount}} </span>
+					</a>
+				</div>
+				<div class="status-action">
+					{{if .Favourited}}
+					<a class="status-like" href="/unlike/{{.ID}}" title="unlike"> 
+						<i class="fa fa-star liked"></i>
+					</a>
+					{{else}}
+					<a class="status-like" href="/like/{{.ID}}" title="like"> 
+						<i class="fa fa-star-o"></i>
+					</a>
+					{{end}}
+					<a class="status-action-count" href="/likedby/{{.ID}}" title="click to see the the list"> 
+						<span> {{DisplayInteractionCount .FavouritesCount}} </span>
+					</a>
+				</div>
+				<div class="status-action">
+					<a class="status-time" href="/thread/{{.ID}}#status-{{.ID}}"> 
+						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{.CreatedAt}}"> {{TimeSince .CreatedAt}} </time> 
+					</a>
+				</div>
 			</div>
 		</div>
 	</div>

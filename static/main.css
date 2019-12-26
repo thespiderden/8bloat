@@ -63,24 +63,29 @@
 	width: auto;
 }
 
-.status-action {
+.status-action-container {
 	margin-top: 4px;
+}
+
+.status-action {
+	display: inline-block;
+	min-width: 64px;
+}
+
+.status-action:last-child {
+	min-width: unset;
 }
 
 .status-action a {
 	display: inline-block;
-	min-width: 64px;
 	text-decoration: none;
 	color: #333333;
 	vertical-align: middle;
 }
 
-.status-action a:hover {
+.status-action a:hover,
+.status-action a:hover i {
 	color: #777777;
-}
-
-.status-action .fa {
-	margin: 0 4px 0 0;
 }
 
 .status-action a.status-time {
@@ -368,3 +373,16 @@
 	margin-right: 2px;
 }
 
+.user-list-container {
+	margin: 8px 0;
+}
+
+.user-list-item a {
+	text-decoration: none;
+}
+
+.user-list-item>div {
+	display: inline-block;
+	vertical-align: top;
+	margin: 0 4px 8px 0;
+}

@@ -12,15 +12,17 @@ import (
 )
 
 type Renderer interface {
-	RenderErrorPage(ctx context.Context, writer io.Writer, err error)
-	RenderHomePage(ctx context.Context, writer io.Writer) (err error)
-	RenderSigninPage(ctx context.Context, writer io.Writer) (err error)
+	RenderErrorPage(ctx context.Context, writer io.Writer, data *ErrorData)
+	RenderHomePage(ctx context.Context, writer io.Writer, data *HomePageData) (err error)
+	RenderSigninPage(ctx context.Context, writer io.Writer, data *SigninData) (err error)
 	RenderTimelinePage(ctx context.Context, writer io.Writer, data *TimelineData) (err error)
 	RenderThreadPage(ctx context.Context, writer io.Writer, data *ThreadData) (err error)
 	RenderNotificationPage(ctx context.Context, writer io.Writer, data *NotificationData) (err error)
 	RenderUserPage(ctx context.Context, writer io.Writer, data *UserData) (err error)
 	RenderAboutPage(ctx context.Context, writer io.Writer, data *AboutData) (err error)
 	RenderEmojiPage(ctx context.Context, writer io.Writer, data *EmojiData) (err error)
+	RenderLikedByPage(ctx context.Context, writer io.Writer, data *LikedByData) (err error)
+	RenderRetweetedByPage(ctx context.Context, writer io.Writer, data *RetweetedByData) (err error)
 }
 
 type renderer struct {
@@ -44,17 +46,17 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 	}, nil
 }
 
-func (r *renderer) RenderErrorPage(ctx context.Context, writer io.Writer, err error) {
-	r.template.ExecuteTemplate(writer, "error.tmpl", err)
+func (r *renderer) RenderErrorPage(ctx context.Context, writer io.Writer, errorData *ErrorData) {
+	r.template.ExecuteTemplate(writer, "error.tmpl", errorData)
 	return
 }
 
-func (r *renderer) RenderHomePage(ctx context.Context, writer io.Writer) (err error) {
-	return r.template.ExecuteTemplate(writer, "homepage.tmpl", nil)
+func (r *renderer) RenderHomePage(ctx context.Context, writer io.Writer, homePageData *HomePageData) (err error) {
+	return r.template.ExecuteTemplate(writer, "homepage.tmpl", homePageData)
 }
 
-func (r *renderer) RenderSigninPage(ctx context.Context, writer io.Writer) (err error) {
-	return r.template.ExecuteTemplate(writer, "signin.tmpl", nil)
+func (r *renderer) RenderSigninPage(ctx context.Context, writer io.Writer, signinData *SigninData) (err error) {
+	return r.template.ExecuteTemplate(writer, "signin.tmpl", signinData)
 }
 
 func (r *renderer) RenderTimelinePage(ctx context.Context, writer io.Writer, data *TimelineData) (err error) {
@@ -79,6 +81,14 @@ func (r *renderer) RenderAboutPage(ctx context.Context, writer io.Writer, data *
 
 func (r *renderer) RenderEmojiPage(ctx context.Context, writer io.Writer, data *EmojiData) (err error) {
 	return r.template.ExecuteTemplate(writer, "emoji.tmpl", data)
+}
+
+func (r *renderer) RenderLikedByPage(ctx context.Context, writer io.Writer, data *LikedByData) (err error) {
+	return r.template.ExecuteTemplate(writer, "likedby.tmpl", data)
+}
+
+func (r *renderer) RenderRetweetedByPage(ctx context.Context, writer io.Writer, data *RetweetedByData) (err error) {
+	return r.template.ExecuteTemplate(writer, "retweetedby.tmpl", data)
 }
 
 func EmojiFilter(content string, emojis []mastodon.Emoji) string {

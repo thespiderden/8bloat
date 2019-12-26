@@ -133,6 +133,22 @@ func (s *authService) ServeEmojiPage(ctx context.Context, client io.Writer, c *m
 	return s.Service.ServeEmojiPage(ctx, client, c)
 }
 
+func (s *authService) ServeLikedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeLikedByPage(ctx, client, c, id)
+}
+
+func (s *authService) ServeRetweetedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeRetweetedByPage(ctx, client, c, id)
+}
+
 func (s *authService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
