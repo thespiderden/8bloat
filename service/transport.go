@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path"
 	"strconv"
+	"web/model"
 
 	"github.com/gorilla/mux"
 )
@@ -304,6 +305,36 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 	}).Methods(http.MethodGet)
+
+	r.HandleFunc("/settings", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+
+		err := s.ServeSettingsPage(ctx, w, nil)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodGet)
+
+	r.HandleFunc("/settings", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+
+		visibility := req.FormValue("visibility")
+		copyScope := req.FormValue("copy_scope") == "true"
+		settings := &model.Settings{
+			DefaultVisibility: visibility,
+			CopyScope: copyScope,
+		}
+
+		err := s.SaveSettings(ctx, w, nil, settings)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/signout", func(w http.ResponseWriter, req *http.Request) {
 		// TODO remove session from database

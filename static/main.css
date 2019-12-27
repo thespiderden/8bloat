@@ -386,3 +386,19 @@
 	vertical-align: top;
 	margin: 0 4px 8px 0;
 }
+
+#settings-form {
+	margin: 8px 0;
+}
+
+.settings-form-field {
+	margin: 4px 0;
+}
+
+.settings-form-field * {
+	vertical-align: middle;
+}
+
+#settings-form button[type=submit] {
+	margin-top: 8px;
+}

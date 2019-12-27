@@ -92,10 +92,15 @@ type RetweetedByData struct {
 
 type SearchData struct {
 	*CommonData
-	Q         string
-	Type      string
-	Users     []*mastodon.Account
-	Statuses  []*mastodon.Status
-	HasNext bool
+	Q        string
+	Type     string
+	Users    []*mastodon.Account
+	Statuses []*mastodon.Status
+	HasNext  bool
 	NextLink string
+}
+
+type SettingsData struct {
+	*CommonData
+	Settings *model.Settings
 }

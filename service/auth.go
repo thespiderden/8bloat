@@ -157,6 +157,22 @@ func (s *authService) ServeSearchPage(ctx context.Context, client io.Writer, c *
 	return s.Service.ServeSearchPage(ctx, client, c, q, qType, offset)
 }
 
+func (s *authService) ServeSettingsPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeSettingsPage(ctx, client, c)
+}
+
+func (s *authService) SaveSettings(ctx context.Context, client io.Writer, c *model.Client, settings *model.Settings) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.SaveSettings(ctx, client, c, settings)
+}
+
 func (s *authService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {

@@ -40,6 +40,8 @@ type Service interface {
 	ServeLikedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	ServeRetweetedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	ServeSearchPage(ctx context.Context, client io.Writer, c *model.Client, q string, qType string, offset int) (err error)
+	ServeSettingsPage(ctx context.Context, client io.Writer, c *model.Client) (err error)
+	SaveSettings(ctx context.Context, client io.Writer, c *model.Client, settings *model.Settings) (err error)
 	Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
@@ -350,13 +352,19 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 			}
 		}
 
-		s, err := c.GetStatus(ctx, id)
-		if err != nil {
-			return err
+		var visibility string
+		if c.Session.Settings.CopyScope {
+			s, err := c.GetStatus(ctx, id)
+			if err != nil {
+				return err
+			}
+			visibility = s.Visibility
+		} else {
+			visibility = c.Session.Settings.DefaultVisibility
 		}
 
 		postContext = model.PostContext{
-			DefaultVisibility: s.Visibility,
+			DefaultVisibility: visibility,
 			Formats:           svc.postFormats,
 			ReplyContext: &model.ReplyContext{
 				InReplyToID:   id,
@@ -639,6 +647,40 @@ func (svc *service) ServeSearchPage(ctx context.Context, client io.Writer, c *mo
 	return
 }
 
+func (svc *service) ServeSettingsPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
+	commonData, err := svc.getCommonData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	data := &renderer.SettingsData{
+		CommonData: commonData,
+		Settings:   &c.Session.Settings,
+	}
+
+	err = svc.renderer.RenderSettingsPage(ctx, client, data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (svc *service) SaveSettings(ctx context.Context, client io.Writer, c *model.Client, settings *model.Settings) (err error) {
+	session, err := svc.sessionRepo.Get(c.Session.ID)
+	if err != nil {
+		return
+	}
+
+	session.Settings = *settings
+	err = svc.sessionRepo.Add(session)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (svc *service) getCommonData(ctx context.Context, client io.Writer, c *model.Client) (data *renderer.CommonData, err error) {
 	data = new(renderer.CommonData)
 
@@ -705,12 +747,6 @@ func (svc *service) PostTweet(ctx context.Context, client io.Writer, c *model.Cl
 			return "", err
 		}
 		mediaIds = append(mediaIds, a.ID)
-	}
-
-	// save visibility if it's a non-reply post
-	if len(replyToID) < 1 && visibility != c.Session.Settings.DefaultVisibility {
-		c.Session.Settings.DefaultVisibility = visibility
-		svc.sessionRepo.Add(c.Session)
 	}
 
 	tweet := &mastodon.Toot{

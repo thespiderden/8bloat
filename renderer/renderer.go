@@ -24,6 +24,7 @@ type Renderer interface {
 	RenderLikedByPage(ctx context.Context, writer io.Writer, data *LikedByData) (err error)
 	RenderRetweetedByPage(ctx context.Context, writer io.Writer, data *RetweetedByData) (err error)
 	RenderSearchPage(ctx context.Context, writer io.Writer, data *SearchData) (err error)
+	RenderSettingsPage(ctx context.Context, writer io.Writer, data *SettingsData) (err error)
 }
 
 type renderer struct {
@@ -94,6 +95,10 @@ func (r *renderer) RenderRetweetedByPage(ctx context.Context, writer io.Writer, 
 
 func (r *renderer) RenderSearchPage(ctx context.Context, writer io.Writer, data *SearchData) (err error) {
 	return r.template.ExecuteTemplate(writer, "search.tmpl", data)
+}
+
+func (r *renderer) RenderSettingsPage(ctx context.Context, writer io.Writer, data *SettingsData) (err error) {
+	return r.template.ExecuteTemplate(writer, "settings.tmpl", data)
 }
 
 func EmojiFilter(content string, emojis []mastodon.Emoji) string {
