@@ -122,6 +122,34 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 	}).Methods(http.MethodGet)
 
+	r.HandleFunc("/following/{id}", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+
+		id, _ := mux.Vars(req)["id"]
+		maxID := req.URL.Query().Get("max_id")
+		minID := req.URL.Query().Get("min_id")
+
+		err := s.ServeFollowingPage(ctx, w, nil, id, maxID, minID)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodGet)
+
+	r.HandleFunc("/followers/{id}", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+
+		id, _ := mux.Vars(req)["id"]
+		maxID := req.URL.Query().Get("max_id")
+		minID := req.URL.Query().Get("min_id")
+
+		err := s.ServeFollowersPage(ctx, w, nil, id, maxID, minID)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodGet)
+
 	r.HandleFunc("/like/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
 		id, _ := mux.Vars(req)["id"]
@@ -323,7 +351,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		copyScope := req.FormValue("copy_scope") == "true"
 		settings := &model.Settings{
 			DefaultVisibility: visibility,
-			CopyScope: copyScope,
+			CopyScope:         copyScope,
 		}
 
 		err := s.SaveSettings(ctx, w, nil, settings)

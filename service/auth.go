@@ -149,6 +149,22 @@ func (s *authService) ServeRetweetedByPage(ctx context.Context, client io.Writer
 	return s.Service.ServeRetweetedByPage(ctx, client, c, id)
 }
 
+func (s *authService) ServeFollowingPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeFollowingPage(ctx, client, c, id, maxID, minID)
+}
+
+func (s *authService) ServeFollowersPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
+	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeFollowersPage(ctx, client, c, id, maxID, minID)
+}
+
 func (s *authService) ServeSearchPage(ctx context.Context, client io.Writer, c *model.Client, q string, qType string, offset int) (err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {

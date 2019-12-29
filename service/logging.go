@@ -125,6 +125,22 @@ func (s *loggingService) ServeRetweetedByPage(ctx context.Context, client io.Wri
 	return s.Service.ServeRetweetedByPage(ctx, client, c, id)
 }
 
+func (s *loggingService) ServeFollowingPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, max_id=%v, min_id=%v, took=%v, err=%v\n",
+			"ServeFollowingPage", id, maxID, minID, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeFollowingPage(ctx, client, c, id, maxID, minID)
+}
+
+func (s *loggingService) ServeFollowersPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, max_id=%v, min_id=%v, took=%v, err=%v\n",
+			"ServeFollowersPage", id, maxID, minID, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeFollowersPage(ctx, client, c, id, maxID, minID)
+}
+
 func (s *loggingService) ServeSearchPage(ctx context.Context, client io.Writer, c *model.Client, q string, qType string, offset int) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, q=%v, type=%v, offset=%v, took=%v, err=%v\n",

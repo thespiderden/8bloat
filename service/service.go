@@ -39,6 +39,8 @@ type Service interface {
 	ServeEmojiPage(ctx context.Context, client io.Writer, c *model.Client) (err error)
 	ServeLikedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	ServeRetweetedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
+	ServeFollowingPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error)
+	ServeFollowersPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error)
 	ServeSearchPage(ctx context.Context, client io.Writer, c *model.Client, q string, qType string, offset int) (err error)
 	ServeSettingsPage(ctx context.Context, client io.Writer, c *model.Client) (err error)
 	SaveSettings(ctx context.Context, client io.Writer, c *model.Client, settings *model.Settings) (err error)
@@ -596,6 +598,87 @@ func (svc *service) ServeRetweetedByPage(ctx context.Context, client io.Writer, 
 	}
 
 	err = svc.renderer.RenderRetweetedByPage(ctx, client, data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (svc *service) ServeFollowingPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
+	var hasNext bool
+	var nextLink string
+
+	var pg = mastodon.Pagination{
+		MaxID: maxID,
+		MinID: minID,
+		Limit: 20,
+	}
+
+	followings, err := c.GetAccountFollowing(ctx, id, &pg)
+	if err != nil {
+		return
+	}
+
+	if len(followings) == 20 && len(pg.MaxID) > 0 {
+		hasNext = true
+		nextLink = "/following/" + id + "?max_id=" + pg.MaxID
+	}
+
+	commonData, err := svc.getCommonData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	data := &renderer.FollowingData{
+		CommonData: commonData,
+		Users:      followings,
+		HasNext:    hasNext,
+		NextLink:   nextLink,
+	}
+
+	err = svc.renderer.RenderFollowingPage(ctx, client, data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (svc *service) ServeFollowersPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
+	var hasNext bool
+	var nextLink string
+
+	var pg = mastodon.Pagination{
+		MaxID: maxID,
+		MinID: minID,
+		Limit: 20,
+	}
+
+	followers, err := c.GetAccountFollowers(ctx, id, &pg)
+	if err != nil {
+		return
+	}
+
+	fmt.Println(len(followers), pg.MaxID)
+	if len(followers) == 20 && len(pg.MaxID) > 0 {
+		hasNext = true
+		nextLink = "/followers/" + id + "?max_id=" + pg.MaxID
+	}
+
+	commonData, err := svc.getCommonData(ctx, client, c)
+	if err != nil {
+		return
+	}
+
+	data := &renderer.FollowersData{
+		CommonData: commonData,
+		Users:      followers,
+		HasNext:    hasNext,
+		NextLink:   nextLink,
+	}
+
+	err = svc.renderer.RenderFollowersPage(ctx, client, data)
 	if err != nil {
 		return
 	}

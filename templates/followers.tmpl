@@ -1,0 +1,12 @@
+{{template "header.tmpl" .HeaderData}}
+{{template "navigation.tmpl" .NavbarData}}
+<div class="page-title"> Followers </div>
+
+{{template "userlist.tmpl" .Users}}
+<div class="pagination">
+	{{if .HasNext}}
+		<a href="{{.NextLink}}">next</a>
+	{{end}}
+</div>
+
+{{template "footer.tmpl"}}

@@ -90,6 +90,20 @@ type RetweetedByData struct {
 	NextLink string
 }
 
+type FollowingData struct {
+	*CommonData
+	Users []*mastodon.Account
+	HasNext  bool
+	NextLink string
+}
+
+type FollowersData struct {
+	*CommonData
+	Users []*mastodon.Account
+	HasNext  bool
+	NextLink string
+}
+
 type SearchData struct {
 	*CommonData
 	Q        string

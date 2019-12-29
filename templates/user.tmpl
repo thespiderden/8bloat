@@ -36,7 +36,9 @@
 			{{end}} 
 		</div>
 		<div>
-			{{.User.StatusesCount}} statuses - {{.User.FollowingCount}} following - {{.User.FollowersCount}} followers
+			{{.User.StatusesCount}} statuses - 
+			<a href="/following/{{.User.ID}}"> {{.User.FollowingCount}} following </a> - 
+			<a href="/followers/{{.User.ID}}"> {{.User.FollowersCount}} followers </a>
 		</div>
 	</div>
 	<div class="user-profile-decription">
