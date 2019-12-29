@@ -90,10 +90,12 @@ func (svc *service) GetAuthUrl(ctx context.Context, instance string) (
 	}
 
 	sessionID = util.NewSessionId()
-	err = svc.sessionRepo.Add(model.Session{
+	session := model.Session{
 		ID:             sessionID,
 		InstanceDomain: instance,
-	})
+		Settings: *model.NewSettings(),
+	}
+	err = svc.sessionRepo.Add(session)
 	if err != nil {
 		return
 	}
@@ -274,6 +276,10 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 	}
 	if err != nil {
 		return err
+	}
+
+	for i := range statuses {
+		statuses[i].ThreadInNewTab = c.Session.Settings.ThreadInNewTab
 	}
 
 	if len(maxID) > 0 && len(statuses) > 0 {

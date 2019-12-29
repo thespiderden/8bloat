@@ -52,9 +52,9 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 
 		http.SetCookie(w, &http.Cookie{
-			Name:     "session_id",
-			Value:    sessionID,
-			Expires:  time.Now().Add(365 * 24 * time.Hour),
+			Name:    "session_id",
+			Value:   sessionID,
+			Expires: time.Now().Add(365 * 24 * time.Hour),
 		})
 
 		w.Header().Add("Location", url)
@@ -354,9 +354,11 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		visibility := req.FormValue("visibility")
 		copyScope := req.FormValue("copy_scope") == "true"
+		threadInNewTab := req.FormValue("thread_in_new_tab") == "true"
 		settings := &model.Settings{
 			DefaultVisibility: visibility,
 			CopyScope:         copyScope,
+			ThreadInNewTab:    threadInNewTab,
 		}
 
 		err := s.SaveSettings(ctx, w, nil, settings)
@@ -372,9 +374,9 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/signout", func(w http.ResponseWriter, req *http.Request) {
 		// TODO remove session from database
 		http.SetCookie(w, &http.Cookie{
-			Name:     "session_id",
-			Value:    "",
-			Expires:  time.Now(),
+			Name:    "session_id",
+			Value:   "",
+			Expires: time.Now(),
 		})
 		w.Header().Add("Location", "/")
 		w.WriteHeader(http.StatusFound)

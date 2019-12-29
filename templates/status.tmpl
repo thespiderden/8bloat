@@ -90,7 +90,7 @@
 					<a class="status-you" href="/thread/{{.ID}}?reply=true#status-{{.ID}}" title="reply"> 
 						<i class="fa fa-reply"></i>
 					</a>
-					<a class="status-action-count" href="/thread/{{.ID}}#status-{{.ID}}">
+					<a class="status-action-count" href="/thread/{{.ID}}#status-{{.ID}}" {{if .ThreadInNewTab}}target="_blank"{{end}}>
 						<span> {{DisplayInteractionCount .RepliesCount}} </span>
 					</a>
 				</div>
@@ -129,7 +129,7 @@
 					</a>
 				</div>
 				<div class="status-action">
-					<a class="status-time" href="/thread/{{.ID}}#status-{{.ID}}"> 
+					<a class="status-time" href="/thread/{{.ID}}#status-{{.ID}}" {{if .ThreadInNewTab}}target="_blank"{{end}}> 
 						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{.CreatedAt}}"> {{TimeSince .CreatedAt}} </time> 
 					</a>
 				</div>

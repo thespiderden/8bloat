@@ -16,6 +16,10 @@
 		<input id="copy-scope" name="copy_scope" type="checkbox" value="true" {{if .Settings.CopyScope}}checked{{end}}>
 		<label for="copy-scope"> Copy scope when replying </label>
 	</div>
+	<div class="settings-form-field">
+		<input id="thread-tab" name="thread_in_new_tab" type="checkbox" value="true" {{if .Settings.ThreadInNewTab}}checked{{end}}>
+		<label for="thread-tab"> Open threads in new tab from timeline </label>
+	</div>
 	<button type="submit"> Save </button>
 </form>
 

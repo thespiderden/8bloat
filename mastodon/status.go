@@ -54,6 +54,7 @@ type Status struct {
 	ShowReplies     bool                   `json:"show_replies"`
 	ReplyMap        map[string][]ReplyInfo `json:"reply_map"`
 	ReplyNumber     int                    `json:"reply_number"`
+	ThreadInNewTab  bool                   `json:"thread_in_new_tab"`
 }
 
 // Context hold information for mastodon context.
