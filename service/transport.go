@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"mime/multipart"
 	"net/http"
 	"path"
 	"strconv"
+	"time"
 	"web/model"
 
 	"github.com/gorilla/mux"
@@ -45,13 +45,18 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/signin", func(w http.ResponseWriter, req *http.Request) {
 		instance := req.FormValue("instance")
-		url, sessionId, err := s.GetAuthUrl(ctx, instance)
+		url, sessionID, err := s.GetAuthUrl(ctx, instance)
 		if err != nil {
 			s.ServeErrorPage(ctx, w, err)
 			return
 		}
 
-		w.Header().Add("Set-Cookie", fmt.Sprintf("session_id=%s;max-age=%s", sessionId, cookieAge))
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_id",
+			Value:    sessionID,
+			Expires:  time.Now().Add(365 * 24 * time.Hour),
+		})
+
 		w.Header().Add("Location", url)
 		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodPost)
@@ -366,7 +371,11 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/signout", func(w http.ResponseWriter, req *http.Request) {
 		// TODO remove session from database
-		w.Header().Add("Set-Cookie", fmt.Sprintf("session_id=;max-age=0"))
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_id",
+			Value:    "",
+			Expires:  time.Now(),
+		})
 		w.Header().Add("Location", "/")
 		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodGet)
