@@ -20,6 +20,10 @@
 		<input id="thread-tab" name="thread_in_new_tab" type="checkbox" value="true" {{if .Settings.ThreadInNewTab}}checked{{end}}>
 		<label for="thread-tab"> Open threads in new tab from timeline </label>
 	</div>
+	<div class="settings-form-field">
+		<input id="mask-nsfw" name="mask_nsfw" type="checkbox" value="true" {{if .Settings.MaskNSFW}}checked{{end}}>
+		<label for="mask-nsfw"> Mask NSFW Attachments </label>
+	</div>
 	<button type="submit"> Save </button>
 </form>
 

@@ -355,10 +355,12 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		visibility := req.FormValue("visibility")
 		copyScope := req.FormValue("copy_scope") == "true"
 		threadInNewTab := req.FormValue("thread_in_new_tab") == "true"
+		maskNSFW := req.FormValue("mask_nsfw") == "true"
 		settings := &model.Settings{
 			DefaultVisibility: visibility,
 			CopyScope:         copyScope,
 			ThreadInNewTab:    threadInNewTab,
+			MaskNSFW:          maskNSFW,
 		}
 
 		err := s.SaveSettings(ctx, w, nil, settings)

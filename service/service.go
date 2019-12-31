@@ -280,6 +280,11 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 
 	for i := range statuses {
 		statuses[i].ThreadInNewTab = c.Session.Settings.ThreadInNewTab
+		statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
+		if statuses[i].Reblog != nil {
+			statuses[i].Reblog.ThreadInNewTab = c.Session.Settings.ThreadInNewTab
+			statuses[i].Reblog.MaskNSFW = c.Session.Settings.MaskNSFW
+		}
 	}
 
 	if len(maxID) > 0 && len(statuses) > 0 {
@@ -394,6 +399,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 	for i := range statuses {
 		statuses[i].ShowReplies = true
 		statuses[i].ReplyMap = replyMap
+		statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
 		addToReplyMap(replyMap, statuses[i].InReplyToID, statuses[i].ID, i+1)
 	}
 
@@ -434,9 +440,10 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 
 	var unreadCount int
 	for i := range notifications {
-		switch notifications[i].Type {
-		case "reblog", "favourite":
-			if notifications[i].Status != nil {
+		if notifications[i].Status != nil {
+			notifications[i].Status.MaskNSFW = c.Session.Settings.MaskNSFW
+			switch notifications[i].Type {
+			case "reblog", "favourite":
 				notifications[i].Status.HideAccountInfo = true
 			}
 		}
@@ -494,6 +501,13 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mode
 	statuses, err := c.GetAccountStatuses(ctx, id, &pg)
 	if err != nil {
 		return
+	}
+
+	for i := range statuses {
+		statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
+		if statuses[i].Reblog != nil {
+			statuses[i].Reblog.MaskNSFW = c.Session.Settings.MaskNSFW
+		}
 	}
 
 	if len(pg.MaxID) > 0 {
@@ -666,7 +680,6 @@ func (svc *service) ServeFollowersPage(ctx context.Context, client io.Writer, c 
 		return
 	}
 
-	fmt.Println(len(followers), pg.MaxID)
 	if len(followers) == 20 && len(pg.MaxID) > 0 {
 		hasNext = true
 		nextLink = "/followers/" + id + "?max_id=" + pg.MaxID
@@ -706,6 +719,10 @@ func (svc *service) ServeSearchPage(ctx context.Context, client io.Writer, c *mo
 		hasNext = len(results.Accounts) == 20
 	case "statuses":
 		hasNext = len(results.Statuses) == 20
+		for i := range results.Statuses {
+			results.Statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
+		}
+
 	}
 
 	if hasNext {

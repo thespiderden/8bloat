@@ -61,7 +61,7 @@
 			{{if eq .Type "image"}}
 			<a class="img-link" href="{{.URL}}" target="_blank">
 				<img class="status-image" src="{{.URL}}" alt="status-image" />
-				{{if $.Sensitive}}
+				{{if (and $.MaskNSFW $.Sensitive)}}
 				<div class="status-nsfw-overlay"></div>
 				{{end}}
 			</a>
@@ -76,7 +76,7 @@
 					<source src="{{.URL}}">
 					<p> Your browser doesn't support HTML5 video </p>
 				</video>
-				{{if $.Sensitive}}
+				{{if (and $.MaskNSFW $.Sensitive)}}
 				<div class="status-nsfw-overlay"></div>
 				{{end}}
 			</div>
