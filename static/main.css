@@ -21,6 +21,15 @@
 	margin: 0px;
 }
 
+.status-content img,
+.status-image,
+.status-video {
+	max-height: 180px;
+	max-width: 220px;
+	width: auto;
+	vertical-align: bottom;
+}
+
 .status-media-container {
 	margin: 4px 0;
 }
@@ -56,6 +65,7 @@
 	height: 20px;
 	margin-bottom: -4px;
 	width: auto;
+	vertical-align: unset !important;
 }
 
 .name-emoji {
@@ -98,14 +108,6 @@
 
 .fa.retweeted {
 	color: green;
-}
-
-.status-image,
-.status-video {
-	max-height: 180px;
-	max-width: 220px;
-	width: auto;
-	vertical-align: bottom;
 }
 
 .page-title {
@@ -279,6 +281,7 @@
 .img-link {
 	display: inline-block;
 	position: relative;
+	margin: 2.5px 0;
 }
 
 .status-profile-img-container .img-link {
@@ -346,11 +349,8 @@
 
 .user-info {
 	margin-bottom: 8px;
-}
-
-.user-info-img-container {
-	display: inline-block;
-	vertical-align: top;
+	display: flex;
+	align-items: top;
 }
 
 .user-info-img {
@@ -361,8 +361,7 @@
 }
 
 .user-info-details-container {
-	display: inline-block;
-	vertical-align: middle;
+	margin-left: 8px;
 }
 
 .user-info-details-container>div {
