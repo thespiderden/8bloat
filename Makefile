@@ -2,12 +2,12 @@
 
 GO=go
 
-all: web
+all: bloat
 
 PHONY:
 
-web: main.go PHONY
-	$(GO) build $(GOFLAGS) -o web main.go
+bloat: main.go PHONY
+	$(GO) build $(GOFLAGS) -o bloat main.go
 
-run: web
-	./web
+run: bloat
+	./bloat

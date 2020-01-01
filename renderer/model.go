@@ -1,8 +1,8 @@
 package renderer
 
 import (
+	"bloat/model"
 	"mastodon"
-	"web/model"
 )
 
 type HeaderData struct {
@@ -92,14 +92,14 @@ type RetweetedByData struct {
 
 type FollowingData struct {
 	*CommonData
-	Users []*mastodon.Account
+	Users    []*mastodon.Account
 	HasNext  bool
 	NextLink string
 }
 
 type FollowersData struct {
 	*CommonData
-	Users []*mastodon.Account
+	Users    []*mastodon.Account
 	HasNext  bool
 	NextLink string
 }

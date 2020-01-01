@@ -12,10 +12,10 @@ import (
 	"net/url"
 	"strings"
 
+	"bloat/model"
+	"bloat/renderer"
+	"bloat/util"
 	"mastodon"
-	"web/model"
-	"web/renderer"
-	"web/util"
 )
 
 var (
@@ -93,7 +93,7 @@ func (svc *service) GetAuthUrl(ctx context.Context, instance string) (
 	session := model.Session{
 		ID:             sessionID,
 		InstanceDomain: instance,
-		Settings: *model.NewSettings(),
+		Settings:       *model.NewSettings(),
 	}
 	err = svc.sessionRepo.Add(session)
 	if err != nil {

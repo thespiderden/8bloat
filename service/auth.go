@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"io"
-	"mastodon"
 	"mime/multipart"
-	"web/model"
+
+	"bloat/model"
+	"mastodon"
 )
 
 var (

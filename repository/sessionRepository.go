@@ -2,8 +2,9 @@ package repository
 
 import (
 	"encoding/json"
-	"web/kv"
-	"web/model"
+
+	"bloat/kv"
+	"bloat/model"
 )
 
 type sessionRepository struct {

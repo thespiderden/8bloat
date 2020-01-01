@@ -7,7 +7,8 @@ import (
 	"path"
 	"strconv"
 	"time"
-	"web/model"
+
+	"bloat/model"
 
 	"github.com/gorilla/mux"
 )

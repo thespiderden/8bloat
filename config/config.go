@@ -6,7 +6,8 @@ import (
 	"io"
 	"os"
 	"strings"
-	"web/model"
+
+	"bloat/model"
 )
 
 type config struct {

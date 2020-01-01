@@ -6,7 +6,8 @@ import (
 	"log"
 	"mime/multipart"
 	"time"
-	"web/model"
+
+	"bloat/model"
 )
 
 type loggingService struct {

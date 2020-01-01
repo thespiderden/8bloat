@@ -1,4 +1,4 @@
-module web
+module bloat
 
 go 1.13
 

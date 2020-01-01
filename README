@@ -1,4 +1,4 @@
-Web - A web client for Mastodon Network[1]
+bloat - A web client for Mastodon Network[1]
 
 Features:
 
@@ -28,7 +28,7 @@ Edit the provided config file. See the default.conf file for more details.
 $ ed default.conf
 
 Run the binary
-$ ./web
+$ ./bloat
 
 You can now access the frontend at http://localhost:8080, which is the default
 listen address. You can also setup a reverse HTTP proxy to serve the frontend over

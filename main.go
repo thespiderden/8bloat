@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"web/config"
-	"web/kv"
-	"web/renderer"
-	"web/repository"
-	"web/service"
-	"web/util"
+	"bloat/config"
+	"bloat/kv"
+	"bloat/renderer"
+	"bloat/repository"
+	"bloat/service"
+	"bloat/util"
 )
 
 var (
