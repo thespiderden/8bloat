@@ -1,12 +1,12 @@
 <form class="post-form" action="/post" method="POST" enctype="multipart/form-data">
 	{{if .ReplyContext}}
 	<input type="hidden" name="reply_to_id" value="{{.ReplyContext.InReplyToID}}" />
-	<label for="post-content"> Reply to {{.ReplyContext.InReplyToName}} </label>
+	<label for="post-content" class="post-form-title"> Reply to {{.ReplyContext.InReplyToName}} </label>
 	{{else}}
-	<label for="post-content"> New post </label>
+	<label for="post-content" class="post-form-title"> New post </label>
 	{{end}}
-	<a class="post-form-emoji-link" href="/emojis" target="_blank">
-		<i class="fa fa-smile-o" title="emoji reference"></i>
+	<a class="post-form-emoji-link" href="/emojis" target="_blank" title="emoji reference">
+		<img class="icon post-emoji" src="/static/icons/smile-o.png" alt="emojis" />
 	</a>
 	<div class="post-form-content-container">
 		<textarea id="post-content" name="content" class="post-content" cols="50" rows="5">{{if .ReplyContext}}{{.ReplyContext.ReplyContent}}{{end}}</textarea>

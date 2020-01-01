@@ -90,24 +90,19 @@
 	display: inline-block;
 	text-decoration: none;
 	color: #333333;
-	vertical-align: middle;
 }
 
 .status-action a:hover,
 .status-action a:hover i {
-	color: #777777;
+	opacity: 0.8;
 }
 
 .status-action a.status-time {
 	width: auto;
 }
 
-.fa.liked {
-	color: yellow;
-}
-
-.fa.retweeted {
-	color: green;
+.status-action-count span {
+	vertical-align: middle;
 }
 
 .page-title {
@@ -173,6 +168,10 @@
 .notification-like-container,
 .notification-retweet-container {
 	display: flex;
+}
+
+.notification-info-text span {
+	vertical-align: middle;
 }
 
 .notification-follow-uname {
@@ -334,17 +333,16 @@
 	display: inline-block;
 }
 
-.fa {
-	font-size: 11pt !important;
-	color: #444444;
-}
-
 .post-form-emoji-link {
-	margin-left: 8px;
+	margin-left: 4px;
 }
 
 .post-form-emoji-link i {
 	font-size: 14pt !important;
+}
+
+.post-form-title {
+	vertical-align: middle;
 }
 
 .user-info {
@@ -400,4 +398,13 @@
 
 #settings-form button[type=submit] {
 	margin-top: 8px;
+}
+
+.icon {
+	height: 16px;
+	vertical-align: middle;
+}
+
+.icon.post-emoji {
+	height: 20px;
 }

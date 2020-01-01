@@ -5,7 +5,7 @@
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-		<i class="fa fa-retweet retweeted"></i>
+		<img class="icon" src="/static/icons/retweeted.png" alt="retweeted" />
 		retweeted
 	</div>
 	{{template "status" .Reblog}}
@@ -28,23 +28,23 @@
 				</a>
 				<a class="status-visibility">
 					{{if eq .Visibility "public"}}
-					<i class="fa fa-globe" title="Public"></i>
+					<img class="icon" src="/static/icons/globe.png" alt="Public" title="Public" />
 					{{else if eq .Visibility "unlisted"}}
-					<i class="fa fa-unlock-alt" title="Unlisted"></i>
+					<img class="icon" src="/static/icons/unlock-alt.png" alt="Unlisted" title="Unlisted" />
 					{{else if eq .Visibility "private"}}
-					<i class="fa fa-lock" title="Private"></i>
+					<img class="icon" src="/static/icons/lock.png" alt="Private" title="Private" />
 					{{else if eq .Visibility "direct"}}
-					<i class="fa fa-envelope" title="Direct"></i>
+					<img class="icon" src="/static/icons/envelope.png" alt="Direct" title="Direct" />
 					{{end}}
 				</a>
 				<a class="remote-link" href="{{.URL}}" target="_blank" title="source">
-					<i class="fa fa-link"></i>
+					<img class="icon" src="/static/icons/link.png" alt="source" />
 				</a>
 			</div>
 			{{end}}
 			<div class="status-reply-container">
 				{{if .InReplyToID}}
-				<i class="fa fa-mail-forward"></i>
+				<img class="icon" src="/static/icons/mail-forward.png" alt="reply to" />
 				<a class="status-reply-to" href="{{if not .ShowReplies}}/thread/{{.InReplyToID}}{{end}}#status-{{.InReplyToID}}"> reply to {{.Pleroma.InReplyToAccountAcct}} </a>
 				{{if index .ReplyMap .ID}} <span class="status-reply-info-divider"> - </span> {{end}}
 				{{end}}
@@ -88,7 +88,7 @@
 			<div class="status-action-container"> 
 				<div class="status-action">
 					<a class="status-you" href="/thread/{{.ID}}?reply=true#status-{{.ID}}" title="reply"> 
-						<i class="fa fa-reply"></i>
+						<img class="icon" src="/static/icons/reply.png" alt="reply" />
 					</a>
 					<a class="status-action-count" href="/thread/{{.ID}}#status-{{.ID}}" {{if .ThreadInNewTab}}target="_blank"{{end}}>
 						<span> {{DisplayInteractionCount .RepliesCount}} </span>
@@ -97,16 +97,16 @@
 				<div class="status-action">
 					{{if or (eq .Visibility "private") (eq .Visibility "direct")}}
 					<a class="status-retweet" title="this status cannot be retweeted"> 
-						<i class="fa fa-retweet"></i>
+						<img class="icon" src="/static/icons/retweet.png" alt="retweet" />
 					</a>
 					{{else}}
 					{{if .Reblogged}}
 					<a class="status-retweet" href="/unretweet/{{.ID}}" title="undo retweet"> 
-						<i class="fa fa-retweet retweeted"></i>
+						<img class="icon" src="/static/icons/retweeted.png" alt="undo retweet" />
 					</a>
 					{{else}}
 					<a class="status-retweet" href="/retweet/{{.ID}}" title="retweet"> 
-						<i class="fa fa-retweet"></i>
+						<img class="icon" src="/static/icons/retweet.png" alt="retweet" />
 					</a>
 					{{end}}
 					{{end}}
@@ -117,11 +117,11 @@
 				<div class="status-action">
 					{{if .Favourited}}
 					<a class="status-like" href="/unlike/{{.ID}}" title="unlike"> 
-						<i class="fa fa-star liked"></i>
+						<img class="icon" src="/static/icons/liked.png" alt="unlike" />
 					</a>
 					{{else}}
 					<a class="status-like" href="/like/{{.ID}}" title="like"> 
-						<i class="fa fa-star-o"></i>
+						<img class="icon" src="/static/icons/star-o.png" alt="like" />
 					</a>
 					{{end}}
 					<a class="status-action-count" href="/likedby/{{.ID}}" title="click to see the the list"> 
