@@ -14,6 +14,11 @@ import (
 	"web/renderer"
 	"web/repository"
 	"web/service"
+	"web/util"
+)
+
+var (
+	configFile = "bloat.conf"
 )
 
 func init() {
@@ -21,7 +26,19 @@ func init() {
 }
 
 func main() {
-	config, err := config.ParseFile("default.conf")
+	opts, _, err := util.Getopts(os.Args, "f:")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, opt := range opts {
+		switch opt.Option {
+		case 'f':
+			configFile = opt.Value
+		}
+	}
+
+	config, err := config.ParseFile(configFile)
 	if err != nil {
 		log.Fatal(err)
 	}
