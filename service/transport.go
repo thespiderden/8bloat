@@ -167,7 +167,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
 		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodGet)
+	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/unlike/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
@@ -180,7 +180,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
 		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodGet)
+	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/retweet/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
@@ -193,7 +193,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
 		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodGet)
+	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/unretweet/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
@@ -206,7 +206,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
 		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodGet)
+	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)

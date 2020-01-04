@@ -82,6 +82,10 @@
 	min-width: 64px;
 }
 
+.status-action form {
+	display: inline-block;
+}
+
 .status-action:last-child {
 	min-width: unset;
 }

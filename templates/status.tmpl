@@ -101,13 +101,13 @@
 					</a>
 					{{else}}
 					{{if .Reblogged}}
-					<a class="status-retweet" href="/unretweet/{{.ID}}" title="undo retweet"> 
-						<img class="icon" src="/static/icons/retweeted.png" alt="undo retweet" />
-					</a>
+					<form class="status-retweet" action="/unretweet/{{.ID}}" method="post">
+					    <input type="image" src="/static/icons/retweeted.png" alt="undo retweet" class="icon" title="undo retweet">
+					</form>
 					{{else}}
-					<a class="status-retweet" href="/retweet/{{.ID}}" title="retweet"> 
-						<img class="icon" src="/static/icons/retweet.png" alt="retweet" />
-					</a>
+					<form class="status-retweet" action="/retweet/{{.ID}}" method="post">
+					    <input type="image" src="/static/icons/retweet.png" alt="retweet" class="icon" title="retweet">
+					</form>
 					{{end}}
 					{{end}}
 					<a class="status-action-count" href="/retweetedby/{{.ID}}" title="click to see the the list"> 
@@ -116,13 +116,13 @@
 				</div>
 				<div class="status-action">
 					{{if .Favourited}}
-					<a class="status-like" href="/unlike/{{.ID}}" title="unlike"> 
-						<img class="icon" src="/static/icons/liked.png" alt="unlike" />
-					</a>
+					<form class="status-like" action="/unlike/{{.ID}}" method="post">
+					    <input type="image" src="/static/icons/liked.png" alt="unlike" class="icon" title="unlike">
+					</form>
 					{{else}}
-					<a class="status-like" href="/like/{{.ID}}" title="like"> 
-						<img class="icon" src="/static/icons/star-o.png" alt="like" />
-					</a>
+					<form class="status-like" action="/like/{{.ID}}" method="post">
+					    <input type="image" src="/static/icons/star-o.png" alt="like" class="icon" title="like">
+					</form>
 					{{end}}
 					<a class="status-action-count" href="/likedby/{{.ID}}" title="click to see the the list"> 
 						<span> {{DisplayInteractionCount .FavouritesCount}} </span>
