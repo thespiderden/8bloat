@@ -159,52 +159,76 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/like/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
 		id, _ := mux.Vars(req)["id"]
-		err := s.Like(ctx, w, nil, id)
+		retweetedByID := req.FormValue("retweeted_by_id")
+
+		_, err := s.Like(ctx, w, nil, id)
 		if err != nil {
 			s.ServeErrorPage(ctx, w, err)
 			return
 		}
 
-		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
+		rID := id
+		if len(retweetedByID) > 0 {
+			rID = retweetedByID
+		}
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
 		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/unlike/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
 		id, _ := mux.Vars(req)["id"]
-		err := s.UnLike(ctx, w, nil, id)
+		retweetedByID := req.FormValue("retweeted_by_id")
+
+		_, err := s.UnLike(ctx, w, nil, id)
 		if err != nil {
 			s.ServeErrorPage(ctx, w, err)
 			return
 		}
 
-		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
+		rID := id
+		if len(retweetedByID) > 0 {
+			rID = retweetedByID
+		}
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
 		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/retweet/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
 		id, _ := mux.Vars(req)["id"]
-		err := s.Retweet(ctx, w, nil, id)
+		retweetedByID := req.FormValue("retweeted_by_id")
+
+		_, err := s.Retweet(ctx, w, nil, id)
 		if err != nil {
 			s.ServeErrorPage(ctx, w, err)
 			return
 		}
 
-		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
+		rID := id
+		if len(retweetedByID) > 0 {
+			rID = retweetedByID
+		}
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
 		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/unretweet/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
 		id, _ := mux.Vars(req)["id"]
-		err := s.UnRetweet(ctx, w, nil, id)
+		retweetedByID := req.FormValue("retweeted_by_id")
+
+		_, err := s.UnRetweet(ctx, w, nil, id)
 		if err != nil {
 			s.ServeErrorPage(ctx, w, err)
 			return
 		}
 
-		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+id)
+		rID := id
+		if len(retweetedByID) > 0 {
+			rID = retweetedByID
+		}
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
 		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodPost)
 

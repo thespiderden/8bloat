@@ -282,6 +282,7 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		statuses[i].ThreadInNewTab = c.Session.Settings.ThreadInNewTab
 		statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
 		if statuses[i].Reblog != nil {
+			statuses[i].Reblog.RetweetedByID = statuses[i].ID
 			statuses[i].Reblog.ThreadInNewTab = c.Session.Settings.ThreadInNewTab
 			statuses[i].Reblog.MaskNSFW = c.Session.Settings.MaskNSFW
 		}

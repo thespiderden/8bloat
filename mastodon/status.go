@@ -56,6 +56,7 @@ type Status struct {
 	ReplyNumber     int                    `json:"reply_number"`
 	ThreadInNewTab  bool                   `json:"thread_in_new_tab"`
 	MaskNSFW        bool                   `json:"mask_nsfw"`
+	RetweetedByID   string                 `json:"retweeted_by_id"`
 }
 
 // Context hold information for mastodon context.

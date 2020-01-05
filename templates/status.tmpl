@@ -1,4 +1,4 @@
-<div id="status-{{if .Reblog}}{{.Reblog.ID}}{{else}}{{.ID}}{{end}}" class="status-container-container">
+<div id="status-{{.ID}}" class="status-container-container">
 	{{if .Reblog}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
@@ -102,11 +102,13 @@
 					{{else}}
 					{{if .Reblogged}}
 					<form class="status-retweet" action="/unretweet/{{.ID}}" method="post">
-					    <input type="image" src="/static/icons/retweeted.png" alt="undo retweet" class="icon" title="undo retweet">
+						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
+						<input type="image" src="/static/icons/retweeted.png" alt="undo retweet" class="icon" title="undo retweet">
 					</form>
 					{{else}}
 					<form class="status-retweet" action="/retweet/{{.ID}}" method="post">
-					    <input type="image" src="/static/icons/retweet.png" alt="retweet" class="icon" title="retweet">
+						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
+						<input type="image" src="/static/icons/retweet.png" alt="retweet" class="icon" title="retweet">
 					</form>
 					{{end}}
 					{{end}}
@@ -117,11 +119,13 @@
 				<div class="status-action">
 					{{if .Favourited}}
 					<form class="status-like" action="/unlike/{{.ID}}" method="post">
-					    <input type="image" src="/static/icons/liked.png" alt="unlike" class="icon" title="unlike">
+						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
+						<input type="image" src="/static/icons/liked.png" alt="unlike" class="icon" title="unlike">
 					</form>
 					{{else}}
 					<form class="status-like" action="/like/{{.ID}}" method="post">
-					    <input type="image" src="/static/icons/star-o.png" alt="like" class="icon" title="like">
+						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
+						<input type="image" src="/static/icons/star-o.png" alt="like" class="icon" title="like">
 					</form>
 					{{end}}
 					<a class="status-action-count" href="/likedby/{{.ID}}" title="click to see the the list"> 
