@@ -9,6 +9,7 @@ type HeaderData struct {
 	Title             string
 	NotificationCount int
 	CustomCSS         string
+	FluorideMode      bool
 }
 
 type NavbarData struct {

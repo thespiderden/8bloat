@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"path"
@@ -232,6 +234,70 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		w.WriteHeader(http.StatusFound)
 	}).Methods(http.MethodPost)
 
+	r.HandleFunc("/fluoride/like/{id}", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+		id, _ := mux.Vars(req)["id"]
+		count, err := s.Like(ctx, w, nil, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+
+		err = serveJson(w, count)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodPost)
+
+	r.HandleFunc("/fluoride/unlike/{id}", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+		id, _ := mux.Vars(req)["id"]
+		count, err := s.UnLike(ctx, w, nil, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+
+		err = serveJson(w, count)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodPost)
+
+	r.HandleFunc("/fluoride/retweet/{id}", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+		id, _ := mux.Vars(req)["id"]
+		count, err := s.Retweet(ctx, w, nil, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+
+		err = serveJson(w, count)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodPost)
+
+	r.HandleFunc("/fluoride/unretweet/{id}", func(w http.ResponseWriter, req *http.Request) {
+		ctx := getContextWithSession(context.Background(), req)
+		id, _ := mux.Vars(req)["id"]
+		count, err := s.UnRetweet(ctx, w, nil, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+
+		err = serveJson(w, count)
+		if err != nil {
+			s.ServeErrorPage(ctx, w, err)
+			return
+		}
+	}).Methods(http.MethodPost)
+
 	r.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
 
@@ -381,11 +447,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		copyScope := req.FormValue("copy_scope") == "true"
 		threadInNewTab := req.FormValue("thread_in_new_tab") == "true"
 		maskNSFW := req.FormValue("mask_nsfw") == "true"
+		fluorideMode := req.FormValue("fluoride_mode") == "true"
 		settings := &model.Settings{
 			DefaultVisibility: visibility,
 			CopyScope:         copyScope,
 			ThreadInNewTab:    threadInNewTab,
 			MaskNSFW:          maskNSFW,
+			FluorideMode:      fluorideMode,
 		}
 
 		err := s.SaveSettings(ctx, w, nil, settings)
@@ -429,4 +497,10 @@ func getMultipartFormValue(mf *multipart.Form, key string) (val string) {
 		return ""
 	}
 	return vals[0]
+}
+
+func serveJson(w io.Writer, data interface{}) (err error) {
+	var d = make(map[string]interface{})
+	d["data"] = data
+	return json.NewEncoder(w).Encode(d)
 }

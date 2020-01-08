@@ -105,7 +105,9 @@
 	width: auto;
 }
 
-.status-action-count span {
+.status-reply-count,
+.status-retweet-count,
+.status-like-count {
 	vertical-align: middle;
 }
 

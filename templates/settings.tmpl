@@ -24,6 +24,10 @@
 		<input id="mask-nsfw" name="mask_nsfw" type="checkbox" value="true" {{if .Settings.MaskNSFW}}checked{{end}}>
 		<label for="mask-nsfw"> Mask NSFW Attachments </label>
 	</div>
+	<div class="settings-form-field">
+		<input id="fluoride-mode" name="fluoride_mode" type="checkbox" value="true" {{if .Settings.FluorideMode}}checked{{end}}>
+		<label for="fluoride-mode"> Enable Fluoride Mode </label>
+	</div>
 	<button type="submit"> Save </button>
 </form>
 

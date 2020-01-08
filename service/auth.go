@@ -190,7 +190,7 @@ func (s *authService) SaveSettings(ctx context.Context, client io.Writer, c *mod
 	return s.Service.SaveSettings(ctx, client, c, settings)
 }
 
-func (s *authService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *authService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -198,7 +198,7 @@ func (s *authService) Like(ctx context.Context, client io.Writer, c *model.Clien
 	return s.Service.Like(ctx, client, c, id)
 }
 
-func (s *authService) UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *authService) UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -206,7 +206,7 @@ func (s *authService) UnLike(ctx context.Context, client io.Writer, c *model.Cli
 	return s.Service.UnLike(ctx, client, c, id)
 }
 
-func (s *authService) Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *authService) Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return
@@ -214,7 +214,7 @@ func (s *authService) Retweet(ctx context.Context, client io.Writer, c *model.Cl
 	return s.Service.Retweet(ctx, client, c, id)
 }
 
-func (s *authService) UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *authService) UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
 	c, err = s.getClient(ctx)
 	if err != nil {
 		return

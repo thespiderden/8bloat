@@ -166,7 +166,7 @@ func (s *loggingService) SaveSettings(ctx context.Context, client io.Writer, c *
 	return s.Service.SaveSettings(ctx, client, c, settings)
 }
 
-func (s *loggingService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *loggingService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"Like", id, time.Since(begin), err)
@@ -174,7 +174,7 @@ func (s *loggingService) Like(ctx context.Context, client io.Writer, c *model.Cl
 	return s.Service.Like(ctx, client, c, id)
 }
 
-func (s *loggingService) UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *loggingService) UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"UnLike", id, time.Since(begin), err)
@@ -182,7 +182,7 @@ func (s *loggingService) UnLike(ctx context.Context, client io.Writer, c *model.
 	return s.Service.UnLike(ctx, client, c, id)
 }
 
-func (s *loggingService) Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *loggingService) Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"Retweet", id, time.Since(begin), err)
@@ -190,7 +190,7 @@ func (s *loggingService) Retweet(ctx context.Context, client io.Writer, c *model
 	return s.Service.Retweet(ctx, client, c, id)
 }
 
-func (s *loggingService) UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *loggingService) UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"UnRetweet", id, time.Since(begin), err)

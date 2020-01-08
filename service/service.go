@@ -44,10 +44,10 @@ type Service interface {
 	ServeSearchPage(ctx context.Context, client io.Writer, c *model.Client, q string, qType string, offset int) (err error)
 	ServeSettingsPage(ctx context.Context, client io.Writer, c *model.Client) (err error)
 	SaveSettings(ctx context.Context, client io.Writer, c *model.Client, settings *model.Settings) (err error)
-	Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
-	UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
-	Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
-	UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
+	Like(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error)
+	UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error)
+	Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error)
+	UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error)
 	PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, format string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error)
 	Follow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
 	UnFollow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error)
@@ -795,6 +795,7 @@ func (svc *service) getCommonData(ctx context.Context, client io.Writer, c *mode
 		Title:             "Web",
 		NotificationCount: 0,
 		CustomCSS:         svc.customCSS,
+		FluorideMode:      c.Session.Settings.FluorideMode,
 	}
 
 	if c != nil && c.Session.IsLoggedIn() {
@@ -826,23 +827,41 @@ func (svc *service) getCommonData(ctx context.Context, client io.Writer, c *mode
 	return
 }
 
-func (svc *service) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
-	_, err = c.Favourite(ctx, id)
+func (svc *service) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
+	s, err := c.Favourite(ctx, id)
+	if err != nil {
+		return
+	}
+	count = s.FavouritesCount
 	return
 }
 
-func (svc *service) UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
-	_, err = c.Unfavourite(ctx, id)
+func (svc *service) UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
+	s, err := c.Unfavourite(ctx, id)
+	if err != nil {
+		return
+	}
+	count = s.FavouritesCount
 	return
 }
 
-func (svc *service) Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
-	_, err = c.Reblog(ctx, id)
+func (svc *service) Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
+	s, err := c.Reblog(ctx, id)
+	if err != nil {
+		return
+	}
+	if s.Reblog != nil {
+		count = s.Reblog.ReblogsCount
+	}
 	return
 }
 
-func (svc *service) UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
-	_, err = c.Unreblog(ctx, id)
+func (svc *service) UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
+	s, err := c.Unreblog(ctx, id)
+	if err != nil {
+		return
+	}
+	count = s.ReblogsCount
 	return
 }
 

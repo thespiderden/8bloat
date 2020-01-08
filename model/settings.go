@@ -5,6 +5,7 @@ type Settings struct {
 	CopyScope         bool   `json:"copy_scope"`
 	ThreadInNewTab    bool   `json:"thread_in_new_tab"`
 	MaskNSFW          bool   `json:"mask_nfsw"`
+	FluorideMode      bool   `json:"fluoride_mode"`
 }
 
 func NewSettings() *Settings {
@@ -13,5 +14,6 @@ func NewSettings() *Settings {
 		CopyScope:         true,
 		ThreadInNewTab:    false,
 		MaskNSFW:          true,
+		FluorideMode:      false,
 	}
 }

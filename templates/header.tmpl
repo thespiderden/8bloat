@@ -8,5 +8,8 @@
 	{{if .CustomCSS}}
 	<link rel="stylesheet" href="{{.CustomCSS}}">
 	{{end}}
+	{{if .FluorideMode}}
+	<script src="/static/fluoride.js"></script>
+	{{end}}
 </head>
 <body>
