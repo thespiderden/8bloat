@@ -203,7 +203,7 @@ func (svc *service) GetUserToken(ctx context.Context, sessionID string, c *model
 }
 
 func (svc *service) ServeHomePage(ctx context.Context, client io.Writer) (err error) {
-	commonData, err := svc.getCommonData(ctx, client, nil)
+	commonData, err := svc.getCommonData(ctx, client, nil, "home")
 	if err != nil {
 		return
 	}
@@ -221,7 +221,7 @@ func (svc *service) ServeErrorPage(ctx context.Context, client io.Writer, err er
 		errStr = err.Error()
 	}
 
-	commonData, err := svc.getCommonData(ctx, client, nil)
+	commonData, err := svc.getCommonData(ctx, client, nil, "error")
 	if err != nil {
 		return
 	}
@@ -235,7 +235,7 @@ func (svc *service) ServeErrorPage(ctx context.Context, client io.Writer, err er
 }
 
 func (svc *service) ServeSigninPage(ctx context.Context, client io.Writer) (err error) {
-	commonData, err := svc.getCommonData(ctx, client, nil)
+	commonData, err := svc.getCommonData(ctx, client, nil, "signin")
 	if err != nil {
 		return
 	}
@@ -319,7 +319,7 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		Formats:           svc.postFormats,
 	}
 
-	commonData, err := svc.getCommonData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c, timelineType+" timeline ")
 	if err != nil {
 		return
 	}
@@ -404,7 +404,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 		addToReplyMap(replyMap, statuses[i].InReplyToID, statuses[i].ID, i+1)
 	}
 
-	commonData, err := svc.getCommonData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c, "post by "+status.Account.DisplayName)
 	if err != nil {
 		return
 	}
@@ -465,7 +465,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 		nextLink = "/notifications?max_id=" + pg.MaxID
 	}
 
-	commonData, err := svc.getCommonData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c, "notifications")
 	if err != nil {
 		return
 	}
@@ -516,7 +516,7 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mode
 		nextLink = "/user/" + id + "?max_id=" + pg.MaxID
 	}
 
-	commonData, err := svc.getCommonData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c, user.DisplayName)
 	if err != nil {
 		return
 	}
@@ -538,7 +538,7 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mode
 }
 
 func (svc *service) ServeAboutPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
-	commonData, err := svc.getCommonData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c, "about")
 	if err != nil {
 		return
 	}
@@ -555,7 +555,7 @@ func (svc *service) ServeAboutPage(ctx context.Context, client io.Writer, c *mod
 }
 
 func (svc *service) ServeEmojiPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
-	commonData, err := svc.getCommonData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c, "emojis")
 	if err != nil {
 		return
 	}
@@ -584,7 +584,7 @@ func (svc *service) ServeLikedByPage(ctx context.Context, client io.Writer, c *m
 		return
 	}
 
-	commonData, err := svc.getCommonData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c, "likes")
 	if err != nil {
 		return
 	}
@@ -608,7 +608,7 @@ func (svc *service) ServeRetweetedByPage(ctx context.Context, client io.Writer, 
 		return
 	}
 
-	commonData, err := svc.getCommonData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c, "retweets")
 	if err != nil {
 		return
 	}
@@ -646,7 +646,7 @@ func (svc *service) ServeFollowingPage(ctx context.Context, client io.Writer, c 
 		nextLink = "/following/" + id + "?max_id=" + pg.MaxID
 	}
 
-	commonData, err := svc.getCommonData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c, "following")
 	if err != nil {
 		return
 	}
@@ -686,7 +686,7 @@ func (svc *service) ServeFollowersPage(ctx context.Context, client io.Writer, c 
 		nextLink = "/followers/" + id + "?max_id=" + pg.MaxID
 	}
 
-	commonData, err := svc.getCommonData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c, "followers")
 	if err != nil {
 		return
 	}
@@ -731,7 +731,11 @@ func (svc *service) ServeSearchPage(ctx context.Context, client io.Writer, c *mo
 		nextLink = fmt.Sprintf("/search?q=%s&type=%s&offset=%d", q, qType, offset)
 	}
 
-	commonData, err := svc.getCommonData(ctx, client, c)
+	var title = "search"
+	if len(q) > 0 {
+		title += " \"" + q + "\""
+	}
+	commonData, err := svc.getCommonData(ctx, client, c, title)
 	if err != nil {
 		return
 	}
@@ -755,7 +759,7 @@ func (svc *service) ServeSearchPage(ctx context.Context, client io.Writer, c *mo
 }
 
 func (svc *service) ServeSettingsPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
-	commonData, err := svc.getCommonData(ctx, client, c)
+	commonData, err := svc.getCommonData(ctx, client, c, "settings")
 	if err != nil {
 		return
 	}
@@ -788,14 +792,13 @@ func (svc *service) SaveSettings(ctx context.Context, client io.Writer, c *model
 	return
 }
 
-func (svc *service) getCommonData(ctx context.Context, client io.Writer, c *model.Client) (data *renderer.CommonData, err error) {
+func (svc *service) getCommonData(ctx context.Context, client io.Writer, c *model.Client, title string) (data *renderer.CommonData, err error) {
 	data = new(renderer.CommonData)
 
 	data.HeaderData = &renderer.HeaderData{
-		Title:             "Web",
+		Title:             title + " - " + svc.clientName,
 		NotificationCount: 0,
 		CustomCSS:         svc.customCSS,
-		FluorideMode:      c.Session.Settings.FluorideMode,
 	}
 
 	if c != nil && c.Session.IsLoggedIn() {
@@ -822,6 +825,7 @@ func (svc *service) getCommonData(ctx context.Context, client io.Writer, c *mode
 		}
 
 		data.HeaderData.NotificationCount = notificationCount
+		data.HeaderData.FluorideMode = c.Session.Settings.FluorideMode
 	}
 
 	return
