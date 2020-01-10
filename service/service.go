@@ -442,6 +442,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 	var unreadCount int
 	for i := range notifications {
 		if notifications[i].Status != nil {
+			notifications[i].Status.CreatedAt = notifications[i].CreatedAt
 			notifications[i].Status.MaskNSFW = c.Session.Settings.MaskNSFW
 			switch notifications[i].Type {
 			case "reblog", "favourite":
