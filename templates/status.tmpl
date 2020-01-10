@@ -134,7 +134,7 @@
 				</div>
 				<div class="status-action">
 					<a class="status-time" href="/thread/{{.ID}}#status-{{.ID}}" {{if .ThreadInNewTab}}target="_blank"{{end}}> 
-						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{.CreatedAt}}"> {{TimeSince .CreatedAt}} </time> 
+						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}"> {{TimeSince .CreatedAt}} </time> 
 					</a>
 				</div>
 			</div>

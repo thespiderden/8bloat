@@ -41,6 +41,7 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 		"DisplayInteractionCount": DisplayInteractionCount,
 		"TimeSince":               TimeSince,
 		"FormatTimeRFC3339":       FormatTimeRFC3339,
+		"FormatTimeRFC822":        FormatTimeRFC822,
 	}).ParseGlob(templateGlobPattern)
 	if err != nil {
 		return
@@ -174,4 +175,8 @@ func TimeSince(t time.Time) string {
 
 func FormatTimeRFC3339(t time.Time) string {
 	return t.Format(time.RFC3339)
+}
+
+func FormatTimeRFC822(t time.Time) string {
+	return t.Format(time.RFC822)
 }
