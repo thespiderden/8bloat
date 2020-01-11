@@ -133,7 +133,7 @@
 					</a>
 				</div>
 				<div class="status-action">
-					<a class="status-time" href="/thread/{{.ID}}#status-{{.ID}}" {{if .ThreadInNewTab}}target="_blank"{{end}}> 
+					<a class="status-time" href="{{if not .ShowReplies}}/thread/{{.ID}}{{end}}#status-{{.ID}}" {{if .ThreadInNewTab}}target="_blank"{{end}}> 
 						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}"> {{TimeSince .CreatedAt}} </time> 
 					</a>
 				</div>
