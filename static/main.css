@@ -15,6 +15,8 @@
 .status-content {
 	margin: 4px 0;
 	word-wrap: anywhere;
+	max-height: 600px;
+	overflow: auto;
 }
 
 .status-content p {
