@@ -92,6 +92,51 @@ function handleRetweetForm(id, f) {
 	}
 }
 
+function handleReplyToLink(link) {
+	if (!link) {
+		return;
+	}
+	var id = link.firstElementChild.getAttribute('href');
+	if (!id || id[0] != '#') {
+		return;
+	}
+	link.onmouseenter = function(event) {
+		var id = event.target.firstElementChild.getAttribute('href');
+		var status = document.querySelector(id);
+		if (!status) {
+			return;
+		}
+		var copy = status.cloneNode(true);
+		copy.id = "reply-to-popup";
+		link.appendChild(copy);
+	}
+	link.onmouseleave = function(event) {
+		var popup = document.getElementById("reply-to-popup");
+		if (popup) {
+			event.target.removeChild(popup);    
+		}
+	}
+}
+
+function handleReplyLink(link) {
+	link.onmouseenter = function(event) {
+		var id = event.target.firstElementChild.getAttribute('href');
+		var status = document.querySelector(id);
+		if (!status) {
+			return;
+		}
+		var copy = status.cloneNode(true);
+		copy.id = "reply-popup";
+		link.appendChild(copy);
+	}
+	link.onmouseleave = function(event) {
+		var popup = document.getElementById("reply-popup");
+		if (popup) {
+			event.target.removeChild(popup);    
+		}
+	}
+}
+
 document.addEventListener("DOMContentLoaded", function() { 
 	var statuses = document.querySelectorAll(".status-container");
 	statuses.forEach(function(s) {
@@ -102,5 +147,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
 		var retweetForm = s.querySelector(".status-retweet");
 		handleRetweetForm(id, retweetForm);
+
+		var replyToLink = s.querySelector(".status-reply-to");
+		handleReplyToLink(replyToLink);
+
+		var replyLinks = s.querySelectorAll(".status-reply");
+		replyLinks.forEach(handleReplyLink);
 	});
 });

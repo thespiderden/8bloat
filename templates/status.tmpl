@@ -44,14 +44,19 @@
 			{{end}}
 			<div class="status-reply-container">
 				{{if .InReplyToID}}
-				<img class="icon" src="/static/icons/mail-forward.png" alt="reply to" />
-				<a class="status-reply-to" href="{{if not .ShowReplies}}/thread/{{.InReplyToID}}{{end}}#status-{{.InReplyToID}}"> reply to {{.Pleroma.InReplyToAccountAcct}} </a>
+				<div class="status-reply-to">
+					<a class="status-reply-to-link" href="{{if not .ShowReplies}}/thread/{{.InReplyToID}}{{end}}#status-{{.InReplyToID}}"> 
+						<img class="icon" src="/static/icons/mail-forward.png" alt="reply to" /> reply to {{.Pleroma.InReplyToAccountAcct}} 
+					</a>
+				</div>
 				{{if index .ReplyMap .ID}} <span class="status-reply-info-divider"> - </span> {{end}}
 				{{end}}
 				{{if .ShowReplies}}
 				{{if index .ReplyMap .ID}} <span class="status-reply-text"> replies: </span> {{end}}
 				{{range index .ReplyMap .ID}}
-				<a class="status-reply" href="#status-{{.ID}}">#{{.Number}}</a>
+				<div class="status-reply">
+					<a class="status-reply-link" href="#status-{{.ID}}">#{{.Number}}</a>
+				</div>
 				{{end}}
 				{{end}}
 			</div>

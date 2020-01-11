@@ -187,7 +187,11 @@
 }
 
 .status-reply-to {
+	display: inline-block;
 	vertical-align: center;
+}
+
+.status-reply-to-link {
 	font-size: 10pt
 }
 
@@ -202,6 +206,10 @@
 }
 
 .status-reply {
+	display: inline-block;
+}
+
+.status-reply-link {
 	font-size: 10pt;
 }
 
@@ -415,4 +423,22 @@
 
 .icon.post-emoji {
 	height: 20px;
+}
+
+#reply-popup {
+	position: absolute;
+	background: #ffffff;
+	border: 1px solid #aaaaaa;
+	padding: 4px 8px;
+	z-index: 3;
+	margin: 0 8px 0 8px;
+}
+
+#reply-to-popup {
+	position: absolute;
+	background: #ffffff;
+	border: 1px solid #aaaaaa;
+	padding: 4px 8px;
+	z-index: 3;
+	margin: 0 8px 0 8px;
 }
