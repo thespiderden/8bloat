@@ -6,6 +6,7 @@ type Settings struct {
 	ThreadInNewTab    bool   `json:"thread_in_new_tab"`
 	MaskNSFW          bool   `json:"mask_nfsw"`
 	FluorideMode      bool   `json:"fluoride_mode"`
+	DarkMode          bool   `json:"dark_mode"`
 }
 
 func NewSettings() *Settings {
@@ -15,5 +16,6 @@ func NewSettings() *Settings {
 		ThreadInNewTab:    false,
 		MaskNSFW:          true,
 		FluorideMode:      false,
+		DarkMode:          false,
 	}
 }

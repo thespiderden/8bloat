@@ -9,6 +9,7 @@ type PostContext struct {
 	DefaultVisibility string
 	ReplyContext      *ReplyContext
 	Formats           []PostFormat
+	DarkMode          bool
 }
 
 type ReplyContext struct {

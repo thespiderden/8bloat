@@ -1,8 +1,12 @@
 var actionIcons = {
 	"like": "/static/icons/star-o.png",
+	"dark-like": "/static/icons/dark-star-o.png",
 	"unlike": "/static/icons/liked.png",
+	"dark-unlike": "/static/icons/liked.png",
 	"retweet": "/static/icons/retweet.png",
-	"unretweet": "/static/icons/retweeted.png"
+	"dark-retweet": "/static/icons/dark-retweet.png",
+	"unretweet": "/static/icons/retweeted.png",
+	"dark-unretweet": "/static/icons/retweeted.png"
 };
 
 var reverseActions = {
@@ -31,7 +35,11 @@ function http(method, url, success, error) {
 }
 
 function updateActionForm(id, f, action) {
-	f.children[1].src = actionIcons[action];
+	if (Array.from(document.body.classList).indexOf("dark") > -1) {
+		f.children[1].src = actionIcons["dark-" + action];
+	} else {
+		f.children[1].src = actionIcons[action];
+	}
 	f.action = "/" + action + "/" + id;
 	f.dataset.action = action;
 }

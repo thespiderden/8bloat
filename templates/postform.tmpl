@@ -6,7 +6,7 @@
 	<label for="post-content" class="post-form-title"> New post </label>
 	{{end}}
 	<a class="post-form-emoji-link" href="/emojis" target="_blank" title="emoji reference">
-		<img class="icon post-emoji" src="/static/icons/smile-o.png" alt="emojis" />
+		<img class="icon post-emoji" src="{{GetIcon "smile-o" .DarkMode}}" alt="emojis" />
 	</a>
 	<div class="post-form-content-container">
 		<textarea id="post-content" name="content" class="post-content" cols="50" rows="5">{{if .ReplyContext}}{{.ReplyContext.ReplyContent}}{{end}}</textarea>

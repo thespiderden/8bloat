@@ -57,6 +57,7 @@ type Status struct {
 	ThreadInNewTab  bool                   `json:"thread_in_new_tab"`
 	MaskNSFW        bool                   `json:"mask_nsfw"`
 	RetweetedByID   string                 `json:"retweeted_by_id"`
+	DarkMode        bool                   `json:"dark_mode"`
 }
 
 // Context hold information for mastodon context.

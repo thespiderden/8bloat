@@ -10,6 +10,7 @@ type HeaderData struct {
 	NotificationCount int
 	CustomCSS         string
 	FluorideMode      bool
+	DarkMode          bool
 }
 
 type NavbarData struct {
@@ -58,6 +59,7 @@ type NotificationData struct {
 	Notifications []*mastodon.Notification
 	HasNext       bool
 	NextLink      string
+	DarkMode      bool
 }
 
 type UserData struct {
@@ -66,6 +68,7 @@ type UserData struct {
 	Statuses []*mastodon.Status
 	HasNext  bool
 	NextLink string
+	DarkMode bool
 }
 
 type AboutData struct {

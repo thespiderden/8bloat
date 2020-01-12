@@ -99,8 +99,8 @@
 }
 
 .status-action a:hover,
-.status-action a:hover i {
-	opacity: 0.8;
+.status-action input:hover {
+	opacity: 0.6;
 }
 
 .status-action a.status-time {
@@ -441,4 +441,30 @@
 	padding: 4px 8px;
 	z-index: 3;
 	margin: 0 8px 0 8px;
+}
+
+.dark {
+	background-color: #222222;
+	background-image: none;
+	color: #eaeaea;
+}
+
+.dark a {
+	color: #81a2be;
+}
+
+.dark .status-action a {
+	color: #999999;
+}
+
+.dark #post-content {
+	background-color: #333333;
+	border: 1px solid #444444;
+	color: #eaeaea;
+}
+
+.dark #reply-popup,
+.dark #reply-to-popup {
+	background-color: #222222;
+	border-color: #444444;
 }

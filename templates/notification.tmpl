@@ -14,7 +14,7 @@
 		<div>
 			<div class="notification-info-text">
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<img class="icon" src="/static/icons/user-plus.png" alt="followed" />
+				<img class="icon" src="{{GetIcon "user-plus" .DarkMode}}" alt="followed" />
 				<span> followed you </span>
 			</div>
 			<div class="notification-follow-uname">
@@ -36,7 +36,7 @@
 		<div>
 			<div class="notification-info-text">
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<img class="icon" src="/static/icons/retweeted.png" alt="retweeted" />
+				<img class="icon" src="{{GetIcon "retweeted" .DarkMode}}" alt="retweeted" />
 				<span> retweeted your post </span>
 			</div>
 			{{template "status" .Status}}
@@ -53,7 +53,7 @@
 		<div>
 			<div class="notification-info-text">
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<img class="icon" src="/static/icons/liked.png" alt="liked" />
+				<img class="icon" src="{{GetIcon "liked" .DarkMode}}" alt="liked" />
 				<span> liked your post </span>
 			</div>
 			{{template "status" .Status}}

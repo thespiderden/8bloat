@@ -281,10 +281,12 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 	for i := range statuses {
 		statuses[i].ThreadInNewTab = c.Session.Settings.ThreadInNewTab
 		statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
+		statuses[i].DarkMode = c.Session.Settings.DarkMode
 		if statuses[i].Reblog != nil {
 			statuses[i].Reblog.RetweetedByID = statuses[i].ID
 			statuses[i].Reblog.ThreadInNewTab = c.Session.Settings.ThreadInNewTab
 			statuses[i].Reblog.MaskNSFW = c.Session.Settings.MaskNSFW
+			statuses[i].Reblog.DarkMode = c.Session.Settings.DarkMode
 		}
 	}
 
@@ -317,6 +319,7 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 	postContext := model.PostContext{
 		DefaultVisibility: c.Session.Settings.DefaultVisibility,
 		Formats:           svc.postFormats,
+		DarkMode:          c.Session.Settings.DarkMode,
 	}
 
 	commonData, err := svc.getCommonData(ctx, client, c, timelineType+" timeline ")
@@ -385,6 +388,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 				InReplyToName: status.Account.Acct,
 				ReplyContent:  content,
 			},
+			DarkMode: c.Session.Settings.DarkMode,
 		}
 	}
 
@@ -401,6 +405,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 		statuses[i].ShowReplies = true
 		statuses[i].ReplyMap = replyMap
 		statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
+		statuses[i].DarkMode = c.Session.Settings.DarkMode
 		addToReplyMap(replyMap, statuses[i].InReplyToID, statuses[i].ID, i+1)
 	}
 
@@ -444,6 +449,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 		if notifications[i].Status != nil {
 			notifications[i].Status.CreatedAt = notifications[i].CreatedAt
 			notifications[i].Status.MaskNSFW = c.Session.Settings.MaskNSFW
+			notifications[i].Status.DarkMode = c.Session.Settings.DarkMode
 			switch notifications[i].Type {
 			case "reblog", "favourite":
 				notifications[i].Status.HideAccountInfo = true
@@ -476,6 +482,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 		HasNext:       hasNext,
 		NextLink:      nextLink,
 		CommonData:    commonData,
+		DarkMode:      c.Session.Settings.DarkMode,
 	}
 	err = svc.renderer.RenderNotificationPage(ctx, client, data)
 	if err != nil {
@@ -507,8 +514,10 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mode
 
 	for i := range statuses {
 		statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
+		statuses[i].DarkMode = c.Session.Settings.DarkMode
 		if statuses[i].Reblog != nil {
 			statuses[i].Reblog.MaskNSFW = c.Session.Settings.MaskNSFW
+			statuses[i].Reblog.DarkMode = c.Session.Settings.DarkMode
 		}
 	}
 
@@ -528,6 +537,7 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mode
 		HasNext:    hasNext,
 		NextLink:   nextLink,
 		CommonData: commonData,
+		DarkMode:   c.Session.Settings.DarkMode,
 	}
 
 	err = svc.renderer.RenderUserPage(ctx, client, data)
@@ -723,6 +733,7 @@ func (svc *service) ServeSearchPage(ctx context.Context, client io.Writer, c *mo
 		hasNext = len(results.Statuses) == 20
 		for i := range results.Statuses {
 			results.Statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
+			results.Statuses[i].DarkMode = c.Session.Settings.DarkMode
 		}
 
 	}
@@ -827,6 +838,7 @@ func (svc *service) getCommonData(ctx context.Context, client io.Writer, c *mode
 
 		data.HeaderData.NotificationCount = notificationCount
 		data.HeaderData.FluorideMode = c.Session.Settings.FluorideMode
+		data.HeaderData.DarkMode = c.Session.Settings.DarkMode
 	}
 
 	return

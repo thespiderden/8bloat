@@ -448,12 +448,14 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		threadInNewTab := req.FormValue("thread_in_new_tab") == "true"
 		maskNSFW := req.FormValue("mask_nsfw") == "true"
 		fluorideMode := req.FormValue("fluoride_mode") == "true"
+		darkMode := req.FormValue("dark_mode") == "true"
 		settings := &model.Settings{
 			DefaultVisibility: visibility,
 			CopyScope:         copyScope,
 			ThreadInNewTab:    threadInNewTab,
 			MaskNSFW:          maskNSFW,
 			FluorideMode:      fluorideMode,
+			DarkMode:      darkMode,
 		}
 
 		err := s.SaveSettings(ctx, w, nil, settings)

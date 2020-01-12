@@ -28,6 +28,10 @@
 		<input id="fluoride-mode" name="fluoride_mode" type="checkbox" value="true" {{if .Settings.FluorideMode}}checked{{end}}>
 		<label for="fluoride-mode"> Enable Fluoride Mode </label>
 	</div>
+	<div class="settings-form-field">
+		<input id="dark-mode" name="dark_mode" type="checkbox" value="true" {{if .Settings.DarkMode}}checked{{end}}>
+		<label for="dark-mode"> Use dark theme </label>
+	</div>
 	<button type="submit"> Save </button>
 </form>
 
