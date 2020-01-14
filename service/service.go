@@ -26,10 +26,9 @@ var (
 )
 
 type Service interface {
-	ServeHomePage(ctx context.Context, client io.Writer) (err error)
 	GetAuthUrl(ctx context.Context, instance string) (url string, sessionID string, err error)
 	GetUserToken(ctx context.Context, sessionID string, c *model.Client, token string) (accessToken string, err error)
-	ServeErrorPage(ctx context.Context, client io.Writer, err error)
+	ServeErrorPage(ctx context.Context, client io.Writer, c *model.Client, err error)
 	ServeSigninPage(ctx context.Context, client io.Writer) (err error)
 	ServeTimelinePage(ctx context.Context, client io.Writer, c *model.Client, timelineType string, maxID string, sinceID string, minID string) (err error)
 	ServeThreadPage(ctx context.Context, client io.Writer, c *model.Client, id string, reply bool) (err error)
@@ -76,6 +75,15 @@ func NewService(clientName string, clientScope string, clientWebsite string,
 		renderer:      renderer,
 		sessionRepo:   sessionRepo,
 		appRepo:       appRepo,
+	}
+}
+
+func getRendererContext(s model.Settings) *renderer.Context {
+	return &renderer.Context{
+		MaskNSFW:       s.MaskNSFW,
+		ThreadInNewTab: s.ThreadInNewTab,
+		FluorideMode:   s.FluorideMode,
+		DarkMode:       s.DarkMode,
 	}
 }
 
@@ -202,20 +210,7 @@ func (svc *service) GetUserToken(ctx context.Context, sessionID string, c *model
 	return res.AccessToken, nil
 }
 
-func (svc *service) ServeHomePage(ctx context.Context, client io.Writer) (err error) {
-	commonData, err := svc.getCommonData(ctx, client, nil, "home")
-	if err != nil {
-		return
-	}
-
-	data := &renderer.HomePageData{
-		CommonData: commonData,
-	}
-
-	return svc.renderer.RenderHomePage(ctx, client, data)
-}
-
-func (svc *service) ServeErrorPage(ctx context.Context, client io.Writer, err error) {
+func (svc *service) ServeErrorPage(ctx context.Context, client io.Writer, c *model.Client, err error) {
 	var errStr string
 	if err != nil {
 		errStr = err.Error()
@@ -231,7 +226,15 @@ func (svc *service) ServeErrorPage(ctx context.Context, client io.Writer, err er
 		Error:      errStr,
 	}
 
-	svc.renderer.RenderErrorPage(ctx, client, data)
+	var s model.Settings
+	if c != nil {
+		s = c.Session.Settings
+	} else {
+		s = *model.NewSettings()
+	}
+	rCtx := getRendererContext(s)
+
+	svc.renderer.RenderErrorPage(rCtx, client, data)
 }
 
 func (svc *service) ServeSigninPage(ctx context.Context, client io.Writer) (err error) {
@@ -244,7 +247,8 @@ func (svc *service) ServeSigninPage(ctx context.Context, client io.Writer) (err 
 		CommonData: commonData,
 	}
 
-	return svc.renderer.RenderSigninPage(ctx, client, data)
+	rCtx := getRendererContext(*model.NewSettings())
+	return svc.renderer.RenderSigninPage(rCtx, client, data)
 }
 
 func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
@@ -279,14 +283,8 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 	}
 
 	for i := range statuses {
-		statuses[i].ThreadInNewTab = c.Session.Settings.ThreadInNewTab
-		statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
-		statuses[i].DarkMode = c.Session.Settings.DarkMode
 		if statuses[i].Reblog != nil {
 			statuses[i].Reblog.RetweetedByID = statuses[i].ID
-			statuses[i].Reblog.ThreadInNewTab = c.Session.Settings.ThreadInNewTab
-			statuses[i].Reblog.MaskNSFW = c.Session.Settings.MaskNSFW
-			statuses[i].Reblog.DarkMode = c.Session.Settings.DarkMode
 		}
 	}
 
@@ -319,7 +317,6 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 	postContext := model.PostContext{
 		DefaultVisibility: c.Session.Settings.DefaultVisibility,
 		Formats:           svc.postFormats,
-		DarkMode:          c.Session.Settings.DarkMode,
 	}
 
 	commonData, err := svc.getCommonData(ctx, client, c, timelineType+" timeline ")
@@ -337,8 +334,9 @@ func (svc *service) ServeTimelinePage(ctx context.Context, client io.Writer,
 		PostContext: postContext,
 		CommonData:  commonData,
 	}
+	rCtx := getRendererContext(c.Session.Settings)
 
-	err = svc.renderer.RenderTimelinePage(ctx, client, data)
+	err = svc.renderer.RenderTimelinePage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -404,8 +402,6 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 	for i := range statuses {
 		statuses[i].ShowReplies = true
 		statuses[i].ReplyMap = replyMap
-		statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
-		statuses[i].DarkMode = c.Session.Settings.DarkMode
 		addToReplyMap(replyMap, statuses[i].InReplyToID, statuses[i].ID, i+1)
 	}
 
@@ -420,8 +416,9 @@ func (svc *service) ServeThreadPage(ctx context.Context, client io.Writer, c *mo
 		ReplyMap:    replyMap,
 		CommonData:  commonData,
 	}
+	rCtx := getRendererContext(c.Session.Settings)
 
-	err = svc.renderer.RenderThreadPage(ctx, client, data)
+	err = svc.renderer.RenderThreadPage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -448,8 +445,6 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 	for i := range notifications {
 		if notifications[i].Status != nil {
 			notifications[i].Status.CreatedAt = notifications[i].CreatedAt
-			notifications[i].Status.MaskNSFW = c.Session.Settings.MaskNSFW
-			notifications[i].Status.DarkMode = c.Session.Settings.DarkMode
 			switch notifications[i].Type {
 			case "reblog", "favourite":
 				notifications[i].Status.HideAccountInfo = true
@@ -482,9 +477,10 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 		HasNext:       hasNext,
 		NextLink:      nextLink,
 		CommonData:    commonData,
-		DarkMode:      c.Session.Settings.DarkMode,
 	}
-	err = svc.renderer.RenderNotificationPage(ctx, client, data)
+	rCtx := getRendererContext(c.Session.Settings)
+
+	err = svc.renderer.RenderNotificationPage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -512,15 +508,6 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mode
 		return
 	}
 
-	for i := range statuses {
-		statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
-		statuses[i].DarkMode = c.Session.Settings.DarkMode
-		if statuses[i].Reblog != nil {
-			statuses[i].Reblog.MaskNSFW = c.Session.Settings.MaskNSFW
-			statuses[i].Reblog.DarkMode = c.Session.Settings.DarkMode
-		}
-	}
-
 	if len(pg.MaxID) > 0 {
 		hasNext = true
 		nextLink = "/user/" + id + "?max_id=" + pg.MaxID
@@ -537,10 +524,10 @@ func (svc *service) ServeUserPage(ctx context.Context, client io.Writer, c *mode
 		HasNext:    hasNext,
 		NextLink:   nextLink,
 		CommonData: commonData,
-		DarkMode:   c.Session.Settings.DarkMode,
 	}
+	rCtx := getRendererContext(c.Session.Settings)
 
-	err = svc.renderer.RenderUserPage(ctx, client, data)
+	err = svc.renderer.RenderUserPage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -557,7 +544,9 @@ func (svc *service) ServeAboutPage(ctx context.Context, client io.Writer, c *mod
 	data := &renderer.AboutData{
 		CommonData: commonData,
 	}
-	err = svc.renderer.RenderAboutPage(ctx, client, data)
+	rCtx := getRendererContext(c.Session.Settings)
+
+	err = svc.renderer.RenderAboutPage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -580,8 +569,9 @@ func (svc *service) ServeEmojiPage(ctx context.Context, client io.Writer, c *mod
 		Emojis:     emojis,
 		CommonData: commonData,
 	}
+	rCtx := getRendererContext(c.Session.Settings)
 
-	err = svc.renderer.RenderEmojiPage(ctx, client, data)
+	err = svc.renderer.RenderEmojiPage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -604,8 +594,9 @@ func (svc *service) ServeLikedByPage(ctx context.Context, client io.Writer, c *m
 		CommonData: commonData,
 		Users:      likers,
 	}
+	rCtx := getRendererContext(c.Session.Settings)
 
-	err = svc.renderer.RenderLikedByPage(ctx, client, data)
+	err = svc.renderer.RenderLikedByPage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -628,8 +619,9 @@ func (svc *service) ServeRetweetedByPage(ctx context.Context, client io.Writer, 
 		CommonData: commonData,
 		Users:      retweeters,
 	}
+	rCtx := getRendererContext(c.Session.Settings)
 
-	err = svc.renderer.RenderRetweetedByPage(ctx, client, data)
+	err = svc.renderer.RenderRetweetedByPage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -668,8 +660,9 @@ func (svc *service) ServeFollowingPage(ctx context.Context, client io.Writer, c 
 		HasNext:    hasNext,
 		NextLink:   nextLink,
 	}
+	rCtx := getRendererContext(c.Session.Settings)
 
-	err = svc.renderer.RenderFollowingPage(ctx, client, data)
+	err = svc.renderer.RenderFollowingPage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -708,8 +701,9 @@ func (svc *service) ServeFollowersPage(ctx context.Context, client io.Writer, c 
 		HasNext:    hasNext,
 		NextLink:   nextLink,
 	}
+	rCtx := getRendererContext(c.Session.Settings)
 
-	err = svc.renderer.RenderFollowersPage(ctx, client, data)
+	err = svc.renderer.RenderFollowersPage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -731,11 +725,6 @@ func (svc *service) ServeSearchPage(ctx context.Context, client io.Writer, c *mo
 		hasNext = len(results.Accounts) == 20
 	case "statuses":
 		hasNext = len(results.Statuses) == 20
-		for i := range results.Statuses {
-			results.Statuses[i].MaskNSFW = c.Session.Settings.MaskNSFW
-			results.Statuses[i].DarkMode = c.Session.Settings.DarkMode
-		}
-
 	}
 
 	if hasNext {
@@ -761,8 +750,9 @@ func (svc *service) ServeSearchPage(ctx context.Context, client io.Writer, c *mo
 		HasNext:    hasNext,
 		NextLink:   nextLink,
 	}
+	rCtx := getRendererContext(c.Session.Settings)
 
-	err = svc.renderer.RenderSearchPage(ctx, client, data)
+	err = svc.renderer.RenderSearchPage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -780,8 +770,9 @@ func (svc *service) ServeSettingsPage(ctx context.Context, client io.Writer, c *
 		CommonData: commonData,
 		Settings:   &c.Session.Settings,
 	}
+	rCtx := getRendererContext(c.Session.Settings)
 
-	err = svc.renderer.RenderSettingsPage(ctx, client, data)
+	err = svc.renderer.RenderSettingsPage(rCtx, client, data)
 	if err != nil {
 		return
 	}
@@ -837,8 +828,6 @@ func (svc *service) getCommonData(ctx context.Context, client io.Writer, c *mode
 		}
 
 		data.HeaderData.NotificationCount = notificationCount
-		data.HeaderData.FluorideMode = c.Session.Settings.FluorideMode
-		data.HeaderData.DarkMode = c.Session.Settings.DarkMode
 	}
 
 	return

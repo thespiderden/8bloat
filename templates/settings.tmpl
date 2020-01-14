@@ -1,5 +1,6 @@
-{{template "header.tmpl" .HeaderData}}
-{{template "navigation.tmpl" .NavbarData}}
+{{with .Data}}
+{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
+{{template "navigation.tmpl" (WithContext .NavbarData $.Ctx)}}
 <div class="page-title"> Settings </div>
 
 <form id="settings-form" action="/settings" method="POST">
@@ -36,3 +37,4 @@
 </form>
 
 {{template "footer.tmpl"}}
+{{end}}

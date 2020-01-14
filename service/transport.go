@@ -41,7 +41,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/signin", func(w http.ResponseWriter, req *http.Request) {
 		err := s.ServeSigninPage(ctx, w)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -50,7 +50,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		instance := req.FormValue("instance")
 		url, sessionID, err := s.GetAuthUrl(ctx, instance)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
@@ -69,7 +69,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		token := req.URL.Query().Get("code")
 		_, err := s.GetUserToken(ctx, "", nil, token)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
@@ -92,7 +92,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeTimelinePage(ctx, w, nil, timelineType, maxID, sinceID, minID)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -103,7 +103,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		reply := req.URL.Query().Get("reply")
 		err := s.ServeThreadPage(ctx, w, nil, id, len(reply) > 1)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -114,7 +114,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeLikedByPage(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -125,7 +125,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeRetweetedByPage(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -139,7 +139,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeFollowingPage(ctx, w, nil, id, maxID, minID)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -153,7 +153,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeFollowersPage(ctx, w, nil, id, maxID, minID)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -165,7 +165,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		_, err := s.Like(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
@@ -184,7 +184,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		_, err := s.UnLike(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
@@ -203,7 +203,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		_, err := s.Retweet(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
@@ -222,7 +222,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		_, err := s.UnRetweet(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
@@ -239,13 +239,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		id, _ := mux.Vars(req)["id"]
 		count, err := s.Like(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
 		err = serveJson(w, count)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodPost)
@@ -255,13 +255,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		id, _ := mux.Vars(req)["id"]
 		count, err := s.UnLike(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
 		err = serveJson(w, count)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodPost)
@@ -271,13 +271,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		id, _ := mux.Vars(req)["id"]
 		count, err := s.Retweet(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
 		err = serveJson(w, count)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodPost)
@@ -287,13 +287,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		id, _ := mux.Vars(req)["id"]
 		count, err := s.UnRetweet(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
 		err = serveJson(w, count)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodPost)
@@ -303,7 +303,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := req.ParseMultipartForm(4 << 20)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
@@ -317,7 +317,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		id, err := s.PostTweet(ctx, w, nil, content, replyToID, format, visibility, isNSFW, files)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
@@ -337,7 +337,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeNotificationPage(ctx, w, nil, maxID, minID)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -351,7 +351,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeUserPage(ctx, w, nil, id, maxID, minID)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -363,7 +363,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.Follow(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
@@ -378,7 +378,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.UnFollow(ctx, w, nil, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 
@@ -391,7 +391,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeAboutPage(ctx, w, nil)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -401,7 +401,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeEmojiPage(ctx, w, nil)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -418,14 +418,14 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		if len(offsetStr) > 1 {
 			offset, err = strconv.Atoi(offsetStr)
 			if err != nil {
-				s.ServeErrorPage(ctx, w, err)
+				s.ServeErrorPage(ctx, w, nil, err)
 				return
 			}
 		}
 
 		err = s.ServeSearchPage(ctx, w, nil, q, qType, offset)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -435,7 +435,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeSettingsPage(ctx, w, nil)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 	}).Methods(http.MethodGet)
@@ -455,12 +455,12 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			ThreadInNewTab:    threadInNewTab,
 			MaskNSFW:          maskNSFW,
 			FluorideMode:      fluorideMode,
-			DarkMode:      darkMode,
+			DarkMode:          darkMode,
 		}
 
 		err := s.SaveSettings(ctx, w, nil, settings)
 		if err != nil {
-			s.ServeErrorPage(ctx, w, err)
+			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
 

@@ -1,3 +1,4 @@
+{{with .Data}}
 <div id="status-{{.ID}}" class="status-container-container">
 	{{if .Reblog}}
 	<div class="retweet-info">
@@ -5,12 +6,13 @@
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-		<img class="icon" src="{{GetIcon "retweeted" .DarkMode}}" alt="retweeted" />
+		<img class="icon" src="{{GetIcon "retweeted" $.Ctx.DarkMode}}" alt="retweeted" />
 		retweeted
 	</div>
-	{{template "status" .Reblog}}
+	{{template "status" (WithContext .Reblog $.Ctx)}}
 	{{else}}
-	{{block "status" .}}
+	{{block "status" (WithContext . $.Ctx)}}
+	{{with $s := .Data}}
 	<div class="status-container status-{{.ID}}" data-id="{{.ID}}">
 		{{if not .HideAccountInfo}}
 		<div class="status-profile-img-container">
@@ -28,17 +30,17 @@
 				</a>
 				<a class="status-visibility">
 					{{if eq .Visibility "public"}}
-					<img class="icon" src="{{GetIcon "globe" .DarkMode}}" alt="Public" title="Public" />
+					<img class="icon" src="{{GetIcon "globe" $.Ctx.DarkMode}}" alt="Public" title="Public" />
 					{{else if eq .Visibility "unlisted"}}
-					<img class="icon" src="{{GetIcon "unlock-alt" .DarkMode}}" alt="Unlisted" title="Unlisted" />
+					<img class="icon" src="{{GetIcon "unlock-alt" $.Ctx.DarkMode}}" alt="Unlisted" title="Unlisted" />
 					{{else if eq .Visibility "private"}}
-					<img class="icon" src="{{GetIcon "lock" .DarkMode}}" alt="Private" title="Private" />
+					<img class="icon" src="{{GetIcon "lock" $.Ctx.DarkMode}}" alt="Private" title="Private" />
 					{{else if eq .Visibility "direct"}}
-					<img class="icon" src="{{GetIcon "envelope" .DarkMode}}" alt="Direct" title="Direct" />
+					<img class="icon" src="{{GetIcon "envelope" $.Ctx.DarkMode}}" alt="Direct" title="Direct" />
 					{{end}}
 				</a>
 				<a class="remote-link" href="{{.URL}}" target="_blank" title="source">
-					<img class="icon" src="{{GetIcon "link" .DarkMode}}" alt="source" />
+					<img class="icon" src="{{GetIcon "link" $.Ctx.DarkMode}}" alt="source" />
 				</a>
 			</div>
 			{{end}}
@@ -46,7 +48,7 @@
 				{{if .InReplyToID}}
 				<div class="status-reply-to">
 					<a class="status-reply-to-link" href="{{if not .ShowReplies}}/thread/{{.InReplyToID}}{{end}}#status-{{.InReplyToID}}"> 
-						<img class="icon" src="{{GetIcon "mail-forward" .DarkMode}}" alt="reply to" /> reply to {{.Pleroma.InReplyToAccountAcct}} 
+						<img class="icon" src="{{GetIcon "mail-forward" $.Ctx.DarkMode}}" alt="reply to" /> reply to {{.Pleroma.InReplyToAccountAcct}} 
 					</a>
 				</div>
 				{{if index .ReplyMap .ID}} <span class="status-reply-info-divider"> - </span> {{end}}
@@ -66,7 +68,7 @@
 			{{if eq .Type "image"}}
 			<a class="img-link" href="{{.URL}}" target="_blank">
 				<img class="status-image" src="{{.URL}}" alt="status-image" />
-				{{if (and $.MaskNSFW $.Sensitive)}}
+				{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
 				<div class="status-nsfw-overlay"></div>
 				{{end}}
 			</a>
@@ -81,7 +83,7 @@
 					<source src="{{.URL}}">
 					<p> Your browser doesn't support HTML5 video </p>
 				</video>
-				{{if (and $.MaskNSFW $.Sensitive)}}
+				{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
 				<div class="status-nsfw-overlay"></div>
 				{{end}}
 			</div>
@@ -93,27 +95,27 @@
 			<div class="status-action-container"> 
 				<div class="status-action">
 					<a class="status-you" href="/thread/{{.ID}}?reply=true#status-{{.ID}}" title="reply"> 
-						<img class="icon" src="{{GetIcon "reply" .DarkMode}}" alt="reply" />
+						<img class="icon" src="{{GetIcon "reply" $.Ctx.DarkMode}}" alt="reply" />
 					</a>
-					<a class="status-reply-count" href="/thread/{{.ID}}#status-{{.ID}}" {{if .ThreadInNewTab}}target="_blank"{{end}}>
+					<a class="status-reply-count" href="/thread/{{.ID}}#status-{{.ID}}" {{if $.Ctx.ThreadInNewTab}}target="_blank"{{end}}>
 						{{DisplayInteractionCount .RepliesCount}}
 					</a>
 				</div>
 				<div class="status-action">
 					{{if or (eq .Visibility "private") (eq .Visibility "direct")}}
 					<a class="status-retweet" title="this status cannot be retweeted"> 
-						<img class="icon" src="{{GetIcon "retweet" .DarkMode}}" alt="retweet" />
+						<img class="icon" src="{{GetIcon "retweet" $.Ctx.DarkMode}}" alt="retweet" />
 					</a>
 					{{else}}
 					{{if .Reblogged}}
 					<form class="status-retweet" data-action="unretweet" action="/unretweet/{{.ID}}" method="post">
 						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
-						<input type="image" src="{{GetIcon "retweeted" .DarkMode}}" alt="undo retweet" class="icon" title="undo retweet">
+						<input type="image" src="{{GetIcon "retweeted" $.Ctx.DarkMode}}" alt="undo retweet" class="icon" title="undo retweet">
 					</form>
 					{{else}}
 					<form class="status-retweet" data-action="retweet" action="/retweet/{{.ID}}" method="post">
 						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
-						<input type="image" src="{{GetIcon "retweet" .DarkMode}}" alt="retweet" class="icon" title="retweet">
+						<input type="image" src="{{GetIcon "retweet" $.Ctx.DarkMode}}" alt="retweet" class="icon" title="retweet">
 					</form>
 					{{end}}
 					{{end}}
@@ -125,12 +127,12 @@
 					{{if .Favourited}}
 					<form class="status-like" data-action="unlike" action="/unlike/{{.ID}}" method="post">
 						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
-						<input type="image" src="{{GetIcon "liked" .DarkMode}}" alt="unlike" class="icon" title="unlike">
+						<input type="image" src="{{GetIcon "liked" $.Ctx.DarkMode}}" alt="unlike" class="icon" title="unlike">
 					</form>
 					{{else}}
 					<form class="status-like" data-action="like" action="/like/{{.ID}}" method="post">
 						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
-						<input type="image" src="{{GetIcon "star-o" .DarkMode}}" alt="like" class="icon" title="like">
+						<input type="image" src="{{GetIcon "star-o" $.Ctx.DarkMode}}" alt="like" class="icon" title="like">
 					</form>
 					{{end}}
 					<a class="status-like-count" href="/likedby/{{.ID}}" title="click to see the the list"> 
@@ -138,7 +140,7 @@
 					</a>
 				</div>
 				<div class="status-action">
-					<a class="status-time" href="{{if not .ShowReplies}}/thread/{{.ID}}{{end}}#status-{{.ID}}" {{if .ThreadInNewTab}}target="_blank"{{end}}> 
+					<a class="status-time" href="{{if not .ShowReplies}}/thread/{{.ID}}{{end}}#status-{{.ID}}" {{if $.Ctx.ThreadInNewTab}}target="_blank"{{end}}> 
 						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}"> {{TimeSince .CreatedAt}} </time> 
 					</a>
 				</div>
@@ -147,4 +149,6 @@
 	</div>
 	{{end}}
 	{{end}}
+	{{end}}
 </div>
+{{end}}

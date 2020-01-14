@@ -1,4 +1,5 @@
-{{template "header.tmpl" .HeaderData}}
+{{with .Data}}
+{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
 <div class="page-title"> Signin </div>
 
 <form class="signin-form" action="/signin" method="post">
@@ -8,3 +9,4 @@
 </form>
 
 {{template "footer.tmpl"}}
+{{end}}

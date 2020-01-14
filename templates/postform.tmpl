@@ -1,3 +1,4 @@
+{{with .Data}}
 <form class="post-form" action="/post" method="POST" enctype="multipart/form-data">
 	{{if .ReplyContext}}
 	<input type="hidden" name="reply_to_id" value="{{.ReplyContext.InReplyToID}}" />
@@ -6,7 +7,7 @@
 	<label for="post-content" class="post-form-title"> New post </label>
 	{{end}}
 	<a class="post-form-emoji-link" href="/emojis" target="_blank" title="emoji reference">
-		<img class="icon post-emoji" src="{{GetIcon "smile-o" .DarkMode}}" alt="emojis" />
+		<img class="icon post-emoji" src="{{GetIcon "smile-o" $.Ctx.DarkMode}}" alt="emojis" />
 	</a>
 	<div class="post-form-content-container">
 		<textarea id="post-content" name="content" class="post-content" cols="50" rows="5">{{if .ReplyContext}}{{.ReplyContext.ReplyContent}}{{end}}</textarea>
@@ -42,4 +43,5 @@
 	</div>
 	<button type="submit"> Post </button>
 </form>
+{{end}}
 

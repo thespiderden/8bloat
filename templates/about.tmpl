@@ -1,5 +1,6 @@
-{{template "header.tmpl" .HeaderData}}
-{{template "navigation.tmpl" .NavbarData}}
+{{with .Data}}
+{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
+{{template "navigation.tmpl" (WithContext .NavbarData $.Ctx)}}
 <div class="page-title"> About </div>
 
 <div>
@@ -15,4 +16,5 @@
 </div>
 
 {{template "footer.tmpl"}}
+{{end}}
 

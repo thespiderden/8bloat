@@ -1,12 +1,12 @@
-{{template "header.tmpl" .HeaderData}}
-{{template "navigation.tmpl" .NavbarData}}
+{{with .Data}}
+{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
+{{template "navigation.tmpl" (WithContext .NavbarData $.Ctx)}}
 <div class="page-title"> {{.Title}} </div>
 
-
-{{template "postform.tmpl" .PostContext}}
+{{template "postform.tmpl" (WithContext .PostContext $.Ctx)}}
 
 {{range .Statuses}}
-{{template "status.tmpl" .}}
+{{template "status.tmpl" (WithContext . $.Ctx)}}
 {{end}}
 
 <div class="pagination">
@@ -17,4 +17,6 @@
 		<a href="{{.NextLink}}">next</a>
 	{{end}}
 </div>
+
 {{template "footer.tmpl"}}
+{{end}}

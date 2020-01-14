@@ -1,7 +1,6 @@
 package renderer
 
 import (
-	"context"
 	"io"
 	"strconv"
 	"strings"
@@ -44,22 +43,26 @@ var (
 	}
 )
 
+type TemplateData struct {
+	Data interface{}
+	Ctx  *Context
+}
+
 type Renderer interface {
-	RenderErrorPage(ctx context.Context, writer io.Writer, data *ErrorData)
-	RenderHomePage(ctx context.Context, writer io.Writer, data *HomePageData) (err error)
-	RenderSigninPage(ctx context.Context, writer io.Writer, data *SigninData) (err error)
-	RenderTimelinePage(ctx context.Context, writer io.Writer, data *TimelineData) (err error)
-	RenderThreadPage(ctx context.Context, writer io.Writer, data *ThreadData) (err error)
-	RenderNotificationPage(ctx context.Context, writer io.Writer, data *NotificationData) (err error)
-	RenderUserPage(ctx context.Context, writer io.Writer, data *UserData) (err error)
-	RenderAboutPage(ctx context.Context, writer io.Writer, data *AboutData) (err error)
-	RenderEmojiPage(ctx context.Context, writer io.Writer, data *EmojiData) (err error)
-	RenderLikedByPage(ctx context.Context, writer io.Writer, data *LikedByData) (err error)
-	RenderRetweetedByPage(ctx context.Context, writer io.Writer, data *RetweetedByData) (err error)
-	RenderFollowingPage(ctx context.Context, writer io.Writer, data *FollowingData) (err error)
-	RenderFollowersPage(ctx context.Context, writer io.Writer, data *FollowersData) (err error)
-	RenderSearchPage(ctx context.Context, writer io.Writer, data *SearchData) (err error)
-	RenderSettingsPage(ctx context.Context, writer io.Writer, data *SettingsData) (err error)
+	RenderSigninPage(ctx *Context, writer io.Writer, data *SigninData) (err error)
+	RenderErrorPage(ctx *Context, writer io.Writer, data *ErrorData)
+	RenderTimelinePage(ctx *Context, writer io.Writer, data *TimelineData) (err error)
+	RenderThreadPage(ctx *Context, writer io.Writer, data *ThreadData) (err error)
+	RenderNotificationPage(ctx *Context, writer io.Writer, data *NotificationData) (err error)
+	RenderUserPage(ctx *Context, writer io.Writer, data *UserData) (err error)
+	RenderAboutPage(ctx *Context, writer io.Writer, data *AboutData) (err error)
+	RenderEmojiPage(ctx *Context, writer io.Writer, data *EmojiData) (err error)
+	RenderLikedByPage(ctx *Context, writer io.Writer, data *LikedByData) (err error)
+	RenderRetweetedByPage(ctx *Context, writer io.Writer, data *RetweetedByData) (err error)
+	RenderFollowingPage(ctx *Context, writer io.Writer, data *FollowingData) (err error)
+	RenderFollowersPage(ctx *Context, writer io.Writer, data *FollowersData) (err error)
+	RenderSearchPage(ctx *Context, writer io.Writer, data *SearchData) (err error)
+	RenderSettingsPage(ctx *Context, writer io.Writer, data *SettingsData) (err error)
 }
 
 type renderer struct {
@@ -76,6 +79,7 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 		"FormatTimeRFC3339":       FormatTimeRFC3339,
 		"FormatTimeRFC822":        FormatTimeRFC822,
 		"GetIcon":                 GetIcon,
+		"WithContext":             WithContext,
 	}).ParseGlob(templateGlobPattern)
 	if err != nil {
 		return
@@ -85,65 +89,61 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 	}, nil
 }
 
-func (r *renderer) RenderErrorPage(ctx context.Context, writer io.Writer, errorData *ErrorData) {
-	r.template.ExecuteTemplate(writer, "error.tmpl", errorData)
+func (r *renderer) RenderSigninPage(ctx *Context, writer io.Writer, signinData *SigninData) (err error) {
+	return r.template.ExecuteTemplate(writer, "signin.tmpl", WithContext(signinData, ctx))
+}
+
+func (r *renderer) RenderErrorPage(ctx *Context, writer io.Writer, errorData *ErrorData) {
+	r.template.ExecuteTemplate(writer, "error.tmpl", WithContext(errorData, ctx))
 	return
 }
 
-func (r *renderer) RenderHomePage(ctx context.Context, writer io.Writer, homePageData *HomePageData) (err error) {
-	return r.template.ExecuteTemplate(writer, "homepage.tmpl", homePageData)
+func (r *renderer) RenderTimelinePage(ctx *Context, writer io.Writer, data *TimelineData) (err error) {
+	return r.template.ExecuteTemplate(writer, "timeline.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderSigninPage(ctx context.Context, writer io.Writer, signinData *SigninData) (err error) {
-	return r.template.ExecuteTemplate(writer, "signin.tmpl", signinData)
+func (r *renderer) RenderThreadPage(ctx *Context, writer io.Writer, data *ThreadData) (err error) {
+	return r.template.ExecuteTemplate(writer, "thread.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderTimelinePage(ctx context.Context, writer io.Writer, data *TimelineData) (err error) {
-	return r.template.ExecuteTemplate(writer, "timeline.tmpl", data)
+func (r *renderer) RenderNotificationPage(ctx *Context, writer io.Writer, data *NotificationData) (err error) {
+	return r.template.ExecuteTemplate(writer, "notification.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderThreadPage(ctx context.Context, writer io.Writer, data *ThreadData) (err error) {
-	return r.template.ExecuteTemplate(writer, "thread.tmpl", data)
+func (r *renderer) RenderUserPage(ctx *Context, writer io.Writer, data *UserData) (err error) {
+	return r.template.ExecuteTemplate(writer, "user.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderNotificationPage(ctx context.Context, writer io.Writer, data *NotificationData) (err error) {
-	return r.template.ExecuteTemplate(writer, "notification.tmpl", data)
+func (r *renderer) RenderAboutPage(ctx *Context, writer io.Writer, data *AboutData) (err error) {
+	return r.template.ExecuteTemplate(writer, "about.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderUserPage(ctx context.Context, writer io.Writer, data *UserData) (err error) {
-	return r.template.ExecuteTemplate(writer, "user.tmpl", data)
+func (r *renderer) RenderEmojiPage(ctx *Context, writer io.Writer, data *EmojiData) (err error) {
+	return r.template.ExecuteTemplate(writer, "emoji.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderAboutPage(ctx context.Context, writer io.Writer, data *AboutData) (err error) {
-	return r.template.ExecuteTemplate(writer, "about.tmpl", data)
+func (r *renderer) RenderLikedByPage(ctx *Context, writer io.Writer, data *LikedByData) (err error) {
+	return r.template.ExecuteTemplate(writer, "likedby.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderEmojiPage(ctx context.Context, writer io.Writer, data *EmojiData) (err error) {
-	return r.template.ExecuteTemplate(writer, "emoji.tmpl", data)
+func (r *renderer) RenderRetweetedByPage(ctx *Context, writer io.Writer, data *RetweetedByData) (err error) {
+	return r.template.ExecuteTemplate(writer, "retweetedby.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderLikedByPage(ctx context.Context, writer io.Writer, data *LikedByData) (err error) {
-	return r.template.ExecuteTemplate(writer, "likedby.tmpl", data)
+func (r *renderer) RenderFollowingPage(ctx *Context, writer io.Writer, data *FollowingData) (err error) {
+	return r.template.ExecuteTemplate(writer, "following.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderRetweetedByPage(ctx context.Context, writer io.Writer, data *RetweetedByData) (err error) {
-	return r.template.ExecuteTemplate(writer, "retweetedby.tmpl", data)
+func (r *renderer) RenderFollowersPage(ctx *Context, writer io.Writer, data *FollowersData) (err error) {
+	return r.template.ExecuteTemplate(writer, "followers.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderFollowingPage(ctx context.Context, writer io.Writer, data *FollowingData) (err error) {
-	return r.template.ExecuteTemplate(writer, "following.tmpl", data)
+func (r *renderer) RenderSearchPage(ctx *Context, writer io.Writer, data *SearchData) (err error) {
+	return r.template.ExecuteTemplate(writer, "search.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderFollowersPage(ctx context.Context, writer io.Writer, data *FollowersData) (err error) {
-	return r.template.ExecuteTemplate(writer, "followers.tmpl", data)
-}
-
-func (r *renderer) RenderSearchPage(ctx context.Context, writer io.Writer, data *SearchData) (err error) {
-	return r.template.ExecuteTemplate(writer, "search.tmpl", data)
-}
-
-func (r *renderer) RenderSettingsPage(ctx context.Context, writer io.Writer, data *SettingsData) (err error) {
-	return r.template.ExecuteTemplate(writer, "settings.tmpl", data)
+func (r *renderer) RenderSettingsPage(ctx *Context, writer io.Writer, data *SettingsData) (err error) {
+	return r.template.ExecuteTemplate(writer, "settings.tmpl", WithContext(data, ctx))
 }
 
 func EmojiFilter(content string, emojis []mastodon.Emoji) string {
@@ -221,4 +221,8 @@ func GetIcon(name string, darkMode bool) (icon string) {
 	}
 	icon, _ = icons[name]
 	return
+}
+
+func WithContext(data interface{}, ctx *Context) TemplateData {
+	return TemplateData{data, ctx}
 }

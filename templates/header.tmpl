@@ -1,3 +1,4 @@
+{{with .Data}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +9,9 @@
 	{{if .CustomCSS}}
 	<link rel="stylesheet" href="{{.CustomCSS}}">
 	{{end}}
-	{{if .FluorideMode}}
+	{{if $.Ctx.FluorideMode}}
 	<script src="/static/fluoride.js"></script>
 	{{end}}
 </head>
-<body {{if .DarkMode}}class="dark"{{end}}>
+<body {{if $.Ctx.DarkMode}}class="dark"{{end}}>
+{{end}}

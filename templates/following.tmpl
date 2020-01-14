@@ -1,8 +1,9 @@
-{{template "header.tmpl" .HeaderData}}
-{{template "navigation.tmpl" .NavbarData}}
+{{with .Data}}
+{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
+{{template "navigation.tmpl" (WithContext .NavbarData $.Ctx)}}
 <div class="page-title"> Following </div>
 
-{{template "userlist.tmpl" .Users}}
+{{template "userlist.tmpl" (WithContext .Users $.Ctx)}}
 <div class="pagination">
 	{{if .HasNext}}
 		<a href="{{.NextLink}}">next</a>
@@ -10,3 +11,4 @@
 </div>
 
 {{template "footer.tmpl"}}
+{{end}}

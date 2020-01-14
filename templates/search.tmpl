@@ -1,5 +1,6 @@
-{{template "header.tmpl" .HeaderData}}
-{{template "navigation.tmpl" .NavbarData}}
+{{with .Data}}
+{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
+{{template "navigation.tmpl" (WithContext .NavbarData $.Ctx)}}
 <div class="page-title"> Search </div>
 
 <div>
@@ -21,12 +22,12 @@
 
 {{if eq .Type "statuses"}}
 {{range .Statuses}}
-{{template "status.tmpl" .}}
+{{template "status.tmpl" (WithContext . $.Ctx)}}
 {{end}}
 
 {{end}}
 {{if eq .Type "accounts"}}
-{{template "userlist.tmpl" .Users}}
+{{template "userlist.tmpl" (WithContext .Users $.Ctx)}}
 {{end}}
 
 <div class="pagination">
@@ -34,4 +35,6 @@
 		<a href="{{.NextLink}}">next</a>
 	{{end}}
 </div>
+
 {{template "footer.tmpl"}}
+{{end}}

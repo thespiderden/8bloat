@@ -37,20 +37,12 @@ func (s *loggingService) GetUserToken(ctx context.Context, sessionID string, c *
 	return s.Service.GetUserToken(ctx, sessionID, c, code)
 }
 
-func (s *loggingService) ServeHomePage(ctx context.Context, client io.Writer) (err error) {
-	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, took=%v, err=%v\n",
-			"ServeHomePage", time.Since(begin), err)
-	}(time.Now())
-	return s.Service.ServeHomePage(ctx, client)
-}
-
-func (s *loggingService) ServeErrorPage(ctx context.Context, client io.Writer, err error) {
+func (s *loggingService) ServeErrorPage(ctx context.Context, client io.Writer, c *model.Client, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, err=%v, took=%v\n",
 			"ServeErrorPage", err, time.Since(begin))
 	}(time.Now())
-	s.Service.ServeErrorPage(ctx, client, err)
+	s.Service.ServeErrorPage(ctx, client, c, err)
 }
 
 func (s *loggingService) ServeSigninPage(ctx context.Context, client io.Writer) (err error) {

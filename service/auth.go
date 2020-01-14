@@ -73,12 +73,9 @@ func (s *authService) GetUserToken(ctx context.Context, sessionID string, c *mod
 	return
 }
 
-func (s *authService) ServeHomePage(ctx context.Context, client io.Writer) (err error) {
-	return s.Service.ServeHomePage(ctx, client)
-}
-
-func (s *authService) ServeErrorPage(ctx context.Context, client io.Writer, err error) {
-	s.Service.ServeErrorPage(ctx, client, err)
+func (s *authService) ServeErrorPage(ctx context.Context, client io.Writer, c *model.Client, err error) {
+	c, _ = s.getClient(ctx)
+	s.Service.ServeErrorPage(ctx, client, c, err)
 }
 
 func (s *authService) ServeSigninPage(ctx context.Context, client io.Writer) (err error) {

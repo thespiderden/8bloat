@@ -1,5 +1,6 @@
-{{template "header.tmpl" .HeaderData}}
-{{template "navigation.tmpl" .NavbarData}}
+{{with .Data}}
+{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
+{{template "navigation.tmpl" (WithContext .NavbarData $.Ctx)}}
 <div class="page-title"> Notifications </div>
 
 {{range .Notifications}}
@@ -14,7 +15,7 @@
 		<div>
 			<div class="notification-info-text">
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<img class="icon" src="{{GetIcon "user-plus" .DarkMode}}" alt="followed" />
+				<img class="icon" src="{{GetIcon "user-plus" $.Ctx.DarkMode}}" alt="followed" />
 				<span> followed you </span>
 			</div>
 			<div class="notification-follow-uname">
@@ -24,7 +25,7 @@
 	</div>
 
 	{{else if eq .Type "mention"}}
-	{{template "status" .Status}}
+	{{template "status" (WithContext .Status $.Ctx)}}
 
 	{{else if eq .Type "reblog"}}
 	<div class="notification-retweet-container">
@@ -36,10 +37,10 @@
 		<div>
 			<div class="notification-info-text">
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<img class="icon" src="{{GetIcon "retweeted" .DarkMode}}" alt="retweeted" />
+				<img class="icon" src="{{GetIcon "retweeted" $.Ctx.DarkMode}}" alt="retweeted" />
 				<span> retweeted your post </span>
 			</div>
-			{{template "status" .Status}}
+			{{template "status" (WithContext .Status $.Ctx)}}
 		</div>
 	</div>
 
@@ -53,10 +54,10 @@
 		<div>
 			<div class="notification-info-text">
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<img class="icon" src="{{GetIcon "liked" .DarkMode}}" alt="liked" />
+				<img class="icon" src="{{GetIcon "liked" $.Ctx.DarkMode}}" alt="liked" />
 				<span> liked your post </span>
 			</div>
-			{{template "status" .Status}}
+			{{template "status" (WithContext .Status $.Ctx)}}
 		</div>
 	</div>
 	{{end}}
@@ -68,4 +69,6 @@
 		<a href="{{.NextLink}}">next</a>
 	{{end}}
 </div>
+
 {{template "footer.tmpl"}}
+{{end}}

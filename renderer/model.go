@@ -5,12 +5,17 @@ import (
 	"mastodon"
 )
 
+type Context struct {
+	MaskNSFW       bool
+	FluorideMode   bool
+	ThreadInNewTab bool
+	DarkMode       bool
+}
+
 type HeaderData struct {
 	Title             string
 	NotificationCount int
 	CustomCSS         string
-	FluorideMode      bool
-	DarkMode          bool
 }
 
 type NavbarData struct {
