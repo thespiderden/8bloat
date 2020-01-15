@@ -450,7 +450,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, client io.Writer,
 				notifications[i].Status.HideAccountInfo = true
 			}
 		}
-		if notifications[i].Pleroma != nil && notifications[i].Pleroma.IsSeen {
+		if notifications[i].Pleroma != nil && !notifications[i].Pleroma.IsSeen {
 			unreadCount++
 		}
 	}
