@@ -160,6 +160,8 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/like/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
+
 		id, _ := mux.Vars(req)["id"]
 		retweetedByID := req.FormValue("retweeted_by_id")
 
@@ -179,6 +181,8 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/unlike/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
+
 		id, _ := mux.Vars(req)["id"]
 		retweetedByID := req.FormValue("retweeted_by_id")
 
@@ -198,6 +202,8 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/retweet/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
+
 		id, _ := mux.Vars(req)["id"]
 		retweetedByID := req.FormValue("retweeted_by_id")
 
@@ -217,6 +223,8 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/unretweet/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
+
 		id, _ := mux.Vars(req)["id"]
 		retweetedByID := req.FormValue("retweeted_by_id")
 
@@ -236,6 +244,8 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/fluoride/like/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
+
 		id, _ := mux.Vars(req)["id"]
 		count, err := s.Like(ctx, w, nil, id)
 		if err != nil {
@@ -252,6 +262,8 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/fluoride/unlike/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
+
 		id, _ := mux.Vars(req)["id"]
 		count, err := s.UnLike(ctx, w, nil, id)
 		if err != nil {
@@ -268,6 +280,8 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/fluoride/retweet/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
+
 		id, _ := mux.Vars(req)["id"]
 		count, err := s.Retweet(ctx, w, nil, id)
 		if err != nil {
@@ -284,6 +298,8 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/fluoride/unretweet/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
+
 		id, _ := mux.Vars(req)["id"]
 		count, err := s.UnRetweet(ctx, w, nil, id)
 		if err != nil {
@@ -299,13 +315,15 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-
 		err := req.ParseMultipartForm(4 << 20)
 		if err != nil {
 			s.ServeErrorPage(ctx, w, nil, err)
 			return
 		}
+
+		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token",
+			getMultipartFormValue(req.MultipartForm, "csrf_token"))
 
 		content := getMultipartFormValue(req.MultipartForm, "content")
 		replyToID := getMultipartFormValue(req.MultipartForm, "reply_to_id")
@@ -358,6 +376,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/follow/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
 
 		id, _ := mux.Vars(req)["id"]
 
@@ -373,6 +392,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/unfollow/{id}", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
 
 		id, _ := mux.Vars(req)["id"]
 
@@ -442,6 +462,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	r.HandleFunc("/settings", func(w http.ResponseWriter, req *http.Request) {
 		ctx := getContextWithSession(context.Background(), req)
+		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
 
 		visibility := req.FormValue("visibility")
 		copyScope := req.FormValue("copy_scope") == "true"

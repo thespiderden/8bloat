@@ -109,12 +109,14 @@
 					{{else}}
 					{{if .Reblogged}}
 					<form class="status-retweet" data-action="unretweet" action="/unretweet/{{.ID}}" method="post">
-						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
+						<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
 						<input type="image" src="{{GetIcon "retweeted" $.Ctx.DarkMode}}" alt="undo retweet" class="icon" title="undo retweet">
 					</form>
 					{{else}}
 					<form class="status-retweet" data-action="retweet" action="/retweet/{{.ID}}" method="post">
-						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
+						<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
 						<input type="image" src="{{GetIcon "retweet" $.Ctx.DarkMode}}" alt="retweet" class="icon" title="retweet">
 					</form>
 					{{end}}
@@ -126,12 +128,14 @@
 				<div class="status-action">
 					{{if .Favourited}}
 					<form class="status-like" data-action="unlike" action="/unlike/{{.ID}}" method="post">
-						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
+						<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
 						<input type="image" src="{{GetIcon "liked" $.Ctx.DarkMode}}" alt="unlike" class="icon" title="unlike">
 					</form>
 					{{else}}
 					<form class="status-like" data-action="like" action="/like/{{.ID}}" method="post">
-						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}" />
+						<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
 						<input type="image" src="{{GetIcon "star-o" $.Ctx.DarkMode}}" alt="like" class="icon" title="like">
 					</form>
 					{{end}}

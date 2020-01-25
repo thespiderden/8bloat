@@ -20,3 +20,7 @@ func NewRandId(n int) string {
 func NewSessionId() string {
 	return NewRandId(24)
 }
+
+func NewCSRFToken() string {
+	return NewRandId(24)
+}

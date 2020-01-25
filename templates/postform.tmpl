@@ -1,5 +1,6 @@
 {{with .Data}}
 <form class="post-form" action="/post" method="POST" enctype="multipart/form-data">
+	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 	{{if .ReplyContext}}
 	<input type="hidden" name="reply_to_id" value="{{.ReplyContext.InReplyToID}}" />
 	<label for="post-content" class="post-form-title"> Reply to {{.ReplyContext.InReplyToName}} </label>

@@ -22,17 +22,20 @@
 			<span> {{if .User.Pleroma.Relationship.FollowedBy}} follows you - {{end}} </span>  
 			{{if .User.Pleroma.Relationship.Following}} 
 			<form class="d-inline" action="/unfollow/{{.User.ID}}" method="post">
-			    <input type="submit" value="unfollow" class="btn-link">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="submit" value="unfollow" class="btn-link">
 			</form>
 			{{end}} 
 			{{if .User.Pleroma.Relationship.Requested}} 
 			<form class="d-inline" action="/unfollow/{{.User.ID}}" method="post">
-			    <input type="submit" value="cancel request" class="btn-link">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="submit" value="cancel request" class="btn-link">
 			</form>
 			{{end}} 
 			{{if not .User.Pleroma.Relationship.Following}} 
 			<form class="d-inline" action="/follow/{{.User.ID}}" method="post">
-			    <input type="submit" value="{{if .User.Pleroma.Relationship.Requested}}resend request{{else}}follow{{end}}" class="btn-link">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="submit" value="{{if .User.Pleroma.Relationship.Requested}}resend request{{else}}follow{{end}}" class="btn-link">
 			</form>
 			{{end}} 
 		</div>

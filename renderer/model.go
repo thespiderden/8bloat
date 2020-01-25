@@ -10,12 +10,14 @@ type Context struct {
 	FluorideMode   bool
 	ThreadInNewTab bool
 	DarkMode       bool
+	CSRFToken      string
 }
 
 type HeaderData struct {
 	Title             string
 	NotificationCount int
 	CustomCSS         string
+	CSRFToken         string
 }
 
 type NavbarData struct {

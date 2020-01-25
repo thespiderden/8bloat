@@ -12,6 +12,7 @@ type Session struct {
 	ID             string   `json:"id"`
 	InstanceDomain string   `json:"instance_domain"`
 	AccessToken    string   `json:"access_token"`
+	CSRFToken      string   `json:"csrf_token"`
 	Settings       Settings `json:"settings"`
 }
 

@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	ErrInvalidSession = errors.New("invalid session")
+	ErrInvalidSession   = errors.New("invalid session")
+	ErrInvalidCSRFToken = errors.New("invalid csrf token")
 )
 
 type authService struct {
@@ -45,6 +46,14 @@ func (s *authService) getClient(ctx context.Context) (c *model.Client, err error
 	})
 	c = &model.Client{Client: mc, Session: session}
 	return c, nil
+}
+
+func checkCSRF(ctx context.Context, c *model.Client) (err error) {
+	csrfToken, ok := ctx.Value("csrf_token").(string)
+	if !ok || csrfToken != c.Session.CSRFToken {
+		return ErrInvalidCSRFToken
+	}
+	return nil
 }
 
 func (s *authService) GetAuthUrl(ctx context.Context, instance string) (
@@ -184,11 +193,19 @@ func (s *authService) SaveSettings(ctx context.Context, client io.Writer, c *mod
 	if err != nil {
 		return
 	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
 	return s.Service.SaveSettings(ctx, client, c, settings)
 }
 
 func (s *authService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
 	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
 	if err != nil {
 		return
 	}
@@ -200,11 +217,19 @@ func (s *authService) UnLike(ctx context.Context, client io.Writer, c *model.Cli
 	if err != nil {
 		return
 	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
 	return s.Service.UnLike(ctx, client, c, id)
 }
 
 func (s *authService) Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
 	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
 	if err != nil {
 		return
 	}
@@ -216,11 +241,19 @@ func (s *authService) UnRetweet(ctx context.Context, client io.Writer, c *model.
 	if err != nil {
 		return
 	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
 	return s.Service.UnRetweet(ctx, client, c, id)
 }
 
 func (s *authService) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, format string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error) {
 	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
 	if err != nil {
 		return
 	}
@@ -232,11 +265,19 @@ func (s *authService) Follow(ctx context.Context, client io.Writer, c *model.Cli
 	if err != nil {
 		return
 	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
 	return s.Service.Follow(ctx, client, c, id)
 }
 
 func (s *authService) UnFollow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
 	c, err = s.getClient(ctx)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
 	if err != nil {
 		return
 	}
