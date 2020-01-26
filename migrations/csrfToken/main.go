@@ -67,15 +67,18 @@ func main() {
 	for _, id := range sessionIds {
 		s, err := sessionRepo.Get(id)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(id, err)
+			continue
 		}
 		s.CSRFToken, err = util.NewCSRFToken()
 		if err != nil {
-			log.Fatal(err)
+			log.Println(id, err)
+			continue
 		}
 		err = sessionRepo.Add(s)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(id, err)
+			continue
 		}
 	}
 
