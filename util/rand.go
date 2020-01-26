@@ -1,7 +1,8 @@
 package util
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 )
 
 var (
@@ -9,18 +10,22 @@ var (
 	runes_length = len(runes)
 )
 
-func NewRandId(n int) string {
+func NewRandId(n int) (string, error) {
 	data := make([]rune, n)
 	for i := range data {
-		data[i] = runes[rand.Intn(runes_length)]
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(runes_length)))
+		if err != nil {
+			return "", err
+		}
+		data[i] = runes[num.Int64()]
 	}
-	return string(data)
+	return string(data), nil
 }
 
-func NewSessionId() string {
+func NewSessionId() (string, error) {
 	return NewRandId(24)
 }
 
-func NewCSRFToken() string {
+func NewCSRFToken() (string, error) {
 	return NewRandId(24)
 }

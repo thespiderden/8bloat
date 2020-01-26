@@ -106,8 +106,14 @@ func (svc *service) GetAuthUrl(ctx context.Context, instance string) (
 		instanceURL = "https://" + instance
 	}
 
-	sessionID = util.NewSessionId()
-	csrfToken := util.NewCSRFToken()
+	sessionID, err = util.NewSessionId()
+	if err != nil {
+		return
+	}
+	csrfToken, err := util.NewCSRFToken()
+	if err != nil {
+		return
+	}
 	session := model.Session{
 		ID:             sessionID,
 		InstanceDomain: instance,

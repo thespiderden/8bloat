@@ -69,7 +69,10 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		s.CSRFToken = util.NewCSRFToken()
+		s.CSRFToken, err = util.NewCSRFToken()
+		if err != nil {
+			log.Fatal(err)
+		}
 		err = sessionRepo.Add(s)
 		if err != nil {
 			log.Fatal(err)
