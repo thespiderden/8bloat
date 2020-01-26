@@ -112,47 +112,71 @@ function handleRetweetForm(id, f) {
 	}
 }
 
-function handleReplyToLink(link) {
-	if (!link) {
+function isInView(el) {
+	var ract = el.getBoundingClientRect();
+	if (ract.top > 0 && ract.bottom < window.innerHeight) {
+		return true;
+	}
+	return false;
+}
+
+function handleReplyToLink(div) {
+	if (!div) {
 		return;
 	}
-	var id = link.firstElementChild.getAttribute('href');
+	var id = div.firstElementChild.getAttribute('href');
 	if (!id || id[0] != '#') {
 		return;
 	}
-	link.onmouseenter = function(event) {
-		var id = event.target.firstElementChild.getAttribute('href');
+	div.firstElementChild.onmouseenter = function(event) {
+		var id = event.target.getAttribute('href');
 		var status = document.querySelector(id);
 		if (!status) {
 			return;
 		}
-		var copy = status.cloneNode(true);
-		copy.id = "reply-to-popup";
-		link.appendChild(copy);
+		if (isInView(status)) {
+			status.classList.add("highlight");
+		} else {
+			var copy = status.cloneNode(true);
+			copy.id = "reply-to-popup";
+			event.target.parentElement.appendChild(copy);
+		}
 	}
-	link.onmouseleave = function(event) {
+	div.firstElementChild.onmouseleave = function(event) {
 		var popup = document.getElementById("reply-to-popup");
 		if (popup) {
-			event.target.removeChild(popup);    
+			event.target.parentElement.removeChild(popup);    
+		} else {
+			var id = event.target.getAttribute('href');
+			document.querySelector(id)
+				.classList.remove("highlight");
 		}
 	}
 }
 
-function handleReplyLink(link) {
-	link.onmouseenter = function(event) {
-		var id = event.target.firstElementChild.getAttribute('href');
+function handleReplyLink(div) {
+	div.firstElementChild.onmouseenter = function(event) {
+		var id = event.target.getAttribute('href');
 		var status = document.querySelector(id);
 		if (!status) {
 			return;
 		}
-		var copy = status.cloneNode(true);
-		copy.id = "reply-popup";
-		link.appendChild(copy);
+		if (isInView(status)) {
+			status.classList.add("highlight");
+		} else {
+			var copy = status.cloneNode(true);
+			copy.id = "reply-popup";
+			event.target.parentElement.appendChild(copy);
+		}
 	}
-	link.onmouseleave = function(event) {
+	div.firstElementChild.onmouseleave = function(event) {
 		var popup = document.getElementById("reply-popup");
 		if (popup) {
-			event.target.removeChild(popup);    
+			event.target.parentElement.removeChild(popup);    
+		} else {
+			var id = event.target.getAttribute('href');
+			document.querySelector(id)
+				.classList.remove("highlight");
 		}
 	}
 }

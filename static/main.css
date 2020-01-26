@@ -1,11 +1,15 @@
 .status-container-container {
-	margin: 16px 0 16px -4px;
-	padding: 0 4px;
+	margin: 12px 0 12px -4px;
+	padding: 4px;
 	border-left: 4px solid transparent;
 }
 
 .status-container-container:target {
 	border-color: #777777;
+}
+
+.status-container-container.highlight {
+	background-color: #cccccc;
 }
 
 .status-container {
@@ -468,3 +472,8 @@
 	background-color: #222222;
 	border-color: #444444;
 }
+
+.dark .status-container-container.highlight {
+	background-color: #333333;
+}
+
