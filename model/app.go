@@ -15,7 +15,7 @@ type App struct {
 	ClientSecret   string `json:"client_secret"`
 }
 
-type AppRepository interface {
+type AppRepo interface {
 	Add(app App) (err error)
 	Get(instanceDomain string) (app App, err error)
 }

@@ -1,4 +1,4 @@
-package repository
+package repo
 
 import (
 	"encoding/json"
@@ -7,17 +7,17 @@ import (
 	"bloat/model"
 )
 
-type appRepository struct {
+type appRepo struct {
 	db *kv.Database
 }
 
-func NewAppRepository(db *kv.Database) *appRepository {
-	return &appRepository{
+func NewAppRepo(db *kv.Database) *appRepo {
+	return &appRepo{
 		db: db,
 	}
 }
 
-func (repo *appRepository) Add(a model.App) (err error) {
+func (repo *appRepo) Add(a model.App) (err error) {
 	data, err := json.Marshal(a)
 	if err != nil {
 		return
@@ -26,7 +26,7 @@ func (repo *appRepository) Add(a model.App) (err error) {
 	return
 }
 
-func (repo *appRepository) Get(instanceDomain string) (a model.App, err error) {
+func (repo *appRepo) Get(instanceDomain string) (a model.App, err error) {
 	data, err := repo.db.Get(instanceDomain)
 	if err != nil {
 		err = model.ErrAppNotFound

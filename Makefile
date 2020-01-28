@@ -1,5 +1,3 @@
-.POSIX:
-
 GO=go
 
 all: bloat

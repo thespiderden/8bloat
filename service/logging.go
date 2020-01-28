@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"io"
 	"log"
 	"mime/multipart"
 	"time"
@@ -10,206 +9,215 @@ import (
 	"bloat/model"
 )
 
-type loggingService struct {
+type ls struct {
 	logger *log.Logger
 	Service
 }
 
 func NewLoggingService(logger *log.Logger, s Service) Service {
-	return &loggingService{logger, s}
+	return &ls{logger, s}
 }
 
-func (s *loggingService) GetAuthUrl(ctx context.Context, instance string) (
-	redirectUrl string, sessionID string, err error) {
-	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, instance=%v, took=%v, err=%v\n",
-			"GetAuthUrl", instance, time.Since(begin), err)
-	}(time.Now())
-	return s.Service.GetAuthUrl(ctx, instance)
-}
-
-func (s *loggingService) GetUserToken(ctx context.Context, sessionID string, c *model.Client,
-	code string) (token string, err error) {
-	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, session_id=%v, code=%v, took=%v, err=%v\n",
-			"GetUserToken", sessionID, code, time.Since(begin), err)
-	}(time.Now())
-	return s.Service.GetUserToken(ctx, sessionID, c, code)
-}
-
-func (s *loggingService) ServeErrorPage(ctx context.Context, client io.Writer, c *model.Client, err error) {
+func (s *ls) ServeErrorPage(ctx context.Context, c *model.Client, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, err=%v, took=%v\n",
 			"ServeErrorPage", err, time.Since(begin))
 	}(time.Now())
-	s.Service.ServeErrorPage(ctx, client, c, err)
+	s.Service.ServeErrorPage(ctx, c, err)
 }
 
-func (s *loggingService) ServeSigninPage(ctx context.Context, client io.Writer) (err error) {
+func (s *ls) ServeSigninPage(ctx context.Context, c *model.Client) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, took=%v, err=%v\n",
 			"ServeSigninPage", time.Since(begin), err)
 	}(time.Now())
-	return s.Service.ServeSigninPage(ctx, client)
+	return s.Service.ServeSigninPage(ctx, c)
 }
 
-func (s *loggingService) ServeTimelinePage(ctx context.Context, client io.Writer,
-	c *model.Client, timelineType string, maxID string, sinceID string, minID string) (err error) {
+func (s *ls) ServeTimelinePage(ctx context.Context, c *model.Client, tType string,
+	maxID string, minID string) (err error) {
 	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, timeline_type=%v, max_id=%v, since_id=%v, min_id=%v, took=%v, err=%v\n",
-			"ServeTimelinePage", timelineType, maxID, sinceID, minID, time.Since(begin), err)
+		s.logger.Printf("method=%v, type=%v, took=%v, err=%v\n",
+			"ServeTimelinePage", tType, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.ServeTimelinePage(ctx, client, c, timelineType, maxID, sinceID, minID)
+	return s.Service.ServeTimelinePage(ctx, c, tType, maxID, minID)
 }
 
-func (s *loggingService) ServeThreadPage(ctx context.Context, client io.Writer, c *model.Client, id string, reply bool) (err error) {
+func (s *ls) ServeThreadPage(ctx context.Context, c *model.Client, id string,
+	reply bool) (err error) {
 	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, id=%v, reply=%v, took=%v, err=%v\n",
-			"ServeThreadPage", id, reply, time.Since(begin), err)
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"ServeThreadPage", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.ServeThreadPage(ctx, client, c, id, reply)
+	return s.Service.ServeThreadPage(ctx, c, id, reply)
 }
 
-func (s *loggingService) ServeNotificationPage(ctx context.Context, client io.Writer, c *model.Client, maxID string, minID string) (err error) {
-	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, max_id=%v, min_id=%v, took=%v, err=%v\n",
-			"ServeNotificationPage", maxID, minID, time.Since(begin), err)
-	}(time.Now())
-	return s.Service.ServeNotificationPage(ctx, client, c, maxID, minID)
-}
-
-func (s *loggingService) ServeUserPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
-	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, id=%v, max_id=%v, min_id=%v, took=%v, err=%v\n",
-			"ServeUserPage", id, maxID, minID, time.Since(begin), err)
-	}(time.Now())
-	return s.Service.ServeUserPage(ctx, client, c, id, maxID, minID)
-}
-
-func (s *loggingService) ServeAboutPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
-	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, took=%v, err=%v\n",
-			"ServeAboutPage", time.Since(begin), err)
-	}(time.Now())
-	return s.Service.ServeAboutPage(ctx, client, c)
-}
-
-func (s *loggingService) ServeEmojiPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
-	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, took=%v, err=%v\n",
-			"ServeEmojiPage", time.Since(begin), err)
-	}(time.Now())
-	return s.Service.ServeEmojiPage(ctx, client, c)
-}
-
-func (s *loggingService) ServeLikedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *ls) ServeLikedByPage(ctx context.Context, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"ServeLikedByPage", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.ServeLikedByPage(ctx, client, c, id)
+	return s.Service.ServeLikedByPage(ctx, c, id)
 }
 
-func (s *loggingService) ServeRetweetedByPage(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *ls) ServeRetweetedByPage(ctx context.Context, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"ServeRetweetedByPage", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.ServeRetweetedByPage(ctx, client, c, id)
+	return s.Service.ServeRetweetedByPage(ctx, c, id)
 }
 
-func (s *loggingService) ServeFollowingPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
+func (s *ls) ServeFollowingPage(ctx context.Context, c *model.Client, id string,
+	maxID string, minID string) (err error) {
 	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, id=%v, max_id=%v, min_id=%v, took=%v, err=%v\n",
-			"ServeFollowingPage", id, maxID, minID, time.Since(begin), err)
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"ServeFollowingPage", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.ServeFollowingPage(ctx, client, c, id, maxID, minID)
+	return s.Service.ServeFollowingPage(ctx, c, id, maxID, minID)
 }
 
-func (s *loggingService) ServeFollowersPage(ctx context.Context, client io.Writer, c *model.Client, id string, maxID string, minID string) (err error) {
+func (s *ls) ServeFollowersPage(ctx context.Context, c *model.Client, id string,
+	maxID string, minID string) (err error) {
 	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, id=%v, max_id=%v, min_id=%v, took=%v, err=%v\n",
-			"ServeFollowersPage", id, maxID, minID, time.Since(begin), err)
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"ServeFollowersPage", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.ServeFollowersPage(ctx, client, c, id, maxID, minID)
+	return s.Service.ServeFollowersPage(ctx, c, id, maxID, minID)
 }
 
-func (s *loggingService) ServeSearchPage(ctx context.Context, client io.Writer, c *model.Client, q string, qType string, offset int) (err error) {
+func (s *ls) ServeNotificationPage(ctx context.Context, c *model.Client,
+	maxID string, minID string) (err error) {
 	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, q=%v, type=%v, offset=%v, took=%v, err=%v\n",
-			"ServeSearchPage", q, qType, offset, time.Since(begin), err)
+		s.logger.Printf("method=%v, took=%v, err=%v\n",
+			"ServeNotificationPage", time.Since(begin), err)
 	}(time.Now())
-	return s.Service.ServeSearchPage(ctx, client, c, q, qType, offset)
+	return s.Service.ServeNotificationPage(ctx, c, maxID, minID)
 }
 
-func (s *loggingService) ServeSettingsPage(ctx context.Context, client io.Writer, c *model.Client) (err error) {
+func (s *ls) ServeUserPage(ctx context.Context, c *model.Client, id string,
+	maxID string, minID string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"ServeUserPage", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeUserPage(ctx, c, id, maxID, minID)
+}
+
+func (s *ls) ServeAboutPage(ctx context.Context, c *model.Client) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, took=%v, err=%v\n",
+			"ServeAboutPage", time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeAboutPage(ctx, c)
+}
+
+func (s *ls) ServeEmojiPage(ctx context.Context, c *model.Client) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, took=%v, err=%v\n",
+			"ServeEmojiPage", time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeEmojiPage(ctx, c)
+}
+
+func (s *ls) ServeSearchPage(ctx context.Context, c *model.Client, q string,
+	qType string, offset int) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, took=%v, err=%v\n",
+			"ServeSearchPage", time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeSearchPage(ctx, c, q, qType, offset)
+}
+
+func (s *ls) ServeSettingsPage(ctx context.Context, c *model.Client) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, took=%v, err=%v\n",
 			"ServeSettingsPage", time.Since(begin), err)
 	}(time.Now())
-	return s.Service.ServeSettingsPage(ctx, client, c)
+	return s.Service.ServeSettingsPage(ctx, c)
 }
 
-func (s *loggingService) SaveSettings(ctx context.Context, client io.Writer, c *model.Client, settings *model.Settings) (err error) {
+func (s *ls) NewSession(ctx context.Context, instance string) (redirectUrl string,
+	sessionID string, err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, instance=%v, took=%v, err=%v\n",
+			"NewSession", instance, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.NewSession(ctx, instance)
+}
+
+func (s *ls) Signin(ctx context.Context, c *model.Client, sessionID string,
+	code string) (token string, err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, session_id=%v, took=%v, err=%v\n",
+			"Signin", sessionID, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.Signin(ctx, c, sessionID, code)
+}
+
+func (s *ls) Post(ctx context.Context, c *model.Client, content string,
+	replyToID string, format string, visibility string, isNSFW bool,
+	files []*multipart.FileHeader) (id string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, took=%v, err=%v\n",
-			"SaveSettings", time.Since(begin), err)
+			"Post", time.Since(begin), err)
 	}(time.Now())
-	return s.Service.SaveSettings(ctx, client, c, settings)
+	return s.Service.Post(ctx, c, content, replyToID, format,
+		visibility, isNSFW, files)
 }
 
-func (s *loggingService) Like(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
+func (s *ls) Like(ctx context.Context, c *model.Client, id string) (count int64, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"Like", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.Like(ctx, client, c, id)
+	return s.Service.Like(ctx, c, id)
 }
 
-func (s *loggingService) UnLike(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
+func (s *ls) UnLike(ctx context.Context, c *model.Client, id string) (count int64, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"UnLike", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.UnLike(ctx, client, c, id)
+	return s.Service.UnLike(ctx, c, id)
 }
 
-func (s *loggingService) Retweet(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
+func (s *ls) Retweet(ctx context.Context, c *model.Client, id string) (count int64, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"Retweet", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.Retweet(ctx, client, c, id)
+	return s.Service.Retweet(ctx, c, id)
 }
 
-func (s *loggingService) UnRetweet(ctx context.Context, client io.Writer, c *model.Client, id string) (count int64, err error) {
+func (s *ls) UnRetweet(ctx context.Context, c *model.Client, id string) (count int64, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"UnRetweet", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.UnRetweet(ctx, client, c, id)
+	return s.Service.UnRetweet(ctx, c, id)
 }
 
-func (s *loggingService) PostTweet(ctx context.Context, client io.Writer, c *model.Client, content string, replyToID string, format string, visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error) {
-	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, content=%v, reply_to_id=%v, format=%v, visibility=%v, is_nsfw=%v, took=%v, err=%v\n",
-			"PostTweet", content, replyToID, format, visibility, isNSFW, time.Since(begin), err)
-	}(time.Now())
-	return s.Service.PostTweet(ctx, client, c, content, replyToID, format, visibility, isNSFW, files)
-}
-
-func (s *loggingService) Follow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *ls) Follow(ctx context.Context, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"Follow", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.Follow(ctx, client, c, id)
+	return s.Service.Follow(ctx, c, id)
 }
 
-func (s *loggingService) UnFollow(ctx context.Context, client io.Writer, c *model.Client, id string) (err error) {
+func (s *ls) UnFollow(ctx context.Context, c *model.Client, id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"UnFollow", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.UnFollow(ctx, client, c, id)
+	return s.Service.UnFollow(ctx, c, id)
+}
+
+func (s *ls) SaveSettings(ctx context.Context, c *model.Client, settings *model.Settings) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, took=%v, err=%v\n",
+			"SaveSettings", time.Since(begin), err)
+	}(time.Now())
+	return s.Service.SaveSettings(ctx, c, settings)
 }

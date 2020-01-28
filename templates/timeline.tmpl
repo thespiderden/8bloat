@@ -10,10 +10,10 @@
 {{end}}
 
 <div class="pagination">
-	{{if .HasPrev}}
+	{{if .PrevLink}}
 		<a href="{{.PrevLink}}">prev</a>
 	{{end}}
-	{{if .HasNext}}
+	{{if .NextLink}}
 		<a href="{{.NextLink}}">next</a>
 	{{end}}
 </div>

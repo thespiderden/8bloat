@@ -10,7 +10,7 @@ var (
 	runes_length = len(runes)
 )
 
-func NewRandId(n int) (string, error) {
+func NewRandID(n int) (string, error) {
 	data := make([]rune, n)
 	for i := range data {
 		num, err := rand.Int(rand.Reader, big.NewInt(int64(runes_length)))
@@ -22,10 +22,10 @@ func NewRandId(n int) (string, error) {
 	return string(data), nil
 }
 
-func NewSessionId() (string, error) {
-	return NewRandId(24)
+func NewSessionID() (string, error) {
+	return NewRandID(24)
 }
 
 func NewCSRFToken() (string, error) {
-	return NewRandId(24)
+	return NewRandID(24)
 }

@@ -15,500 +15,24 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var (
-	ctx       = context.Background()
-	cookieAge = "31536000"
-)
-
-func NewHandler(s Service, staticDir string) http.Handler {
-	r := mux.NewRouter()
-
-	r.PathPrefix("/static").Handler(http.StripPrefix("/static",
-		http.FileServer(http.Dir(path.Join(".", staticDir)))))
-
-	r.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		location := "/signin"
-
-		sessionID, _ := req.Cookie("session_id")
-		if sessionID != nil && len(sessionID.Value) > 0 {
-			location = "/timeline/home"
-		}
-
-		w.Header().Add("Location", location)
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/signin", func(w http.ResponseWriter, req *http.Request) {
-		err := s.ServeSigninPage(ctx, w)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/signin", func(w http.ResponseWriter, req *http.Request) {
-		instance := req.FormValue("instance")
-		url, sessionID, err := s.GetAuthUrl(ctx, instance)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		http.SetCookie(w, &http.Cookie{
-			Name:    "session_id",
-			Value:   sessionID,
-			Expires: time.Now().Add(365 * 24 * time.Hour),
-		})
-
-		w.Header().Add("Location", url)
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/oauth_callback", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		token := req.URL.Query().Get("code")
-		_, err := s.GetUserToken(ctx, "", nil, token)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		w.Header().Add("Location", "/timeline/home")
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/timeline", func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Add("Location", "/timeline/home")
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/timeline/{type}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-
-		timelineType, _ := mux.Vars(req)["type"]
-		maxID := req.URL.Query().Get("max_id")
-		sinceID := req.URL.Query().Get("since_id")
-		minID := req.URL.Query().Get("min_id")
-
-		err := s.ServeTimelinePage(ctx, w, nil, timelineType, maxID, sinceID, minID)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/thread/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		id, _ := mux.Vars(req)["id"]
-		reply := req.URL.Query().Get("reply")
-		err := s.ServeThreadPage(ctx, w, nil, id, len(reply) > 1)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/likedby/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		id, _ := mux.Vars(req)["id"]
-
-		err := s.ServeLikedByPage(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/retweetedby/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		id, _ := mux.Vars(req)["id"]
-
-		err := s.ServeRetweetedByPage(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/following/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-
-		id, _ := mux.Vars(req)["id"]
-		maxID := req.URL.Query().Get("max_id")
-		minID := req.URL.Query().Get("min_id")
-
-		err := s.ServeFollowingPage(ctx, w, nil, id, maxID, minID)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/followers/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-
-		id, _ := mux.Vars(req)["id"]
-		maxID := req.URL.Query().Get("max_id")
-		minID := req.URL.Query().Get("min_id")
-
-		err := s.ServeFollowersPage(ctx, w, nil, id, maxID, minID)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/like/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
-
-		id, _ := mux.Vars(req)["id"]
-		retweetedByID := req.FormValue("retweeted_by_id")
-
-		_, err := s.Like(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		rID := id
-		if len(retweetedByID) > 0 {
-			rID = retweetedByID
-		}
-		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/unlike/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
-
-		id, _ := mux.Vars(req)["id"]
-		retweetedByID := req.FormValue("retweeted_by_id")
-
-		_, err := s.UnLike(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		rID := id
-		if len(retweetedByID) > 0 {
-			rID = retweetedByID
-		}
-		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/retweet/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
-
-		id, _ := mux.Vars(req)["id"]
-		retweetedByID := req.FormValue("retweeted_by_id")
-
-		_, err := s.Retweet(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		rID := id
-		if len(retweetedByID) > 0 {
-			rID = retweetedByID
-		}
-		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/unretweet/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
-
-		id, _ := mux.Vars(req)["id"]
-		retweetedByID := req.FormValue("retweeted_by_id")
-
-		_, err := s.UnRetweet(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		rID := id
-		if len(retweetedByID) > 0 {
-			rID = retweetedByID
-		}
-		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/fluoride/like/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
-
-		id, _ := mux.Vars(req)["id"]
-		count, err := s.Like(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		err = serveJson(w, count)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/fluoride/unlike/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
-
-		id, _ := mux.Vars(req)["id"]
-		count, err := s.UnLike(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		err = serveJson(w, count)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/fluoride/retweet/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
-
-		id, _ := mux.Vars(req)["id"]
-		count, err := s.Retweet(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		err = serveJson(w, count)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/fluoride/unretweet/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
-
-		id, _ := mux.Vars(req)["id"]
-		count, err := s.UnRetweet(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		err = serveJson(w, count)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
-		err := req.ParseMultipartForm(4 << 20)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token",
-			getMultipartFormValue(req.MultipartForm, "csrf_token"))
-
-		content := getMultipartFormValue(req.MultipartForm, "content")
-		replyToID := getMultipartFormValue(req.MultipartForm, "reply_to_id")
-		format := getMultipartFormValue(req.MultipartForm, "format")
-		visibility := getMultipartFormValue(req.MultipartForm, "visibility")
-		isNSFW := "on" == getMultipartFormValue(req.MultipartForm, "is_nsfw")
-
-		files := req.MultipartForm.File["attachments"]
-
-		id, err := s.PostTweet(ctx, w, nil, content, replyToID, format, visibility, isNSFW, files)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		location := "/timeline/home" + "#status-" + id
-		if len(replyToID) > 0 {
-			location = "/thread/" + replyToID + "#status-" + id
-		}
-		w.Header().Add("Location", location)
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/notifications", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-
-		maxID := req.URL.Query().Get("max_id")
-		minID := req.URL.Query().Get("min_id")
-
-		err := s.ServeNotificationPage(ctx, w, nil, maxID, minID)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/user/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-
-		id, _ := mux.Vars(req)["id"]
-		maxID := req.URL.Query().Get("max_id")
-		minID := req.URL.Query().Get("min_id")
-
-		err := s.ServeUserPage(ctx, w, nil, id, maxID, minID)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/follow/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
-
-		id, _ := mux.Vars(req)["id"]
-
-		err := s.Follow(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		w.Header().Add("Location", req.Header.Get("Referer"))
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/unfollow/{id}", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
-
-		id, _ := mux.Vars(req)["id"]
-
-		err := s.UnFollow(ctx, w, nil, id)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		w.Header().Add("Location", req.Header.Get("Referer"))
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/about", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-
-		err := s.ServeAboutPage(ctx, w, nil)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/emojis", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-
-		err := s.ServeEmojiPage(ctx, w, nil)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/search", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-
-		q := req.URL.Query().Get("q")
-		qType := req.URL.Query().Get("type")
-		offsetStr := req.URL.Query().Get("offset")
-
-		var offset int
-		var err error
-		if len(offsetStr) > 1 {
-			offset, err = strconv.Atoi(offsetStr)
-			if err != nil {
-				s.ServeErrorPage(ctx, w, nil, err)
-				return
-			}
-		}
-
-		err = s.ServeSearchPage(ctx, w, nil, q, qType, offset)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/settings", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-
-		err := s.ServeSettingsPage(ctx, w, nil)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-	}).Methods(http.MethodGet)
-
-	r.HandleFunc("/settings", func(w http.ResponseWriter, req *http.Request) {
-		ctx := getContextWithSession(context.Background(), req)
-		ctx = context.WithValue(ctx, "csrf_token", req.FormValue("csrf_token"))
-
-		visibility := req.FormValue("visibility")
-		copyScope := req.FormValue("copy_scope") == "true"
-		threadInNewTab := req.FormValue("thread_in_new_tab") == "true"
-		maskNSFW := req.FormValue("mask_nsfw") == "true"
-		fluorideMode := req.FormValue("fluoride_mode") == "true"
-		darkMode := req.FormValue("dark_mode") == "true"
-		settings := &model.Settings{
-			DefaultVisibility: visibility,
-			CopyScope:         copyScope,
-			ThreadInNewTab:    threadInNewTab,
-			MaskNSFW:          maskNSFW,
-			FluorideMode:      fluorideMode,
-			DarkMode:          darkMode,
-		}
-
-		err := s.SaveSettings(ctx, w, nil, settings)
-		if err != nil {
-			s.ServeErrorPage(ctx, w, nil, err)
-			return
-		}
-
-		w.Header().Add("Location", req.Header.Get("Referer"))
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodPost)
-
-	r.HandleFunc("/signout", func(w http.ResponseWriter, req *http.Request) {
-		// TODO remove session from database
-		http.SetCookie(w, &http.Cookie{
-			Name:    "session_id",
-			Value:   "",
-			Expires: time.Now(),
-		})
-		w.Header().Add("Location", "/")
-		w.WriteHeader(http.StatusFound)
-	}).Methods(http.MethodGet)
-
-	return r
+func newClient(w io.Writer) *model.Client {
+	return &model.Client{
+		Writer: w,
+	}
 }
 
-func getContextWithSession(ctx context.Context, req *http.Request) context.Context {
+func newCtxWithSesion(req *http.Request) context.Context {
+	ctx := context.Background()
 	sessionID, err := req.Cookie("session_id")
 	if err != nil {
 		return ctx
 	}
 	return context.WithValue(ctx, "session_id", sessionID.Value)
+}
+
+func newCtxWithSesionCSRF(req *http.Request, csrfToken string) context.Context {
+	ctx := newCtxWithSesion(req)
+	return context.WithValue(ctx, "csrf_token", csrfToken)
 }
 
 func getMultipartFormValue(mf *multipart.Form, key string) (val string) {
@@ -526,4 +50,522 @@ func serveJson(w io.Writer, data interface{}) (err error) {
 	var d = make(map[string]interface{})
 	d["data"] = data
 	return json.NewEncoder(w).Encode(d)
+}
+
+func NewHandler(s Service, staticDir string) http.Handler {
+	r := mux.NewRouter()
+
+	rootPage := func(w http.ResponseWriter, req *http.Request) {
+		sessionID, _ := req.Cookie("session_id")
+
+		location := "/signin"
+		if sessionID != nil && len(sessionID.Value) > 0 {
+			location = "/timeline/home"
+		}
+
+		w.Header().Add("Location", location)
+		w.WriteHeader(http.StatusFound)
+	}
+
+	signinPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := context.Background()
+		err := s.ServeSigninPage(ctx, c)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	timelinePage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		tType, _ := mux.Vars(req)["type"]
+		maxID := req.URL.Query().Get("max_id")
+		minID := req.URL.Query().Get("min_id")
+
+		err := s.ServeTimelinePage(ctx, c, tType, maxID, minID)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	timelineOldPage := func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Add("Location", "/timeline/home")
+		w.WriteHeader(http.StatusFound)
+	}
+
+	threadPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		id, _ := mux.Vars(req)["id"]
+		reply := req.URL.Query().Get("reply")
+
+		err := s.ServeThreadPage(ctx, c, id, len(reply) > 1)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	likedByPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.ServeLikedByPage(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	retweetedByPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.ServeRetweetedByPage(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	followingPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		id, _ := mux.Vars(req)["id"]
+		maxID := req.URL.Query().Get("max_id")
+		minID := req.URL.Query().Get("min_id")
+
+		err := s.ServeFollowingPage(ctx, c, id, maxID, minID)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	followersPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		id, _ := mux.Vars(req)["id"]
+		maxID := req.URL.Query().Get("max_id")
+		minID := req.URL.Query().Get("min_id")
+
+		err := s.ServeFollowersPage(ctx, c, id, maxID, minID)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	notificationsPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		maxID := req.URL.Query().Get("max_id")
+		minID := req.URL.Query().Get("min_id")
+
+		err := s.ServeNotificationPage(ctx, c, maxID, minID)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	userPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		id, _ := mux.Vars(req)["id"]
+		maxID := req.URL.Query().Get("max_id")
+		minID := req.URL.Query().Get("min_id")
+
+		err := s.ServeUserPage(ctx, c, id, maxID, minID)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	aboutPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+
+		err := s.ServeAboutPage(ctx, c)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	emojisPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+
+		err := s.ServeEmojiPage(ctx, c)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	searchPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		q := req.URL.Query().Get("q")
+		qType := req.URL.Query().Get("type")
+		offsetStr := req.URL.Query().Get("offset")
+
+		var offset int
+		var err error
+		if len(offsetStr) > 1 {
+			offset, err = strconv.Atoi(offsetStr)
+			if err != nil {
+				s.ServeErrorPage(ctx, c, err)
+				return
+			}
+		}
+
+		err = s.ServeSearchPage(ctx, c, q, qType, offset)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	settingsPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+
+		err := s.ServeSettingsPage(ctx, c)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	signin := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := context.Background()
+		instance := req.FormValue("instance")
+
+		url, sessionID, err := s.NewSession(ctx, instance)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:    "session_id",
+			Value:   sessionID,
+			Expires: time.Now().Add(365 * 24 * time.Hour),
+		})
+
+		w.Header().Add("Location", url)
+		w.WriteHeader(http.StatusFound)
+	}
+
+	oauthCallback := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		token := req.URL.Query().Get("code")
+
+		_, err := s.Signin(ctx, c, "", token)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", "/timeline/home")
+		w.WriteHeader(http.StatusFound)
+	}
+
+	post := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		err := req.ParseMultipartForm(4 << 20)
+		if err != nil {
+			s.ServeErrorPage(context.Background(), c, err)
+			return
+		}
+
+		ctx := newCtxWithSesionCSRF(req,
+			getMultipartFormValue(req.MultipartForm, "csrf_token"))
+		content := getMultipartFormValue(req.MultipartForm, "content")
+		replyToID := getMultipartFormValue(req.MultipartForm, "reply_to_id")
+		format := getMultipartFormValue(req.MultipartForm, "format")
+		visibility := getMultipartFormValue(req.MultipartForm, "visibility")
+		isNSFW := "on" == getMultipartFormValue(req.MultipartForm, "is_nsfw")
+		files := req.MultipartForm.File["attachments"]
+
+		id, err := s.Post(ctx, c, content, replyToID, format, visibility, isNSFW, files)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		location := "/timeline/home" + "#status-" + id
+		if len(replyToID) > 0 {
+			location = "/thread/" + replyToID + "#status-" + id
+		}
+		w.Header().Add("Location", location)
+		w.WriteHeader(http.StatusFound)
+	}
+
+	like := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+		retweetedByID := req.FormValue("retweeted_by_id")
+
+		_, err := s.Like(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		rID := id
+		if len(retweetedByID) > 0 {
+			rID = retweetedByID
+		}
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
+		w.WriteHeader(http.StatusFound)
+	}
+
+	unlike := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+		retweetedByID := req.FormValue("retweeted_by_id")
+
+		_, err := s.UnLike(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		rID := id
+		if len(retweetedByID) > 0 {
+			rID = retweetedByID
+		}
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
+		w.WriteHeader(http.StatusFound)
+	}
+
+	retweet := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+		retweetedByID := req.FormValue("retweeted_by_id")
+
+		_, err := s.Retweet(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		rID := id
+		if len(retweetedByID) > 0 {
+			rID = retweetedByID
+		}
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
+		w.WriteHeader(http.StatusFound)
+	}
+
+	unretweet := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+		retweetedByID := req.FormValue("retweeted_by_id")
+
+		_, err := s.UnRetweet(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		rID := id
+		if len(retweetedByID) > 0 {
+			rID = retweetedByID
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+rID)
+		w.WriteHeader(http.StatusFound)
+	}
+
+	follow := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.Follow(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}
+
+	unfollow := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.UnFollow(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}
+
+	settings := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		visibility := req.FormValue("visibility")
+		copyScope := req.FormValue("copy_scope") == "true"
+		threadInNewTab := req.FormValue("thread_in_new_tab") == "true"
+		maskNSFW := req.FormValue("mask_nsfw") == "true"
+		fluorideMode := req.FormValue("fluoride_mode") == "true"
+		darkMode := req.FormValue("dark_mode") == "true"
+
+		settings := &model.Settings{
+			DefaultVisibility: visibility,
+			CopyScope:         copyScope,
+			ThreadInNewTab:    threadInNewTab,
+			MaskNSFW:          maskNSFW,
+			FluorideMode:      fluorideMode,
+			DarkMode:          darkMode,
+		}
+
+		err := s.SaveSettings(ctx, c, settings)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}
+
+	signout := func(w http.ResponseWriter, req *http.Request) {
+		// TODO remove session from database
+		http.SetCookie(w, &http.Cookie{
+			Name:    "session_id",
+			Value:   "",
+			Expires: time.Now(),
+		})
+		w.Header().Add("Location", "/")
+		w.WriteHeader(http.StatusFound)
+	}
+
+	fLike := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		count, err := s.Like(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		err = serveJson(w, count)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	fUnlike := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+		count, err := s.UnLike(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		err = serveJson(w, count)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	fRetweet := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		count, err := s.Retweet(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		err = serveJson(w, count)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	fUnretweet := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		count, err := s.UnRetweet(ctx, c, id)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		err = serveJson(w, count)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
+	r.HandleFunc("/", rootPage).Methods(http.MethodGet)
+	r.HandleFunc("/signin", signinPage).Methods(http.MethodGet)
+	r.HandleFunc("/timeline/{type}", timelinePage).Methods(http.MethodGet)
+	r.HandleFunc("/timeline", timelineOldPage).Methods(http.MethodGet)
+	r.HandleFunc("/thread/{id}", threadPage).Methods(http.MethodGet)
+	r.HandleFunc("/likedby/{id}", likedByPage).Methods(http.MethodGet)
+	r.HandleFunc("/retweetedby/{id}", retweetedByPage).Methods(http.MethodGet)
+	r.HandleFunc("/following/{id}", followingPage).Methods(http.MethodGet)
+	r.HandleFunc("/followers/{id}", followersPage).Methods(http.MethodGet)
+	r.HandleFunc("/notifications", notificationsPage).Methods(http.MethodGet)
+	r.HandleFunc("/user/{id}", userPage).Methods(http.MethodGet)
+	r.HandleFunc("/about", aboutPage).Methods(http.MethodGet)
+	r.HandleFunc("/emojis", emojisPage).Methods(http.MethodGet)
+	r.HandleFunc("/search", searchPage).Methods(http.MethodGet)
+	r.HandleFunc("/settings", settingsPage).Methods(http.MethodGet)
+	r.HandleFunc("/signin", signin).Methods(http.MethodPost)
+	r.HandleFunc("/oauth_callback", oauthCallback).Methods(http.MethodGet)
+	r.HandleFunc("/post", post).Methods(http.MethodPost)
+	r.HandleFunc("/like/{id}", like).Methods(http.MethodPost)
+	r.HandleFunc("/unlike/{id}", unlike).Methods(http.MethodPost)
+	r.HandleFunc("/retweet/{id}", retweet).Methods(http.MethodPost)
+	r.HandleFunc("/unretweet/{id}", unretweet).Methods(http.MethodPost)
+	r.HandleFunc("/follow/{id}", follow).Methods(http.MethodPost)
+	r.HandleFunc("/unfollow/{id}", unfollow).Methods(http.MethodPost)
+	r.HandleFunc("/settings", settings).Methods(http.MethodPost)
+	r.HandleFunc("/signout", signout).Methods(http.MethodGet)
+	r.HandleFunc("/fluoride/like/{id}", fLike).Methods(http.MethodPost)
+	r.HandleFunc("/fluoride/unlike/{id}", fUnlike).Methods(http.MethodPost)
+	r.HandleFunc("/fluoride/retweet/{id}", fRetweet).Methods(http.MethodPost)
+	r.HandleFunc("/fluoride/unretweet/{id}", fUnretweet).Methods(http.MethodPost)
+	r.PathPrefix("/static").Handler(http.StripPrefix("/static",
+		http.FileServer(http.Dir(path.Join(".", staticDir)))))
+
+	return r
 }

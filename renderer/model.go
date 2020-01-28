@@ -47,9 +47,7 @@ type TimelineData struct {
 	*CommonData
 	Title       string
 	Statuses    []*mastodon.Status
-	HasNext     bool
 	NextLink    string
-	HasPrev     bool
 	PrevLink    string
 	PostContext model.PostContext
 }
@@ -64,7 +62,6 @@ type ThreadData struct {
 type NotificationData struct {
 	*CommonData
 	Notifications []*mastodon.Notification
-	HasNext       bool
 	NextLink      string
 	DarkMode      bool
 }
@@ -73,7 +70,6 @@ type UserData struct {
 	*CommonData
 	User     *mastodon.Account
 	Statuses []*mastodon.Status
-	HasNext  bool
 	NextLink string
 	DarkMode bool
 }
@@ -90,28 +86,24 @@ type EmojiData struct {
 type LikedByData struct {
 	*CommonData
 	Users    []*mastodon.Account
-	HasNext  bool
 	NextLink string
 }
 
 type RetweetedByData struct {
 	*CommonData
 	Users    []*mastodon.Account
-	HasNext  bool
 	NextLink string
 }
 
 type FollowingData struct {
 	*CommonData
 	Users    []*mastodon.Account
-	HasNext  bool
 	NextLink string
 }
 
 type FollowersData struct {
 	*CommonData
 	Users    []*mastodon.Account
-	HasNext  bool
 	NextLink string
 }
 
@@ -121,7 +113,6 @@ type SearchData struct {
 	Type     string
 	Users    []*mastodon.Account
 	Statuses []*mastodon.Status
-	HasNext  bool
 	NextLink string
 }
 

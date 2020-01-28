@@ -16,7 +16,7 @@ type Session struct {
 	Settings       Settings `json:"settings"`
 }
 
-type SessionRepository interface {
+type SessionRepo interface {
 	Add(session Session) (err error)
 	Get(sessionID string) (session Session, err error)
 }

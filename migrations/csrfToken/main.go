@@ -59,12 +59,12 @@ func main() {
 
 	sessionRepo := repository.NewSessionRepository(sessionDB)
 
-	sessionIds, err := getKeys(sessionRepoPath)
+	sessionIDs, err := getKeys(sessionRepoPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, id := range sessionIds {
+	for _, id := range sessionIDs {
 		s, err := sessionRepo.Get(id)
 		if err != nil {
 			log.Println(id, err)

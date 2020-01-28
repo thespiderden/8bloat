@@ -12,7 +12,7 @@ import (
 	"bloat/config"
 	"bloat/kv"
 	"bloat/renderer"
-	"bloat/repository"
+	"bloat/repo"
 	"bloat/service"
 	"bloat/util"
 )
@@ -67,8 +67,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sessionRepo := repository.NewSessionRepository(sessionDB)
-	appRepo := repository.NewAppRepository(appDB)
+	sessionRepo := repo.NewSessionRepo(sessionDB)
+	appRepo := repo.NewAppRepo(appDB)
 
 	customCSS := config.CustomCSS
 	if !strings.HasPrefix(customCSS, "http://") &&

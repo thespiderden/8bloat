@@ -1,6 +1,7 @@
 package renderer
 
 import (
+	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -89,78 +90,100 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 	}, nil
 }
 
-func (r *renderer) RenderSigninPage(ctx *Context, writer io.Writer, signinData *SigninData) (err error) {
+func (r *renderer) RenderSigninPage(ctx *Context, writer io.Writer,
+	signinData *SigninData) (err error) {
 	return r.template.ExecuteTemplate(writer, "signin.tmpl", WithContext(signinData, ctx))
 }
 
-func (r *renderer) RenderErrorPage(ctx *Context, writer io.Writer, errorData *ErrorData) {
+func (r *renderer) RenderErrorPage(ctx *Context, writer io.Writer,
+	errorData *ErrorData) {
 	r.template.ExecuteTemplate(writer, "error.tmpl", WithContext(errorData, ctx))
 	return
 }
 
-func (r *renderer) RenderTimelinePage(ctx *Context, writer io.Writer, data *TimelineData) (err error) {
+func (r *renderer) RenderTimelinePage(ctx *Context, writer io.Writer,
+	data *TimelineData) (err error) {
 	return r.template.ExecuteTemplate(writer, "timeline.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderThreadPage(ctx *Context, writer io.Writer, data *ThreadData) (err error) {
+func (r *renderer) RenderThreadPage(ctx *Context, writer io.Writer,
+	data *ThreadData) (err error) {
 	return r.template.ExecuteTemplate(writer, "thread.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderNotificationPage(ctx *Context, writer io.Writer, data *NotificationData) (err error) {
+func (r *renderer) RenderNotificationPage(ctx *Context, writer io.Writer,
+	data *NotificationData) (err error) {
 	return r.template.ExecuteTemplate(writer, "notification.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderUserPage(ctx *Context, writer io.Writer, data *UserData) (err error) {
+func (r *renderer) RenderUserPage(ctx *Context, writer io.Writer,
+	data *UserData) (err error) {
 	return r.template.ExecuteTemplate(writer, "user.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderAboutPage(ctx *Context, writer io.Writer, data *AboutData) (err error) {
+func (r *renderer) RenderAboutPage(ctx *Context, writer io.Writer,
+	data *AboutData) (err error) {
 	return r.template.ExecuteTemplate(writer, "about.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderEmojiPage(ctx *Context, writer io.Writer, data *EmojiData) (err error) {
+func (r *renderer) RenderEmojiPage(ctx *Context, writer io.Writer,
+	data *EmojiData) (err error) {
 	return r.template.ExecuteTemplate(writer, "emoji.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderLikedByPage(ctx *Context, writer io.Writer, data *LikedByData) (err error) {
+func (r *renderer) RenderLikedByPage(ctx *Context, writer io.Writer,
+	data *LikedByData) (err error) {
 	return r.template.ExecuteTemplate(writer, "likedby.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderRetweetedByPage(ctx *Context, writer io.Writer, data *RetweetedByData) (err error) {
+func (r *renderer) RenderRetweetedByPage(ctx *Context, writer io.Writer,
+	data *RetweetedByData) (err error) {
 	return r.template.ExecuteTemplate(writer, "retweetedby.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderFollowingPage(ctx *Context, writer io.Writer, data *FollowingData) (err error) {
+func (r *renderer) RenderFollowingPage(ctx *Context, writer io.Writer,
+	data *FollowingData) (err error) {
 	return r.template.ExecuteTemplate(writer, "following.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderFollowersPage(ctx *Context, writer io.Writer, data *FollowersData) (err error) {
+func (r *renderer) RenderFollowersPage(ctx *Context, writer io.Writer,
+	data *FollowersData) (err error) {
 	return r.template.ExecuteTemplate(writer, "followers.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderSearchPage(ctx *Context, writer io.Writer, data *SearchData) (err error) {
+func (r *renderer) RenderSearchPage(ctx *Context, writer io.Writer,
+	data *SearchData) (err error) {
 	return r.template.ExecuteTemplate(writer, "search.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderSettingsPage(ctx *Context, writer io.Writer, data *SettingsData) (err error) {
+func (r *renderer) RenderSettingsPage(ctx *Context, writer io.Writer,
+	data *SettingsData) (err error) {
 	return r.template.ExecuteTemplate(writer, "settings.tmpl", WithContext(data, ctx))
 }
 
 func EmojiFilter(content string, emojis []mastodon.Emoji) string {
 	var replacements []string
+	var r string
 	for _, e := range emojis {
-		replacements = append(replacements, ":"+e.ShortCode+":", "<img class=\"status-emoji\" src=\""+e.URL+"\" alt=\""+e.ShortCode+"\" title=\""+e.ShortCode+"\" />")
+		r = fmt.Sprintf("<img class=\"status-emoji\" src=\"%s\" alt=\"%s\" title=\"%s\" />",
+			e.URL, e.ShortCode, e.ShortCode)
+		replacements = append(replacements, ":"+e.ShortCode+":", r)
 	}
 	return strings.NewReplacer(replacements...).Replace(content)
 }
 
-func StatusContentFilter(spoiler string, content string, emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
+func StatusContentFilter(spoiler string, content string,
+	emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
+
+	var replacements []string
+	var r string
 	if len(spoiler) > 0 {
 		content = spoiler + "<br />" + content
 	}
-	var replacements []string
 	for _, e := range emojis {
-		replacements = append(replacements, ":"+e.ShortCode+":", "<img class=\"status-emoji\" src=\""+e.URL+"\" alt=\""+e.ShortCode+"\" title=\""+e.ShortCode+"\" />")
+		r = fmt.Sprintf("<img class=\"status-emoji\" src=\"%s\" alt=\"%s\" title=\"%s\" />",
+			e.URL, e.ShortCode, e.ShortCode)
+		replacements = append(replacements, ":"+e.ShortCode+":", r)
 	}
 	for _, m := range mentions {
 		replacements = append(replacements, "\""+m.URL+"\"", "\"/user/"+m.ID+"\"")
@@ -177,32 +200,26 @@ func DisplayInteractionCount(c int64) string {
 
 func TimeSince(t time.Time) string {
 	dur := time.Since(t)
-
 	s := dur.Seconds()
 	if s < 60 {
 		return strconv.Itoa(int(s)) + "s"
 	}
-
 	m := dur.Minutes()
 	if m < 60 {
 		return strconv.Itoa(int(m)) + "m"
 	}
-
 	h := dur.Hours()
 	if h < 24 {
 		return strconv.Itoa(int(h)) + "h"
 	}
-
 	d := h / 24
 	if d < 30 {
 		return strconv.Itoa(int(d)) + "d"
 	}
-
 	mo := d / 30
 	if mo < 12 {
 		return strconv.Itoa(int(mo)) + "mo"
 	}
-
 	y := mo / 12
 	return strconv.Itoa(int(y)) + "y"
 }
