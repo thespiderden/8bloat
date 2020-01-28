@@ -211,6 +211,9 @@ func (svc *service) ServeTimelinePage(ctx context.Context, c *model.Client,
 	case "home":
 		statuses, err = c.GetTimelineHome(ctx, &pg)
 		title = "Timeline"
+	case "direct":
+		statuses, err = c.GetTimelineDirect(ctx, &pg)
+		title = "Local Timeline"
 	case "local":
 		statuses, err = c.GetTimelinePublic(ctx, true, &pg)
 		title = "Local Timeline"
