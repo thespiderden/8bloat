@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -25,10 +27,15 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
+func errExit(err error) {
+	fmt.Fprintln(os.Stderr, err.Error())
+	os.Exit(1)
+}
+
 func main() {
 	opts, _, err := util.Getopts(os.Args, "f:")
 	if err != nil {
-		log.Fatal(err)
+		errExit(err)
 	}
 
 	for _, opt := range opts {
@@ -40,34 +47,34 @@ func main() {
 
 	config, err := config.ParseFile(configFile)
 	if err != nil {
-		log.Fatal(err)
+		errExit(err)
 	}
 
 	if !config.IsValid() {
-		log.Fatal("invalid config")
+		errExit(errors.New("invalid config"))
 	}
 
 	templatesGlobPattern := filepath.Join(config.TemplatesPath, "*")
 	renderer, err := renderer.NewRenderer(templatesGlobPattern)
 	if err != nil {
-		log.Fatal(err)
+		errExit(err)
 	}
 
 	err = os.Mkdir(config.DatabasePath, 0755)
 	if err != nil && !os.IsExist(err) {
-		log.Fatal(err)
+		errExit(err)
 	}
 
 	sessionDBPath := filepath.Join(config.DatabasePath, "session")
 	sessionDB, err := kv.NewDatabse(sessionDBPath)
 	if err != nil {
-		log.Fatal(err)
+		errExit(err)
 	}
 
 	appDBPath := filepath.Join(config.DatabasePath, "app")
 	appDB, err := kv.NewDatabse(appDBPath)
 	if err != nil {
-		log.Fatal(err)
+		errExit(err)
 	}
 
 	sessionRepo := repo.NewSessionRepo(sessionDB)
@@ -85,7 +92,7 @@ func main() {
 	} else {
 		lf, err := os.Open(config.LogFile)
 		if err != nil {
-			log.Fatal(err)
+			errExit(err)
 		}
 		defer lf.Close()
 		logger = log.New(lf, "", log.LstdFlags)
@@ -101,6 +108,6 @@ func main() {
 	logger.Println("listening on", config.ListenAddress)
 	err = http.ListenAndServe(config.ListenAddress, handler)
 	if err != nil {
-		log.Fatal(err)
+		errExit(err)
 	}
 }
