@@ -16,11 +16,11 @@ type config struct {
 	ClientScope          string
 	ClientWebsite        string
 	StaticDirectory      string
-	TemplatesGlobPattern string
+	TemplatesPath string
 	DatabasePath         string
 	CustomCSS            string
 	PostFormats          []model.PostFormat
-	Logfile              string
+	LogFile              string
 }
 
 func (c *config) IsValid() bool {
@@ -29,35 +29,15 @@ func (c *config) IsValid() bool {
 		len(c.ClientScope) < 1 ||
 		len(c.ClientWebsite) < 1 ||
 		len(c.StaticDirectory) < 1 ||
-		len(c.TemplatesGlobPattern) < 1 ||
+		len(c.TemplatesPath) < 1 ||
 		len(c.DatabasePath) < 1 {
 		return false
 	}
 	return true
 }
 
-func getDefaultConfig() *config {
-	return &config{
-		ListenAddress:        ":8080",
-		ClientName:           "web",
-		ClientScope:          "read write follow",
-		ClientWebsite:        "http://localhost:8080",
-		StaticDirectory:      "static",
-		TemplatesGlobPattern: "templates/*",
-		DatabasePath:         "database.db",
-		CustomCSS:            "",
-		PostFormats: []model.PostFormat{
-			model.PostFormat{"Plain Text", "text/plain"},
-			model.PostFormat{"HTML", "text/html"},
-			model.PostFormat{"Markdown", "text/markdown"},
-			model.PostFormat{"BBCode", "text/bbcode"},
-		},
-		Logfile: "",
-	}
-}
-
 func Parse(r io.Reader) (c *config, err error) {
-	c = getDefaultConfig()
+	c = new(config)
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
@@ -90,8 +70,8 @@ func Parse(r io.Reader) (c *config, err error) {
 			c.ClientWebsite = val
 		case "static_directory":
 			c.StaticDirectory = val
-		case "templates_glob_pattern":
-			c.TemplatesGlobPattern = val
+		case "templates_path":
+			c.TemplatesPath = val
 		case "database_path":
 			c.DatabasePath = val
 		case "custom_css":
@@ -115,8 +95,8 @@ func Parse(r io.Reader) (c *config, err error) {
 				})
 			}
 			c.PostFormats = formats
-		case "logfile":
-			c.Logfile = val
+		case "log_file":
+			c.LogFile = val
 		default:
 			return nil, errors.New("invliad config key " + key)
 		}

@@ -47,7 +47,8 @@ func main() {
 		log.Fatal("invalid config")
 	}
 
-	renderer, err := renderer.NewRenderer(config.TemplatesGlobPattern)
+	templatesGlobPattern := filepath.Join(config.TemplatesPath, "*")
+	renderer, err := renderer.NewRenderer(templatesGlobPattern)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,12 +58,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sessionDB, err := kv.NewDatabse(filepath.Join(config.DatabasePath, "session"))
+	sessionDBPath := filepath.Join(config.DatabasePath, "session")
+	sessionDB, err := kv.NewDatabse(sessionDBPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	appDB, err := kv.NewDatabse(filepath.Join(config.DatabasePath, "app"))
+	appDBPath := filepath.Join(config.DatabasePath, "app")
+	appDB, err := kv.NewDatabse(appDBPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -77,10 +80,10 @@ func main() {
 	}
 
 	var logger *log.Logger
-	if len(config.Logfile) < 1 {
+	if len(config.LogFile) < 1 {
 		logger = log.New(os.Stdout, "", log.LstdFlags)
 	} else {
-		lf, err := os.Open(config.Logfile)
+		lf, err := os.Open(config.LogFile)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -88,13 +91,14 @@ func main() {
 		logger = log.New(lf, "", log.LstdFlags)
 	}
 
-	s := service.NewService(config.ClientName, config.ClientScope, config.ClientWebsite,
-		customCSS, config.PostFormats, renderer, sessionRepo, appRepo)
+	s := service.NewService(config.ClientName, config.ClientScope,
+		config.ClientWebsite, customCSS, config.PostFormats, renderer,
+		sessionRepo, appRepo)
 	s = service.NewAuthService(sessionRepo, appRepo, s)
 	s = service.NewLoggingService(logger, s)
 	handler := service.NewHandler(s, config.StaticDirectory)
 
-	log.Println("listening on", config.ListenAddress)
+	logger.Println("listening on", config.ListenAddress)
 	err = http.ListenAndServe(config.ListenAddress, handler)
 	if err != nil {
 		log.Fatal(err)
