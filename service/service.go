@@ -490,13 +490,6 @@ func (svc *service) ServeNotificationPage(ctx context.Context, c *model.Client,
 	}
 
 	for i := range notifications {
-		if notifications[i].Status != nil {
-			notifications[i].Status.CreatedAt = notifications[i].CreatedAt
-			switch notifications[i].Type {
-			case "reblog", "favourite":
-				notifications[i].Status.HideAccountInfo = true
-			}
-		}
 		if notifications[i].Pleroma != nil && !notifications[i].Pleroma.IsSeen {
 			unreadCount++
 		}

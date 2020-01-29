@@ -14,15 +14,12 @@
 	{{block "status" (WithContext . $.Ctx)}}
 	{{with $s := .Data}}
 	<div class="status-container status-{{.ID}}" data-id="{{.ID}}">
-		{{if not .HideAccountInfo}}
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
 				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
 			</a>
 		</div>
-		{{end}}
 		<div class="status"> 
-			{{if not .HideAccountInfo}}
 			<div class="status-name">
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span> 
 				<a href="/user/{{.Account.ID}}" >
@@ -43,7 +40,6 @@
 					<img class="icon" src="{{GetIcon "link" $.Ctx.DarkMode}}" alt="source" />
 				</a>
 			</div>
-			{{end}}
 			<div class="status-reply-container">
 				{{if .InReplyToID}}
 				<div class="status-reply-to">

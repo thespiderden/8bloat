@@ -50,7 +50,6 @@ type Status struct {
 
 	// Custom fields
 	Pleroma         StatusPleroma          `json:"pleroma"`
-	HideAccountInfo bool                   `json:"hide_account_info"`
 	ShowReplies     bool                   `json:"show_replies"`
 	ReplyMap        map[string][]ReplyInfo `json:"reply_map"`
 	ReplyNumber     int                    `json:"reply_number"`

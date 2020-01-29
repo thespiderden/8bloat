@@ -17,6 +17,9 @@
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
 				<img class="icon" src="{{GetIcon "user-plus" $.Ctx.DarkMode}}" alt="followed" />
 				<span> followed you </span>
+				<span>
+					- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
+				</span>
 			</div>
 			<div class="notification-follow-uname">
 				@{{.Account.Acct}}
@@ -28,38 +31,32 @@
 	{{template "status" (WithContext .Status $.Ctx)}}
 
 	{{else if eq .Type "reblog"}}
-	<div class="notification-retweet-container">
-		<div class="status-profile-img-container">
-			<a class="img-link" href="/user/{{.Account.ID}}" >
-				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
-			</a>
-		</div>
-		<div>
-			<div class="notification-info-text">
-				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<img class="icon" src="{{GetIcon "retweeted" $.Ctx.DarkMode}}" alt="retweeted" />
-				<span> retweeted your post </span>
-			</div>
-			{{template "status" (WithContext .Status $.Ctx)}}
-		</div>
+	<div class="retweet-info">
+		<a class="img-link" href="/user/{{.Account.ID}}">
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
+		</a>
+		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
+		<img class="icon" src="{{GetIcon "retweeted" $.Ctx.DarkMode}}" alt="retweeted" />
+		<span> retweeted your post </span>
+		<span>
+			- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
+		</span>
 	</div>
+	{{template "status" (WithContext .Status $.Ctx)}}
 
 	{{else if eq .Type "favourite"}}
-	<div class="notification-like-container">
-		<div class="status-profile-img-container">
-			<a class="img-link" href="/user/{{.Account.ID}}" >
-				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
-			</a>
-		</div>
-		<div>
-			<div class="notification-info-text">
-				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<img class="icon" src="{{GetIcon "liked" $.Ctx.DarkMode}}" alt="liked" />
-				<span> liked your post </span>
-			</div>
-			{{template "status" (WithContext .Status $.Ctx)}}
-		</div>
+	<div class="retweet-info">
+		<a class="img-link" href="/user/{{.Account.ID}}">
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
+		</a>
+		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
+		<img class="icon" src="{{GetIcon "liked" $.Ctx.DarkMode}}" alt="liked" />
+		<span> liked your post </span>
+		<span>
+			- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
+		</span>
 	</div>
+	{{template "status" (WithContext .Status $.Ctx)}}
 	{{end}}
 </div>
 {{end}}

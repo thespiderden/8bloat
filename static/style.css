@@ -138,7 +138,7 @@
 }
 
 .retweet-info {
-	margin: 8px 0 4px 24px;	
+	margin: 0 0 2px 24px;	
 }
 
 .retweet-info .status-profile-img {
@@ -176,9 +176,7 @@
 	border-color: #777777;
 }
 
-.notification-follow-container,
-.notification-like-container,
-.notification-retweet-container {
+.notification-follow-container {
 	display: flex;
 }
 
@@ -188,6 +186,10 @@
 
 .notification-follow-uname {
 	margin-top: 8px;
+}
+
+.notification-time {
+	margin-left: 8px;
 }
 
 .status-reply-to {
