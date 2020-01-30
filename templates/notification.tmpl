@@ -15,7 +15,6 @@
 		<div>
 			<div class="notification-info-text">
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<img class="icon" src="{{GetIcon "user-plus" $.Ctx.DarkMode}}" alt="followed" />
 				<span> followed you </span>
 				<span>
 					- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
@@ -36,7 +35,6 @@
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-		<img class="icon" src="{{GetIcon "retweeted" $.Ctx.DarkMode}}" alt="retweeted" />
 		<span> retweeted your post </span>
 		<span>
 			- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
@@ -50,7 +48,6 @@
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-		<img class="icon" src="{{GetIcon "liked" $.Ctx.DarkMode}}" alt="liked" />
 		<span> liked your post </span>
 		<span>
 			- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 

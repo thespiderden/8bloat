@@ -11,39 +11,6 @@ import (
 	"mastodon"
 )
 
-var (
-	icons = map[string]string{
-		"envelope":          "/static/icons/envelope.png",
-		"dark-envelope":     "/static/icons/dark-envelope.png",
-		"globe":             "/static/icons/globe.png",
-		"dark-globe":        "/static/icons/dark-globe.png",
-		"liked":             "/static/icons/liked.png",
-		"dark-liked":        "/static/icons/liked.png",
-		"link":              "/static/icons/link.png",
-		"dark-link":         "/static/icons/dark-link.png",
-		"lock":              "/static/icons/lock.png",
-		"dark-lock":         "/static/icons/dark-lock.png",
-		"mail-forward":      "/static/icons/mail-forward.png",
-		"dark-mail-forward": "/static/icons/dark-mail-forward.png",
-		"reply":             "/static/icons/reply.png",
-		"dark-reply":        "/static/icons/dark-reply.png",
-		"retweet":           "/static/icons/retweet.png",
-		"dark-retweet":      "/static/icons/dark-retweet.png",
-		"retweeted":         "/static/icons/retweeted.png",
-		"dark-retweeted":    "/static/icons/retweeted.png",
-		"smile-o":           "/static/icons/smile-o.png",
-		"dark-smile-o":      "/static/icons/dark-smile-o.png",
-		"star-o":            "/static/icons/star-o.png",
-		"dark-star-o":       "/static/icons/dark-star-o.png",
-		"star":              "/static/icons/star.png",
-		"dark-star":         "/static/icons/dark-star.png",
-		"unlock-alt":        "/static/icons/unlock-alt.png",
-		"dark-unlock-alt":   "/static/icons/dark-unlock-alt.png",
-		"user-plus":         "/static/icons/user-plus.png",
-		"dark-user-plus":    "/static/icons/dark-user-plus.png",
-	}
-)
-
 type TemplateData struct {
 	Data interface{}
 	Ctx  *Context
@@ -79,7 +46,6 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 		"TimeSince":               TimeSince,
 		"FormatTimeRFC3339":       FormatTimeRFC3339,
 		"FormatTimeRFC822":        FormatTimeRFC822,
-		"GetIcon":                 GetIcon,
 		"WithContext":             WithContext,
 	}).ParseGlob(templateGlobPattern)
 	if err != nil {
@@ -230,14 +196,6 @@ func FormatTimeRFC3339(t time.Time) string {
 
 func FormatTimeRFC822(t time.Time) string {
 	return t.Format(time.RFC822)
-}
-
-func GetIcon(name string, darkMode bool) (icon string) {
-	if darkMode {
-		name = "dark-" + name
-	}
-	icon, _ = icons[name]
-	return
 }
 
 func WithContext(data interface{}, ctx *Context) TemplateData {

@@ -54,10 +54,6 @@
 .status {
 }
 
-.status a {
-	text-decoration: none;
-}
-
 .status-dname {
 	font-weight: 800;
 }
@@ -85,36 +81,27 @@
 
 .status-action {
 	display: inline-block;
-	min-width: 64px;
+	margin-right: 16px;
+}
+
+.status-action:last-child {
+	margin-right: 4px;
 }
 
 .status-action form {
 	display: inline-block;
 }
 
-.status-action:last-child {
-	min-width: unset;
-}
-
 .status-action a {
 	display: inline-block;
-	text-decoration: none;
-	color: #333333;
 }
 
-.status-action a:hover,
-.status-action input:hover {
-	opacity: 0.6;
+.status-action * {
+	verical-align: center;
 }
 
 .status-action a.status-time {
 	width: auto;
-}
-
-.status-reply-count,
-.status-retweet-count,
-.status-like-count {
-	vertical-align: middle;
 }
 
 .page-title {
@@ -265,44 +252,46 @@
 }
 
 .btn-link {
-    border: none;
-    outline: none;
-    background: none;
-    cursor: pointer;
-    color: #0000EE;
-    padding: 0;
-    text-decoration: underline;
-    font-family: inherit;
-    font-size: inherit;
+	border: none;
+	outline: none;
+	background: none;
+	cursor: pointer;
+	padding: 0;
+	font-family: inherit;
+	font-size: inherit;
+}
+
+a, .btn-link {
+	color: #464acc;
+	text-decoration: none;
+}
+
+a:hover,
+.btn-link:hover {
+	opacity: 0.6;
 }
 
 .status-visibility {
 	margin-left: 4px;
 	display: inline-block;
-	color: #444444;
-}
-
-.status-visibility span {
-	font-size: 9pt;
-	vertical-align: bottom;
+	color: #222222;
+	font-size: 8pt;
 }
 
 .remote-link {
 	margin-left: 4px;
 	display: inline-block;
-	color: #444444;
-	text-decoration: none;
-}
-
-.remote-link span {
-	font-size: 9pt;
-	vertical-align: bottom;
+	font-size: 8pt;
 }
 
 .img-link {
 	display: inline-block;
 	position: relative;
 	margin: 2.5px 0;
+}
+
+.img-link:hover {
+	opacity: initial;
 }
 
 .status-profile-img-container .img-link {
@@ -390,14 +379,11 @@
 
 .nav-link {
 	margin-right: 2px;
+	text-decoration: underline;
 }
 
 .user-list-container {
 	margin: 8px 0;
-}
-
-.user-list-item a {
-	text-decoration: none;
 }
 
 .user-list-item>div {
@@ -420,15 +406,6 @@
 
 #settings-form button[type=submit] {
 	margin-top: 8px;
-}
-
-.icon {
-	height: 16px;
-	vertical-align: middle;
-}
-
-.icon.post-emoji {
-	height: 20px;
 }
 
 #reply-popup {
@@ -459,10 +436,6 @@
 	color: #81a2be;
 }
 
-.dark .status-action a {
-	color: #999999;
-}
-
 .dark #post-content {
 	background-color: #333333;
 	border: 1px solid #444444;
@@ -479,3 +452,10 @@
 	background-color: #333333;
 }
 
+.dark .btn-link {
+	color: #81a2be;
+}
+
+.dark .status-visibility {
+	color: #eaeaea;
+}

@@ -1,16 +1,5 @@
 // @license magnet:?xt=urn:btih:90dc5c0be029de84e523b9b3922520e79e0e6f08&dn=cc0.txt CC0
 
-var actionIcons = {
-	"like": "/static/icons/star-o.png",
-	"dark-like": "/static/icons/dark-star-o.png",
-	"unlike": "/static/icons/liked.png",
-	"dark-unlike": "/static/icons/liked.png",
-	"retweet": "/static/icons/retweet.png",
-	"dark-retweet": "/static/icons/dark-retweet.png",
-	"unretweet": "/static/icons/retweeted.png",
-	"dark-unretweet": "/static/icons/retweeted.png"
-};
-
 var reverseActions = {
 	"like": "unlike",
 	"unlike": "like",
@@ -45,11 +34,7 @@ function http(method, url, body, type, success, error) {
 }
 
 function updateActionForm(id, f, action) {
-	if (Array.from(document.body.classList).indexOf("dark") > -1) {
-		f.querySelector(".icon").src = actionIcons["dark-" + action];
-	} else {
-		f.querySelector(".icon").src = actionIcons[action];
-	}
+	f.querySelector('[type="submit"]').value = action;
 	f.action = "/" + action + "/" + id;
 	f.dataset.action = action;
 }
@@ -74,7 +59,11 @@ function handleLikeForm(id, f) {
 			}
 			var counts = document.querySelectorAll(".status-"+id+" .status-like-count");
 			counts.forEach(function(c) {
-				c.innerHTML = count;
+				if (count > 0) {
+					c.innerHTML = "(" + count + ")";
+				} else {
+					c.innerHTML = "";
+				}
 			});
 		}, function(err) {
 			forms.forEach(function(f) {
@@ -104,7 +93,11 @@ function handleRetweetForm(id, f) {
 			}
 			var counts = document.querySelectorAll(".status-"+id+" .status-retweet-count");
 			counts.forEach(function(c) {
-				c.innerHTML = count;
+				if (count > 0) {
+					c.innerHTML = "(" + count + ")";
+				} else {
+					c.innerHTML = "";
+				}
 			});
 		}, function(err) {
 			forms.forEach(function(f) {
