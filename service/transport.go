@@ -188,6 +188,30 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 	}
 
+	userSearchPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		id, _ := mux.Vars(req)["id"]
+		q := req.URL.Query().Get("q")
+		offsetStr := req.URL.Query().Get("offset")
+
+		var offset int
+		var err error
+		if len(offsetStr) > 1 {
+			offset, err = strconv.Atoi(offsetStr)
+			if err != nil {
+				s.ServeErrorPage(ctx, c, err)
+				return
+			}
+		}
+
+		err = s.ServeUserSearchPage(ctx, c, id, q, offset)
+		if err != nil {
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+	}
+
 	aboutPage := func(w http.ResponseWriter, req *http.Request) {
 		c := newClient(w)
 		ctx := newCtxWithSesion(req)
@@ -545,6 +569,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/followers/{id}", followersPage).Methods(http.MethodGet)
 	r.HandleFunc("/notifications", notificationsPage).Methods(http.MethodGet)
 	r.HandleFunc("/user/{id}", userPage).Methods(http.MethodGet)
+	r.HandleFunc("/usersearch/{id}", userSearchPage).Methods(http.MethodGet)
 	r.HandleFunc("/about", aboutPage).Methods(http.MethodGet)
 	r.HandleFunc("/emojis", emojisPage).Methods(http.MethodGet)
 	r.HandleFunc("/search", searchPage).Methods(http.MethodGet)

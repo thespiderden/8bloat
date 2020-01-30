@@ -129,6 +129,15 @@ func (s *ls) ServeSearchPage(ctx context.Context, c *model.Client, q string,
 	return s.Service.ServeSearchPage(ctx, c, q, qType, offset)
 }
 
+func (s *ls)  ServeUserSearchPage(ctx context.Context, c *model.Client,
+	id string, q string, offset int) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, took=%v, err=%v\n",
+			"ServeUserSearchPage", time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeUserSearchPage(ctx, c, id, q, offset)
+}
+
 func (s *ls) ServeSettingsPage(ctx context.Context, c *model.Client) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, took=%v, err=%v\n",

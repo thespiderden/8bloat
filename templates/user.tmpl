@@ -44,6 +44,9 @@
 			<a href="/following/{{.User.ID}}"> {{.User.FollowingCount}} following </a> - 
 			<a href="/followers/{{.User.ID}}"> {{.User.FollowersCount}} followers </a>
 		</div>
+		<div>
+			<a href="/usersearch/{{.User.ID}}"> search statuses </a>
+		</div>
 	</div>
 	<div class="user-profile-decription">
 	{{.User.Note}}

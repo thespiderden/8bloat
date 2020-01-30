@@ -162,6 +162,15 @@ func (s *as) ServeSearchPage(ctx context.Context, c *model.Client, q string,
 	return s.Service.ServeSearchPage(ctx, c, q, qType, offset)
 }
 
+func (s *as)  ServeUserSearchPage(ctx context.Context, c *model.Client,
+	id string, q string, offset int) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeUserSearchPage(ctx, c, id, q, offset)
+}
+
 func (s *as) ServeSettingsPage(ctx context.Context, c *model.Client) (err error) {
 	err = s.authenticateClient(ctx, c)
 	if err != nil {

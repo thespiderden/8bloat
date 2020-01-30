@@ -74,6 +74,14 @@ type UserData struct {
 	DarkMode bool
 }
 
+type UserSearchData struct {
+	*CommonData
+	User     *mastodon.Account
+	Q        string
+	Statuses []*mastodon.Status
+	NextLink string
+}
+
 type AboutData struct {
 	*CommonData
 }

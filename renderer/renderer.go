@@ -23,6 +23,7 @@ type Renderer interface {
 	RenderThreadPage(ctx *Context, writer io.Writer, data *ThreadData) (err error)
 	RenderNotificationPage(ctx *Context, writer io.Writer, data *NotificationData) (err error)
 	RenderUserPage(ctx *Context, writer io.Writer, data *UserData) (err error)
+	RenderUserSearchPage(ctx *Context, writer io.Writer, data *UserSearchData) (err error)
 	RenderAboutPage(ctx *Context, writer io.Writer, data *AboutData) (err error)
 	RenderEmojiPage(ctx *Context, writer io.Writer, data *EmojiData) (err error)
 	RenderLikedByPage(ctx *Context, writer io.Writer, data *LikedByData) (err error)
@@ -85,6 +86,11 @@ func (r *renderer) RenderNotificationPage(ctx *Context, writer io.Writer,
 func (r *renderer) RenderUserPage(ctx *Context, writer io.Writer,
 	data *UserData) (err error) {
 	return r.template.ExecuteTemplate(writer, "user.tmpl", WithContext(data, ctx))
+}
+
+func (r *renderer) RenderUserSearchPage(ctx *Context, writer io.Writer, 
+	data *UserSearchData) (err error) {
+	return r.template.ExecuteTemplate(writer, "usersearch.tmpl", WithContext(data, ctx))
 }
 
 func (r *renderer) RenderAboutPage(ctx *Context, writer io.Writer,

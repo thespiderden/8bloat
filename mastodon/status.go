@@ -284,14 +284,17 @@ func (c *Client) DeleteStatus(ctx context.Context, id string) error {
 }
 
 // Search search content with query.
-func (c *Client) Search(ctx context.Context, q string, qType string, limit int, resolve bool, offset int) (*Results, error) {
+func (c *Client) Search(ctx context.Context, q string, qType string, limit int, resolve bool, offset int, accountID string) (*Results, error) {
+	var results Results
 	params := url.Values{}
 	params.Set("q", q)
 	params.Set("type", qType)
 	params.Set("limit", fmt.Sprint(limit))
 	params.Set("resolve", fmt.Sprint(resolve))
 	params.Set("offset", fmt.Sprint(offset))
-	var results Results
+	if len(accountID) > 0 {
+		params.Set("account_id", accountID)
+	}
 	err := c.doAPI(ctx, http.MethodGet, "/api/v2/search", params, &results, nil)
 	if err != nil {
 		return nil, err

@@ -1,0 +1,25 @@
+{{with .Data}}
+{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
+{{template "navigation.tmpl" (WithContext .NavbarData $.Ctx)}}
+<div class="page-title"> Search {{EmojiFilter .User.DisplayName .User.Emojis}}'s statuses </div>
+
+<form class="search-form" action="/usersearch/{{.User.ID}}" method="GET">
+	<span class="post-form-field>
+		<label for="query"> Query </label>
+		<input id="query" name="q" value="{{.Q}}">
+	</span>
+	<button type="submit"> Search </button>
+</form>
+
+{{range .Statuses}}
+{{template "status.tmpl" (WithContext . $.Ctx)}}
+{{end}}
+
+<div class="pagination">
+	{{if .NextLink}}
+		<a href="{{.NextLink}}">next</a>
+	{{end}}
+</div>
+
+{{template "footer.tmpl"}}
+{{end}}

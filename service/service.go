@@ -32,6 +32,7 @@ type Service interface {
 	ServeAboutPage(ctx context.Context, c *model.Client) (err error)
 	ServeEmojiPage(ctx context.Context, c *model.Client) (err error)
 	ServeSearchPage(ctx context.Context, c *model.Client, q string, qType string, offset int) (err error)
+	ServeUserSearchPage(ctx context.Context, c *model.Client, id string, q string, offset int) (err error)
 	ServeSettingsPage(ctx context.Context, c *model.Client) (err error)
 	NewSession(ctx context.Context, instance string) (redirectUrl string, sessionID string, err error)
 	Signin(ctx context.Context, c *model.Client, sessionID string, code string) (token string, err error)
@@ -560,6 +561,48 @@ func (svc *service) ServeUserPage(ctx context.Context, c *model.Client,
 	return svc.renderer.RenderUserPage(rCtx, c.Writer, data)
 }
 
+func (svc *service) ServeUserSearchPage(ctx context.Context, c *model.Client,
+	id string, q string, offset int) (err error) {
+
+	var nextLink string
+	var title = "search"
+
+	user, err := c.GetAccount(ctx, id)
+	if err != nil {
+		return
+	}
+
+	results, err := c.Search(ctx, q, "statuses", 20, true, offset, id)
+	if err != nil {
+		return
+	}
+
+	if len(results.Statuses) == 20 {
+		offset += 20
+		nextLink = fmt.Sprintf("/usersearch/%s?q=%s&offset=%d", id, q, offset)
+	}
+
+	if len(q) > 0 {
+		title += " \"" + q + "\""
+	}
+
+	commonData, err := svc.getCommonData(ctx, c, title)
+	if err != nil {
+		return
+	}
+
+	data := &renderer.UserSearchData{
+		CommonData: commonData,
+		User:       user,
+		Q:          q,
+		Statuses:   results.Statuses,
+		NextLink:   nextLink,
+	}
+
+	rCtx := getRendererContext(c)
+	return svc.renderer.RenderUserSearchPage(rCtx, c.Writer, data)
+}
+
 func (svc *service) ServeAboutPage(ctx context.Context, c *model.Client) (err error) {
 	commonData, err := svc.getCommonData(ctx, c, "about")
 	if err != nil {
@@ -600,7 +643,7 @@ func (svc *service) ServeSearchPage(ctx context.Context, c *model.Client,
 	var nextLink string
 	var title = "search"
 
-	results, err := c.Search(ctx, q, qType, 20, true, offset)
+	results, err := c.Search(ctx, q, qType, 20, true, offset, "")
 	if err != nil {
 		return
 	}
