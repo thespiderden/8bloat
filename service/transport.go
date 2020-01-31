@@ -52,6 +52,14 @@ func serveJson(w io.Writer, data interface{}) (err error) {
 	return json.NewEncoder(w).Encode(d)
 }
 
+func serveJsonError(w http.ResponseWriter, err error) {
+	var d = make(map[string]interface{})
+	d["error"] = err.Error()
+	w.WriteHeader(http.StatusInternalServerError)
+	json.NewEncoder(w).Encode(d)
+	return
+}
+
 func NewHandler(s Service, staticDir string) http.Handler {
 	r := mux.NewRouter()
 
@@ -72,6 +80,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		ctx := context.Background()
 		err := s.ServeSigninPage(ctx, c)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -86,6 +95,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeTimelinePage(ctx, c, tType, maxID, minID)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -104,6 +114,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeThreadPage(ctx, c, id, len(reply) > 1)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -116,6 +127,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeLikedByPage(ctx, c, id)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -128,6 +140,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeRetweetedByPage(ctx, c, id)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -142,6 +155,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeFollowingPage(ctx, c, id, maxID, minID)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -156,6 +170,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeFollowersPage(ctx, c, id, maxID, minID)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -169,6 +184,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeNotificationPage(ctx, c, maxID, minID)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -183,6 +199,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeUserPage(ctx, c, id, maxID, minID)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -200,6 +217,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		if len(offsetStr) > 1 {
 			offset, err = strconv.Atoi(offsetStr)
 			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
 				s.ServeErrorPage(ctx, c, err)
 				return
 			}
@@ -207,6 +225,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err = s.ServeUserSearchPage(ctx, c, id, q, offset)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -218,6 +237,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeAboutPage(ctx, c)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -229,6 +249,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeEmojiPage(ctx, c)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -246,6 +267,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		if len(offsetStr) > 1 {
 			offset, err = strconv.Atoi(offsetStr)
 			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
 				s.ServeErrorPage(ctx, c, err)
 				return
 			}
@@ -253,6 +275,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err = s.ServeSearchPage(ctx, c, q, qType, offset)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -264,6 +287,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.ServeSettingsPage(ctx, c)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -276,6 +300,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		url, sessionID, err := s.NewSession(ctx, instance)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -297,6 +322,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		_, err := s.Signin(ctx, c, "", token)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -309,6 +335,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		c := newClient(w)
 		err := req.ParseMultipartForm(4 << 20)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(context.Background(), c, err)
 			return
 		}
@@ -324,6 +351,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		id, err := s.Post(ctx, c, content, replyToID, format, visibility, isNSFW, files)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -344,6 +372,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		_, err := s.Like(ctx, c, id)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -364,6 +393,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		_, err := s.UnLike(ctx, c, id)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -384,6 +414,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		_, err := s.Retweet(ctx, c, id)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -404,6 +435,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		_, err := s.UnRetweet(ctx, c, id)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -424,6 +456,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.Follow(ctx, c, id)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -439,6 +472,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.UnFollow(ctx, c, id)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -468,6 +502,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		err := s.SaveSettings(ctx, c, settings)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
 			return
 		}
@@ -494,13 +529,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		count, err := s.Like(ctx, c, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, c, err)
+			serveJsonError(w, err)
 			return
 		}
 
 		err = serveJson(w, count)
 		if err != nil {
-			s.ServeErrorPage(ctx, c, err)
+			serveJsonError(w, err)
 			return
 		}
 	}
@@ -511,13 +546,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		id, _ := mux.Vars(req)["id"]
 		count, err := s.UnLike(ctx, c, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, c, err)
+			serveJsonError(w, err)
 			return
 		}
 
 		err = serveJson(w, count)
 		if err != nil {
-			s.ServeErrorPage(ctx, c, err)
+			serveJsonError(w, err)
 			return
 		}
 	}
@@ -529,13 +564,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		count, err := s.Retweet(ctx, c, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, c, err)
+			serveJsonError(w, err)
 			return
 		}
 
 		err = serveJson(w, count)
 		if err != nil {
-			s.ServeErrorPage(ctx, c, err)
+			serveJsonError(w, err)
 			return
 		}
 	}
@@ -547,13 +582,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		count, err := s.UnRetweet(ctx, c, id)
 		if err != nil {
-			s.ServeErrorPage(ctx, c, err)
+			serveJsonError(w, err)
 			return
 		}
 
 		err = serveJson(w, count)
 		if err != nil {
-			s.ServeErrorPage(ctx, c, err)
+			serveJsonError(w, err)
 			return
 		}
 	}
