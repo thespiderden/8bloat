@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	configFile = "bloat.conf"
+	configFile = "/etc/bloat.conf"
 )
 
 func init() {

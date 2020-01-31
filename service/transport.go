@@ -6,7 +6,6 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"path"
 	"strconv"
 	"time"
 
@@ -595,7 +594,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/fluoride/retweet/{id}", fRetweet).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/unretweet/{id}", fUnretweet).Methods(http.MethodPost)
 	r.PathPrefix("/static").Handler(http.StripPrefix("/static",
-		http.FileServer(http.Dir(path.Join(".", staticDir)))))
+		http.FileServer(http.Dir(staticDir))))
 
 	return r
 }

@@ -18,17 +18,17 @@ External dependencies:
 
 Building and Installation:
 
-Make sure you have GO installed. Other dependencies will be downloaded 
+Make sure you have Go installed. Other dependencies will be downloaded 
 automatically.
 
 Typing make will build the binary 
 $ make
 
 Edit the provided config file. See the default.conf file for more details.  
-$ ed default.conf
+$ ed bloat.conf
 
 Run the binary
-$ ./bloat
+$ ./bloat -f bloat.conf
 
 You can now access the frontend at http://localhost:8080, which is the default
 listen address. You can also setup a reverse HTTP proxy to serve the frontend over
