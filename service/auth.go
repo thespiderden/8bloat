@@ -101,24 +101,6 @@ func (s *as) ServeRetweetedByPage(ctx context.Context, c *model.Client, id strin
 	return s.Service.ServeRetweetedByPage(ctx, c, id)
 }
 
-func (s *as) ServeFollowingPage(ctx context.Context, c *model.Client, id string,
-	maxID string, minID string) (err error) {
-	err = s.authenticateClient(ctx, c)
-	if err != nil {
-		return
-	}
-	return s.Service.ServeFollowingPage(ctx, c, id, maxID, minID)
-}
-
-func (s *as) ServeFollowersPage(ctx context.Context, c *model.Client, id string,
-	maxID string, minID string) (err error) {
-	err = s.authenticateClient(ctx, c)
-	if err != nil {
-		return
-	}
-	return s.Service.ServeFollowersPage(ctx, c, id, maxID, minID)
-}
-
 func (s *as) ServeNotificationPage(ctx context.Context, c *model.Client,
 	maxID string, minID string) (err error) {
 	err = s.authenticateClient(ctx, c)
@@ -128,13 +110,13 @@ func (s *as) ServeNotificationPage(ctx context.Context, c *model.Client,
 	return s.Service.ServeNotificationPage(ctx, c, maxID, minID)
 }
 
-func (s *as) ServeUserPage(ctx context.Context, c *model.Client, id string,
-	maxID string, minID string) (err error) {
+func (s *as) ServeUserPage(ctx context.Context, c *model.Client, id string, 
+	pageType string, maxID string, minID string) (err error) {
 	err = s.authenticateClient(ctx, c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeUserPage(ctx, c, id, maxID, minID)
+	return s.Service.ServeUserPage(ctx, c, id, pageType, maxID, minID)
 }
 
 func (s *as) ServeAboutPage(ctx context.Context, c *model.Client) (err error) {

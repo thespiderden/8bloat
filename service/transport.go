@@ -146,36 +146,6 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		}
 	}
 
-	followingPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
-		id, _ := mux.Vars(req)["id"]
-		maxID := req.URL.Query().Get("max_id")
-		minID := req.URL.Query().Get("min_id")
-
-		err := s.ServeFollowingPage(ctx, c, id, maxID, minID)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
-			return
-		}
-	}
-
-	followersPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
-		id, _ := mux.Vars(req)["id"]
-		maxID := req.URL.Query().Get("max_id")
-		minID := req.URL.Query().Get("min_id")
-
-		err := s.ServeFollowersPage(ctx, c, id, maxID, minID)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
-			return
-		}
-	}
-
 	notificationsPage := func(w http.ResponseWriter, req *http.Request) {
 		c := newClient(w)
 		ctx := newCtxWithSesion(req)
@@ -194,10 +164,11 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		c := newClient(w)
 		ctx := newCtxWithSesion(req)
 		id, _ := mux.Vars(req)["id"]
+		pageType, _ := mux.Vars(req)["type"]
 		maxID := req.URL.Query().Get("max_id")
 		minID := req.URL.Query().Get("min_id")
 
-		err := s.ServeUserPage(ctx, c, id, maxID, minID)
+		err := s.ServeUserPage(ctx, c, id, pageType, maxID, minID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
@@ -600,10 +571,9 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/thread/{id}", threadPage).Methods(http.MethodGet)
 	r.HandleFunc("/likedby/{id}", likedByPage).Methods(http.MethodGet)
 	r.HandleFunc("/retweetedby/{id}", retweetedByPage).Methods(http.MethodGet)
-	r.HandleFunc("/following/{id}", followingPage).Methods(http.MethodGet)
-	r.HandleFunc("/followers/{id}", followersPage).Methods(http.MethodGet)
 	r.HandleFunc("/notifications", notificationsPage).Methods(http.MethodGet)
 	r.HandleFunc("/user/{id}", userPage).Methods(http.MethodGet)
+	r.HandleFunc("/user/{id}/{type}", userPage).Methods(http.MethodGet)
 	r.HandleFunc("/usersearch/{id}", userSearchPage).Methods(http.MethodGet)
 	r.HandleFunc("/about", aboutPage).Methods(http.MethodGet)
 	r.HandleFunc("/emojis", emojisPage).Methods(http.MethodGet)

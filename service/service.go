@@ -25,10 +25,9 @@ type Service interface {
 	ServeThreadPage(ctx context.Context, c *model.Client, id string, reply bool) (err error)
 	ServeLikedByPage(ctx context.Context, c *model.Client, id string) (err error)
 	ServeRetweetedByPage(ctx context.Context, c *model.Client, id string) (err error)
-	ServeFollowingPage(ctx context.Context, c *model.Client, id string, maxID string, minID string) (err error)
-	ServeFollowersPage(ctx context.Context, c *model.Client, id string, maxID string, minID string) (err error)
 	ServeNotificationPage(ctx context.Context, c *model.Client, maxID string, minID string) (err error)
-	ServeUserPage(ctx context.Context, c *model.Client, id string, maxID string, minID string) (err error)
+	ServeUserPage(ctx context.Context, c *model.Client, id string, pageType string,
+		maxID string, minID string) (err error)
 	ServeAboutPage(ctx context.Context, c *model.Client) (err error)
 	ServeEmojiPage(ctx context.Context, c *model.Client) (err error)
 	ServeSearchPage(ctx context.Context, c *model.Client, q string, qType string, offset int) (err error)
@@ -407,73 +406,6 @@ func (svc *service) ServeRetweetedByPage(ctx context.Context, c *model.Client,
 	return svc.renderer.RenderRetweetedByPage(rCtx, c.Writer, data)
 }
 
-func (svc *service) ServeFollowingPage(ctx context.Context, c *model.Client,
-	id string, maxID string, minID string) (err error) {
-
-	var nextLink string
-	var pg = mastodon.Pagination{
-		MaxID: maxID,
-		MinID: minID,
-		Limit: 20,
-	}
-
-	followings, err := c.GetAccountFollowing(ctx, id, &pg)
-	if err != nil {
-		return
-	}
-
-	if len(followings) == 20 && len(pg.MaxID) > 0 {
-		nextLink = "/following/" + id + "?max_id=" + pg.MaxID
-	}
-
-	commonData, err := svc.getCommonData(ctx, c, "following")
-	if err != nil {
-		return
-	}
-
-	data := &renderer.FollowingData{
-		CommonData: commonData,
-		Users:      followings,
-		NextLink:   nextLink,
-	}
-
-	rCtx := getRendererContext(c)
-	return svc.renderer.RenderFollowingPage(rCtx, c.Writer, data)
-}
-
-func (svc *service) ServeFollowersPage(ctx context.Context, c *model.Client,
-	id string, maxID string, minID string) (err error) {
-
-	var nextLink string
-	var pg = mastodon.Pagination{
-		MaxID: maxID,
-		MinID: minID,
-		Limit: 20,
-	}
-
-	followers, err := c.GetAccountFollowers(ctx, id, &pg)
-	if err != nil {
-		return
-	}
-
-	if len(followers) == 20 && len(pg.MaxID) > 0 {
-		nextLink = "/followers/" + id + "?max_id=" + pg.MaxID
-	}
-
-	commonData, err := svc.getCommonData(ctx, c, "followers")
-	if err != nil {
-		return
-	}
-
-	data := &renderer.FollowersData{
-		CommonData: commonData,
-		Users:      followers,
-		NextLink:   nextLink,
-	}
-	rCtx := getRendererContext(c)
-	return svc.renderer.RenderFollowersPage(rCtx, c.Writer, data)
-}
-
 func (svc *service) ServeNotificationPage(ctx context.Context, c *model.Client,
 	maxID string, minID string) (err error) {
 
@@ -522,10 +454,11 @@ func (svc *service) ServeNotificationPage(ctx context.Context, c *model.Client,
 }
 
 func (svc *service) ServeUserPage(ctx context.Context, c *model.Client,
-	id string, maxID string, minID string) (err error) {
+	id string, pageType string, maxID string, minID string) (err error) {
 
 	var nextLink string
-
+	var statuses []*mastodon.Status
+	var users []*mastodon.Account
 	var pg = mastodon.Pagination{
 		MaxID: maxID,
 		MinID: minID,
@@ -537,13 +470,45 @@ func (svc *service) ServeUserPage(ctx context.Context, c *model.Client,
 		return
 	}
 
-	statuses, err := c.GetAccountStatuses(ctx, id, &pg)
-	if err != nil {
-		return
-	}
-
-	if len(pg.MaxID) > 0 {
-		nextLink = "/user/" + id + "?max_id=" + pg.MaxID
+	switch pageType {
+	case "":
+		statuses, err = c.GetAccountStatuses(ctx, id, false, &pg)
+		if err != nil {
+			return
+		}
+		if len(statuses) == 20 && len(pg.MaxID) > 0 {
+			nextLink = fmt.Sprintf("/user/%s?max_id=%s", id,
+				pg.MaxID)
+		}
+	case "following":
+		users, err = c.GetAccountFollowing(ctx, id, &pg)
+		if err != nil {
+			return
+		}
+		if len(users) == 20 && len(pg.MaxID) > 0 {
+			nextLink = fmt.Sprintf("/user/%s/following?max_id=%s",
+				id, pg.MaxID)
+		}
+	case "followers":
+		users, err = c.GetAccountFollowers(ctx, id, &pg)
+		if err != nil {
+			return
+		}
+		if len(users) == 20 && len(pg.MaxID) > 0 {
+			nextLink = fmt.Sprintf("/user/%s/followers?max_id=%s",
+				id, pg.MaxID)
+		}
+	case "media":
+		statuses, err = c.GetAccountStatuses(ctx, id, true, &pg)
+		if err != nil {
+			return
+		}
+		if len(statuses) == 20 && len(pg.MaxID) > 0 {
+			nextLink = fmt.Sprintf("/user/%s/media?max_id=%s",
+				id, pg.MaxID)
+		}
+	default:
+		return errInvalidArgument
 	}
 
 	commonData, err := svc.getCommonData(ctx, c, user.DisplayName)
@@ -553,6 +518,8 @@ func (svc *service) ServeUserPage(ctx context.Context, c *model.Client,
 
 	data := &renderer.UserData{
 		User:       user,
+		Type:       pageType,
+		Users:      users,
 		Statuses:   statuses,
 		NextLink:   nextLink,
 		CommonData: commonData,

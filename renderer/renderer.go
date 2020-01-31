@@ -28,8 +28,6 @@ type Renderer interface {
 	RenderEmojiPage(ctx *Context, writer io.Writer, data *EmojiData) (err error)
 	RenderLikedByPage(ctx *Context, writer io.Writer, data *LikedByData) (err error)
 	RenderRetweetedByPage(ctx *Context, writer io.Writer, data *RetweetedByData) (err error)
-	RenderFollowingPage(ctx *Context, writer io.Writer, data *FollowingData) (err error)
-	RenderFollowersPage(ctx *Context, writer io.Writer, data *FollowersData) (err error)
 	RenderSearchPage(ctx *Context, writer io.Writer, data *SearchData) (err error)
 	RenderSettingsPage(ctx *Context, writer io.Writer, data *SettingsData) (err error)
 }
@@ -111,16 +109,6 @@ func (r *renderer) RenderLikedByPage(ctx *Context, writer io.Writer,
 func (r *renderer) RenderRetweetedByPage(ctx *Context, writer io.Writer,
 	data *RetweetedByData) (err error) {
 	return r.template.ExecuteTemplate(writer, "retweetedby.tmpl", WithContext(data, ctx))
-}
-
-func (r *renderer) RenderFollowingPage(ctx *Context, writer io.Writer,
-	data *FollowingData) (err error) {
-	return r.template.ExecuteTemplate(writer, "following.tmpl", WithContext(data, ctx))
-}
-
-func (r *renderer) RenderFollowersPage(ctx *Context, writer io.Writer,
-	data *FollowersData) (err error) {
-	return r.template.ExecuteTemplate(writer, "followers.tmpl", WithContext(data, ctx))
 }
 
 func (r *renderer) RenderSearchPage(ctx *Context, writer io.Writer,

@@ -69,6 +69,8 @@ type NotificationData struct {
 type UserData struct {
 	*CommonData
 	User     *mastodon.Account
+	Type     string
+	Users    []*mastodon.Account
 	Statuses []*mastodon.Status
 	NextLink string
 	DarkMode bool
@@ -98,18 +100,6 @@ type LikedByData struct {
 }
 
 type RetweetedByData struct {
-	*CommonData
-	Users    []*mastodon.Account
-	NextLink string
-}
-
-type FollowingData struct {
-	*CommonData
-	Users    []*mastodon.Account
-	NextLink string
-}
-
-type FollowersData struct {
 	*CommonData
 	Users    []*mastodon.Account
 	NextLink string

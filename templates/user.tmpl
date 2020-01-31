@@ -40,9 +40,10 @@
 			{{end}} 
 		</div>
 		<div>
-			{{.User.StatusesCount}} statuses - 
-			<a href="/following/{{.User.ID}}"> {{.User.FollowingCount}} following </a> - 
-			<a href="/followers/{{.User.ID}}"> {{.User.FollowersCount}} followers </a>
+			<a href="/user/{{.User.ID}}"> statuses ({{.User.StatusesCount}}) </a> - 
+			<a href="/user/{{.User.ID}}/following"> following ({{.User.FollowingCount}}) </a> - 
+			<a href="/user/{{.User.ID}}/followers"> followers ({{.User.FollowersCount}}) </a> - 
+			<a href="/user/{{.User.ID}}/media"> media </a>
 		</div>
 		<div>
 			<a href="/usersearch/{{.User.ID}}"> search statuses </a>
@@ -54,8 +55,25 @@
 </div>
 </div>
 
+{{if eq .Type ""}}
+<div class="page-title"> Statuses </div>
 {{range .Statuses}}
 {{template "status.tmpl" (WithContext . $.Ctx)}}
+{{end}}
+
+{{else if eq .Type "following"}}
+<div class="page-title"> Following </div>
+{{template "userlist.tmpl" (WithContext .Users $.Ctx)}}
+
+{{else if eq .Type "followers"}}
+<div class="page-title"> Followers </div>
+{{template "userlist.tmpl" (WithContext .Users $.Ctx)}}
+
+{{else if eq .Type "media"}}
+<div class="page-title"> Statuses with media </div>
+{{range .Statuses}}
+{{template "status.tmpl" (WithContext . $.Ctx)}}
+{{end}}
 {{end}}
 
 <div class="pagination">

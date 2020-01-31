@@ -68,24 +68,6 @@ func (s *ls) ServeRetweetedByPage(ctx context.Context, c *model.Client, id strin
 	return s.Service.ServeRetweetedByPage(ctx, c, id)
 }
 
-func (s *ls) ServeFollowingPage(ctx context.Context, c *model.Client, id string,
-	maxID string, minID string) (err error) {
-	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
-			"ServeFollowingPage", id, time.Since(begin), err)
-	}(time.Now())
-	return s.Service.ServeFollowingPage(ctx, c, id, maxID, minID)
-}
-
-func (s *ls) ServeFollowersPage(ctx context.Context, c *model.Client, id string,
-	maxID string, minID string) (err error) {
-	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
-			"ServeFollowersPage", id, time.Since(begin), err)
-	}(time.Now())
-	return s.Service.ServeFollowersPage(ctx, c, id, maxID, minID)
-}
-
 func (s *ls) ServeNotificationPage(ctx context.Context, c *model.Client,
 	maxID string, minID string) (err error) {
 	defer func(begin time.Time) {
@@ -95,13 +77,13 @@ func (s *ls) ServeNotificationPage(ctx context.Context, c *model.Client,
 	return s.Service.ServeNotificationPage(ctx, c, maxID, minID)
 }
 
-func (s *ls) ServeUserPage(ctx context.Context, c *model.Client, id string,
-	maxID string, minID string) (err error) {
+func (s *ls) ServeUserPage(ctx context.Context, c *model.Client, id string, 
+	pageType string, maxID string, minID string) (err error) {
 	defer func(begin time.Time) {
-		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
-			"ServeUserPage", id, time.Since(begin), err)
+		s.logger.Printf("method=%v, id=%v, type=%v, took=%v, err=%v\n",
+			"ServeUserPage", id, pageType, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.ServeUserPage(ctx, c, id, maxID, minID)
+	return s.Service.ServeUserPage(ctx, c, id, pageType, maxID, minID)
 }
 
 func (s *ls) ServeAboutPage(ctx context.Context, c *model.Client) (err error) {

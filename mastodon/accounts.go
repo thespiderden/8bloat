@@ -133,9 +133,11 @@ func (c *Client) AccountUpdate(ctx context.Context, profile *Profile) (*Account,
 }
 
 // GetAccountStatuses return statuses by specified accuont.
-func (c *Client) GetAccountStatuses(ctx context.Context, id string, pg *Pagination) ([]*Status, error) {
+func (c *Client) GetAccountStatuses(ctx context.Context, id string, onlyMedia bool, pg *Pagination) ([]*Status, error) {
 	var statuses []*Status
-	err := c.doAPI(ctx, http.MethodGet, fmt.Sprintf("/api/v1/accounts/%s/statuses", url.PathEscape(string(id))), nil, &statuses, pg)
+	params := url.Values{}
+	params.Set("only_media", strconv.FormatBool(onlyMedia))
+	err := c.doAPI(ctx, http.MethodGet, fmt.Sprintf("/api/v1/accounts/%s/statuses", url.PathEscape(string(id))), params, &statuses, pg)
 	if err != nil {
 		return nil, err
 	}
