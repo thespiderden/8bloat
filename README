@@ -10,21 +10,12 @@ Requirements:
 - Go 1.11
 
 
-External dependencies:
-
-- Fork of go-masodon (https://github.com/mattn/go-mastodon)
-- gorilla/mux (https://github.com/gorilla/mux)
-
-
 Building and Installation:
-
-Make sure you have Go installed. Other dependencies will be downloaded 
-automatically.
 
 Typing make will build the binary 
 $ make
 
-Edit the provided config file. See the default.conf file for more details.  
+Edit the provided config file. See the bloat.conf file for more details.  
 $ ed bloat.conf
 
 Run the binary
@@ -33,12 +24,6 @@ $ ./bloat -f bloat.conf
 You can now access the frontend at http://localhost:8080, which is the default
 listen address. You can also setup a reverse HTTP proxy to serve the frontend over
 TLS connection.
-
-
-Notes:
-
-A database reset is required after changing the values of config options client_name,
-client_scope or client_website.
 
 
 License:
