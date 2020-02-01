@@ -30,4 +30,4 @@ clean:
 	rm -f bloat
 
 run: bloat
-	./bloat
+	./bloat -f bloat.conf
