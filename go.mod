@@ -1,10 +1,6 @@
 module bloat
 
-go 1.13
-
 require (
 	github.com/gorilla/mux v1.7.3
-	mastodon v0.0.0-00010101000000-000000000000
+	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80
 )
-
-replace mastodon => ./mastodon

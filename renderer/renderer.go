@@ -8,7 +8,7 @@ import (
 	"text/template"
 	"time"
 
-	"mastodon"
+	"bloat/mastodon"
 )
 
 type TemplateData struct {

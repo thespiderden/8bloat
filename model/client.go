@@ -3,7 +3,7 @@ package model
 import (
 	"io"
 
-	"mastodon"
+	"bloat/mastodon"
 )
 
 type Client struct {

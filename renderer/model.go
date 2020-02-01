@@ -1,8 +1,8 @@
 package renderer
 
 import (
+	"bloat/mastodon"
 	"bloat/model"
-	"mastodon"
 )
 
 type Context struct {

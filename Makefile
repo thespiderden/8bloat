@@ -1,4 +1,5 @@
 GO=go
+GOFLAGS=-mod=vendor
 BINPATH=/usr/local/bin
 DATAPATH=/var/bloat
 ETCPATH=/etc

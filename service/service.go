@@ -8,10 +8,10 @@ import (
 	"net/url"
 	"strings"
 
+	"bloat/mastodon"
 	"bloat/model"
 	"bloat/renderer"
 	"bloat/util"
-	"mastodon"
 )
 
 var (

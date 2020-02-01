@@ -5,8 +5,8 @@ import (
 	"errors"
 	"mime/multipart"
 
+	"bloat/mastodon"
 	"bloat/model"
-	"mastodon"
 )
 
 var (
@@ -110,7 +110,7 @@ func (s *as) ServeNotificationPage(ctx context.Context, c *model.Client,
 	return s.Service.ServeNotificationPage(ctx, c, maxID, minID)
 }
 
-func (s *as) ServeUserPage(ctx context.Context, c *model.Client, id string, 
+func (s *as) ServeUserPage(ctx context.Context, c *model.Client, id string,
 	pageType string, maxID string, minID string) (err error) {
 	err = s.authenticateClient(ctx, c)
 	if err != nil {
@@ -144,7 +144,7 @@ func (s *as) ServeSearchPage(ctx context.Context, c *model.Client, q string,
 	return s.Service.ServeSearchPage(ctx, c, q, qType, offset)
 }
 
-func (s *as)  ServeUserSearchPage(ctx context.Context, c *model.Client,
+func (s *as) ServeUserSearchPage(ctx context.Context, c *model.Client,
 	id string, q string, offset int) (err error) {
 	err = s.authenticateClient(ctx, c)
 	if err != nil {
