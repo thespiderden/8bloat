@@ -45,9 +45,9 @@ function handleLikeForm(id, f) {
 
 		var action = f.dataset.action;
 		var forms = document.querySelectorAll(".status-"+id+" .status-like");
-		forms.forEach(function(f) {
-			updateActionForm(id, f, reverseActions[action]);
-		});
+		for (var i = 0; i < forms.length; i++) {
+			updateActionForm(id, forms[i], reverseActions[action]);
+		}
 
 		var body = "csrf_token=" + encodeURIComponent(getCSRFToken());
 		var contentType = "application/x-www-form-urlencoded";
@@ -58,17 +58,17 @@ function handleLikeForm(id, f) {
 				count = "";
 			}
 			var counts = document.querySelectorAll(".status-"+id+" .status-like-count");
-			counts.forEach(function(c) {
+			for (var i = 0; i < counts.length; i++) {
 				if (count > 0) {
-					c.innerHTML = "(" + count + ")";
+					counts[i].innerHTML = "(" + count + ")";
 				} else {
-					c.innerHTML = "";
+					counts[i].innerHTML = "";
 				}
-			});
+			}
 		}, function(err) {
-			forms.forEach(function(f) {
-				updateActionForm(id, f, action);
-			});
+			for (var i = 0; i < forms.length; i++) {
+				updateActionForm(id, forms[i], action);
+			}
 		});
 	}
 }
@@ -79,9 +79,9 @@ function handleRetweetForm(id, f) {
 
 		var action = f.dataset.action;
 		var forms = document.querySelectorAll(".status-"+id+" .status-retweet");
-		forms.forEach(function(f) {
-			updateActionForm(id, f, reverseActions[action]);
-		});
+		for (var i = 0; i < forms.length; i++) {
+			updateActionForm(id, forms[i], reverseActions[action]);
+		}
 
 		var body = "csrf_token=" + encodeURIComponent(getCSRFToken());
 		var contentType = "application/x-www-form-urlencoded";
@@ -92,17 +92,17 @@ function handleRetweetForm(id, f) {
 				count = "";
 			}
 			var counts = document.querySelectorAll(".status-"+id+" .status-retweet-count");
-			counts.forEach(function(c) {
+			for (var i = 0; i < counts.length; i++) {
 				if (count > 0) {
-					c.innerHTML = "(" + count + ")";
+					counts[i].innerHTML = "(" + count + ")";
 				} else {
-					c.innerHTML = "";
+					counts[i].innerHTML = "";
 				}
-			});
+			}
 		}, function(err) {
-			forms.forEach(function(f) {
-				updateActionForm(id, f, action);
-			});
+			for (var i = 0; i < forms.length; i++) {
+				updateActionForm(id, forms[i], action);
+			}
 		});
 	}
 }
@@ -178,7 +178,8 @@ function handleReplyLink(div) {
 
 document.addEventListener("DOMContentLoaded", function() { 
 	var statuses = document.querySelectorAll(".status-container");
-	statuses.forEach(function(s) {
+	for (var i = 0; i < statuses.length; i++) {
+		var s = statuses[i]
 		var id = s.dataset.id;
 
 		var likeForm = s.querySelector(".status-like");
@@ -191,8 +192,10 @@ document.addEventListener("DOMContentLoaded", function() {
 		handleReplyToLink(replyToLink);
 
 		var replyLinks = s.querySelectorAll(".status-reply");
-		replyLinks.forEach(handleReplyLink);
-	});
+		for (var j = 0; j < replyLinks.length; j++) {
+			handleReplyLink(replyLinks[j]);
+		}
+	}
 });
 
 // @license-end
