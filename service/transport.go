@@ -290,7 +290,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		ctx := newCtxWithSesion(req)
 		token := req.URL.Query().Get("code")
 
-		_, err := s.Signin(ctx, c, "", token)
+		_, _, err := s.Signin(ctx, c, "", token)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
@@ -513,6 +513,22 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		w.WriteHeader(http.StatusFound)
 	}
 
+	delete := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.Delete(ctx, c, id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}
+
 	signout := func(w http.ResponseWriter, req *http.Request) {
 		// TODO remove session from database
 		http.SetCookie(w, &http.Cookie{
@@ -622,6 +638,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/settings", settings).Methods(http.MethodPost)
 	r.HandleFunc("/muteconv/{id}", muteConversation).Methods(http.MethodPost)
 	r.HandleFunc("/unmuteconv/{id}", unMuteConversation).Methods(http.MethodPost)
+	r.HandleFunc("/delete/{id}", delete).Methods(http.MethodPost)
 	r.HandleFunc("/signout", signout).Methods(http.MethodGet)
 	r.HandleFunc("/fluoride/like/{id}", fLike).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/unlike/{id}", fUnlike).Methods(http.MethodPost)

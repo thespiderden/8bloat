@@ -11,6 +11,7 @@ type Context struct {
 	ThreadInNewTab bool
 	DarkMode       bool
 	CSRFToken      string
+	UserID         string
 }
 
 type HeaderData struct {

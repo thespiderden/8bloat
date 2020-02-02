@@ -138,7 +138,7 @@ func (s *ls) NewSession(ctx context.Context, instance string) (redirectUrl strin
 }
 
 func (s *ls) Signin(ctx context.Context, c *model.Client, sessionID string,
-	code string) (token string, err error) {
+	code string) (token string, userID string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, session_id=%v, took=%v, err=%v\n",
 			"Signin", sessionID, time.Since(begin), err)
@@ -227,4 +227,12 @@ func (s *ls) UnMuteConversation(ctx context.Context, c *model.Client, id string)
 			"UnMuteConversation", id, time.Since(begin), err)
 	}(time.Now())
 	return s.Service.UnMuteConversation(ctx, c, id)
+}
+
+func (s *ls) Delete(ctx context.Context, c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"Delete", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.Delete(ctx, c, id)
 }

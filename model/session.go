@@ -10,6 +10,7 @@ var (
 
 type Session struct {
 	ID             string   `json:"id"`
+	UserID         string   `json:"user_id"`
 	InstanceDomain string   `json:"instance_domain"`
 	AccessToken    string   `json:"access_token"`
 	CSRFToken      string   `json:"csrf_token"`

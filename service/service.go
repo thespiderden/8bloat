@@ -34,7 +34,8 @@ type Service interface {
 	ServeUserSearchPage(ctx context.Context, c *model.Client, id string, q string, offset int) (err error)
 	ServeSettingsPage(ctx context.Context, c *model.Client) (err error)
 	NewSession(ctx context.Context, instance string) (redirectUrl string, sessionID string, err error)
-	Signin(ctx context.Context, c *model.Client, sessionID string, code string) (token string, err error)
+	Signin(ctx context.Context, c *model.Client, sessionID string, 
+		code string) (token string, userID string, err error)
 	Post(ctx context.Context, c *model.Client, content string, replyToID string, format string,
 		visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error)
 	Like(ctx context.Context, c *model.Client, id string) (count int64, err error)
@@ -46,6 +47,7 @@ type Service interface {
 	SaveSettings(ctx context.Context, c *model.Client, settings *model.Settings) (err error)
 	MuteConversation(ctx context.Context, c *model.Client, id string) (err error)
 	UnMuteConversation(ctx context.Context, c *model.Client, id string) (err error)
+	Delete(ctx context.Context, c *model.Client, id string) (err error)
 }
 
 type service struct {
@@ -95,6 +97,7 @@ func getRendererContext(c *model.Client) *renderer.Context {
 		FluorideMode:   settings.FluorideMode,
 		DarkMode:       settings.DarkMode,
 		CSRFToken:      session.CSRFToken,
+		UserID:         session.UserID,
 	}
 }
 
@@ -741,7 +744,7 @@ func (svc *service) NewSession(ctx context.Context, instance string) (
 }
 
 func (svc *service) Signin(ctx context.Context, c *model.Client,
-	sessionID string, code string) (token string, err error) {
+	sessionID string, code string) (token string, userID string, err error) {
 
 	if len(code) < 1 {
 		err = errInvalidArgument
@@ -753,6 +756,12 @@ func (svc *service) Signin(ctx context.Context, c *model.Client,
 		return
 	}
 	token = c.GetAccessToken(ctx)
+
+	u, err := c.GetAccountCurrentUser(ctx)
+	if err != nil {
+		return
+	}
+	userID = u.ID
 
 	return
 }
@@ -851,14 +860,19 @@ func (svc *service) SaveSettings(ctx context.Context, c *model.Client,
 	return svc.sessionRepo.Add(session)
 }
 
-func (svc *service) MuteConversation(ctx context.Context, c *model.Client, 
+func (svc *service) MuteConversation(ctx context.Context, c *model.Client,
 	id string) (err error) {
 	_, err = c.MuteConversation(ctx, id)
 	return
 }
 
-func (svc *service) UnMuteConversation(ctx context.Context, c *model.Client, 
+func (svc *service) UnMuteConversation(ctx context.Context, c *model.Client,
 	id string) (err error) {
 	_, err = c.UnmuteConversation(ctx, id)
 	return
+}
+
+func (svc *service) Delete(ctx context.Context, c *model.Client,
+	id string) (err error) {
+	return c.DeleteStatus(ctx, id)
 }

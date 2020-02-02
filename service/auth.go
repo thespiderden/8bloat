@@ -167,18 +167,19 @@ func (s *as) NewSession(ctx context.Context, instance string) (redirectUrl strin
 }
 
 func (s *as) Signin(ctx context.Context, c *model.Client, sessionID string,
-	code string) (token string, err error) {
+	code string) (token string, userID string, err error) {
 	err = s.authenticateClient(ctx, c)
 	if err != nil {
 		return
 	}
 
-	token, err = s.Service.Signin(ctx, c, c.Session.ID, code)
+	token, userID, err = s.Service.Signin(ctx, c, c.Session.ID, code)
 	if err != nil {
 		return
 	}
 
 	c.Session.AccessToken = token
+	c.Session.UserID = userID
 	err = s.sessionRepo.Add(c.Session)
 	if err != nil {
 		return
@@ -307,4 +308,16 @@ func (s *as) UnMuteConversation(ctx context.Context, c *model.Client, id string)
 		return
 	}
 	return s.Service.UnMuteConversation(ctx, c, id)
+}
+
+func (s *as) Delete(ctx context.Context, c *model.Client, id string) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.Delete(ctx, c, id)
 }

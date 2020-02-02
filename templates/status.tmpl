@@ -43,6 +43,12 @@
 							<input type="submit" value="mute" class="btn-link more-link" title="mute">
 						</form>
 						{{end}}
+						{{if eq $.Ctx.UserID .Account.ID}}
+						<form action="/delete/{{.ID}}" method="post">
+							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+							<input type="submit" value="delete" class="btn-link more-link" title="delete">
+						</form>
+						{{end}}
 					</div>
 				</div>
 			</div>
