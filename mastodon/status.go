@@ -343,3 +343,25 @@ func (c *Client) GetTimelineDirect(ctx context.Context, pg *Pagination) ([]*Stat
 	}
 	return statuses, nil
 }
+
+// MuteConversation mutes status specified by id.
+func (c *Client) MuteConversation(ctx context.Context, id string) (*Status, error) {
+	var status Status
+
+	err := c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/statuses/%s/mute", id), nil, &status, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &status, nil
+}
+
+// UnmuteConversation unmutes status specified by id.
+func (c *Client) UnmuteConversation(ctx context.Context, id string) (*Status, error) {
+	var status Status
+
+	err := c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/statuses/%s/unmute", id), nil, &status, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &status, nil
+}

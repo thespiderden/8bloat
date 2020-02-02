@@ -212,3 +212,19 @@ func (s *ls) SaveSettings(ctx context.Context, c *model.Client, settings *model.
 	}(time.Now())
 	return s.Service.SaveSettings(ctx, c, settings)
 }
+
+func (s *ls) MuteConversation(ctx context.Context, c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"MuteConversation", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.MuteConversation(ctx, c, id)
+}
+
+func (s *ls) UnMuteConversation(ctx context.Context, c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"UnMuteConversation", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.UnMuteConversation(ctx, c, id)
+}

@@ -284,3 +284,27 @@ func (s *as) SaveSettings(ctx context.Context, c *model.Client, settings *model.
 	}
 	return s.Service.SaveSettings(ctx, c, settings)
 }
+
+func (s *as) MuteConversation(ctx context.Context, c *model.Client, id string) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.MuteConversation(ctx, c, id)
+}
+
+func (s *as) UnMuteConversation(ctx context.Context, c *model.Client, id string) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.UnMuteConversation(ctx, c, id)
+}

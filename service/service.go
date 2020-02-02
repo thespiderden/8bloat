@@ -44,6 +44,8 @@ type Service interface {
 	Follow(ctx context.Context, c *model.Client, id string) (err error)
 	UnFollow(ctx context.Context, c *model.Client, id string) (err error)
 	SaveSettings(ctx context.Context, c *model.Client, settings *model.Settings) (err error)
+	MuteConversation(ctx context.Context, c *model.Client, id string) (err error)
+	UnMuteConversation(ctx context.Context, c *model.Client, id string) (err error)
 }
 
 type service struct {
@@ -847,4 +849,16 @@ func (svc *service) SaveSettings(ctx context.Context, c *model.Client,
 
 	session.Settings = *settings
 	return svc.sessionRepo.Add(session)
+}
+
+func (svc *service) MuteConversation(ctx context.Context, c *model.Client, 
+	id string) (err error) {
+	_, err = c.MuteConversation(ctx, id)
+	return
+}
+
+func (svc *service) UnMuteConversation(ctx context.Context, c *model.Client, 
+	id string) (err error) {
+	_, err = c.UnmuteConversation(ctx, id)
+	return
 }

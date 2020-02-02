@@ -24,12 +24,27 @@
 				<a href="/user/{{.Account.ID}}" >
 					<span class="status-uname"> {{.Account.Acct}} </span>
 				</a>
-				<span class="status-visibility">
-					{{.Visibility}}
-				</span>
-				<a class="remote-link" href="{{.URL}}" target="_blank" title="source">
-					source
-				</a>
+				<div class="more-container" title="more">
+					<div class="remote-link" title="mute">
+						{{.Visibility}}
+					</div>
+					<div class="more-content">
+						<a class="more-link" href="{{.URL}}" target="_blank" title="mute">
+							source
+						</a>
+						{{if .Muted}}
+						<form action="/unmuteconv/{{.ID}}" method="post">
+							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+							<input type="submit" value="unmute" class="btn-link more-link" title="unmute">
+						</form>
+						{{else}}
+						<form action="/muteconv/{{.ID}}" method="post">
+							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+							<input type="submit" value="mute" class="btn-link more-link" title="mute">
+						</form>
+						{{end}}
+					</div>
+				</div>
 			</div>
 			<div class="status-reply-container">
 				{{if .InReplyToID}}

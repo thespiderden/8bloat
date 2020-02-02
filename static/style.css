@@ -280,7 +280,6 @@ a:hover,
 
 .remote-link {
 	margin-left: 4px;
-	display: inline-block;
 	font-size: 8pt;
 }
 
@@ -430,6 +429,29 @@ a:hover,
 	margin: 16px 0 0 0;
 }
 
+.more-container {
+	position: relative;
+	display: inline-block;
+}
+
+.more-content {
+	display: none;
+	position: absolute;
+	background-color: #ffffff;
+	padding: 2px 4px;
+	border: 1px solid #aaaaaa;
+}
+
+.more-container:hover .more-content {
+	display: initial;
+}
+
+.more-link {
+	font-size: 8pt;
+	display: block;
+	margin: 2px;
+}
+
 .dark {
 	background-color: #222222;
 	background-image: none;
@@ -462,4 +484,9 @@ a:hover,
 
 .dark .status-visibility {
 	color: #eaeaea;
+}
+
+.dark .more-content {
+	background-color: #222222;
+	border-color: #444444;
 }
