@@ -1,0 +1,62 @@
+Installation
+
+Commands starting with # are to be is to run as root.
+
+1. Get the sources
+Get the source code by running
+$ git clone https://git.freesoftwareextremist.com/bloat
+You can also download the latest source tarball from the URL
+"https://git.freesoftwareextremist.com/bloat/snapshot/bloat-master.tar.gz"
+
+2. Build and install
+Install GO from your system's package manager or from https://golang.org/dl,
+then run make to compile the source.
+$ make
+# make install
+This will perform a system wide installation of bloat. By default, it will
+install the binary in /usr/local/bin, data files in /var/bloat and config
+file in /etc. You can change these paths by editing the Makefile.
+
+3. Edit the config file
+Comments in the config file describe what each config value does. For most
+cases, you only need to change the value of "client_website".
+# $EDITOR /etc/bloat.conf
+
+4. Create a separate user account to run bloat
+It's not required to create a separate user account, but it's a good practice
+to do so.
+# useradd _bloat
+# chown -R _bloat:_bloat /var/bloat
+Replace /var/bloat with the value you specified in the Makefile.
+
+5. Run the binary
+# su _bloat -c bloat
+Now you should create an init script to automatically start the service at
+system startup.
+
+6. Setup TLS
+You can use an HTTP server as a reverse proxy to serve bloat over HTTPS. Here's
+a config file snippet for nginx:
+`
+server {
+	server_name bloat.example.com;
+	location / {
+		proxy_pass http://127.0.0.1:8080;
+	}
+}
+server {
+	server_name bloat.example.com;
+	listen 443 ssl;
+
+	ssl_trusted_certificate   /etc/ssl/example.com.crt;
+	ssl_certificate           /etc/ssl/example.com.fullchain.pem;
+	ssl_certificate_key       /etc/ssl/private/example.com.key;
+
+	location / {
+		proxy_pass http://127.0.0.1:8080;
+	}
+}
+`
+This configuration accepts for connections for bloat.example.com (specified by
+"client_website" in config) over both HTTP and HTTPS and forwards them to
+bloat's listen address (specified by "listen_address" in config).

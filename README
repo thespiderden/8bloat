@@ -22,8 +22,7 @@ Run the binary
 $ ./bloat -f bloat.conf
 
 You can now access the frontend at http://localhost:8080, which is the default
-listen address. You can also setup a reverse HTTP proxy to serve the frontend over
-TLS connection.
+listen address. See the INSTALL file for more details.
 
 
 License:
