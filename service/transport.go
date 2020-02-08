@@ -451,6 +451,70 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		w.WriteHeader(http.StatusFound)
 	}
 
+	mute := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.Mute(ctx, c, id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}
+
+	unMute := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.UnMute(ctx, c, id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}
+
+	block := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.Block(ctx, c, id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}
+
+	unBlock := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.UnBlock(ctx, c, id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}
+
 	settings := func(w http.ResponseWriter, req *http.Request) {
 		c := newClient(w)
 		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
@@ -635,6 +699,10 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/unretweet/{id}", unretweet).Methods(http.MethodPost)
 	r.HandleFunc("/follow/{id}", follow).Methods(http.MethodPost)
 	r.HandleFunc("/unfollow/{id}", unfollow).Methods(http.MethodPost)
+	r.HandleFunc("/mute/{id}", mute).Methods(http.MethodPost)
+	r.HandleFunc("/unmute/{id}", unMute).Methods(http.MethodPost)
+	r.HandleFunc("/block/{id}", block).Methods(http.MethodPost)
+	r.HandleFunc("/unblock/{id}", unBlock).Methods(http.MethodPost)
 	r.HandleFunc("/settings", settings).Methods(http.MethodPost)
 	r.HandleFunc("/muteconv/{id}", muteConversation).Methods(http.MethodPost)
 	r.HandleFunc("/unmuteconv/{id}", unMuteConversation).Methods(http.MethodPost)

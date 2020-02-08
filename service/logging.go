@@ -205,6 +205,38 @@ func (s *ls) UnFollow(ctx context.Context, c *model.Client, id string) (err erro
 	return s.Service.UnFollow(ctx, c, id)
 }
 
+func (s *ls) Mute(ctx context.Context, c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"Mute", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.Mute(ctx, c, id)
+}
+
+func (s *ls) UnMute(ctx context.Context, c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"UnMute", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.UnMute(ctx, c, id)
+}
+
+func (s *ls) Block(ctx context.Context, c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"Block", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.Block(ctx, c, id)
+}
+
+func (s *ls) UnBlock(ctx context.Context, c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"UnBlock", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.UnBlock(ctx, c, id)
+}
+
 func (s *ls) SaveSettings(ctx context.Context, c *model.Client, settings *model.Settings) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, took=%v, err=%v\n",

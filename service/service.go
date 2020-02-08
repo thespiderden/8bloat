@@ -34,7 +34,7 @@ type Service interface {
 	ServeUserSearchPage(ctx context.Context, c *model.Client, id string, q string, offset int) (err error)
 	ServeSettingsPage(ctx context.Context, c *model.Client) (err error)
 	NewSession(ctx context.Context, instance string) (redirectUrl string, sessionID string, err error)
-	Signin(ctx context.Context, c *model.Client, sessionID string, 
+	Signin(ctx context.Context, c *model.Client, sessionID string,
 		code string) (token string, userID string, err error)
 	Post(ctx context.Context, c *model.Client, content string, replyToID string, format string,
 		visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error)
@@ -44,6 +44,10 @@ type Service interface {
 	UnRetweet(ctx context.Context, c *model.Client, id string) (count int64, err error)
 	Follow(ctx context.Context, c *model.Client, id string) (err error)
 	UnFollow(ctx context.Context, c *model.Client, id string) (err error)
+	Mute(ctx context.Context, c *model.Client, id string) (err error)
+	UnMute(ctx context.Context, c *model.Client, id string) (err error)
+	Block(ctx context.Context, c *model.Client, id string) (err error)
+	UnBlock(ctx context.Context, c *model.Client, id string) (err error)
 	SaveSettings(ctx context.Context, c *model.Client, settings *model.Settings) (err error)
 	MuteConversation(ctx context.Context, c *model.Client, id string) (err error)
 	UnMuteConversation(ctx context.Context, c *model.Client, id string) (err error)
@@ -845,6 +849,26 @@ func (svc *service) Follow(ctx context.Context, c *model.Client, id string) (err
 
 func (svc *service) UnFollow(ctx context.Context, c *model.Client, id string) (err error) {
 	_, err = c.AccountUnfollow(ctx, id)
+	return
+}
+
+func (svc *service) Mute(ctx context.Context, c *model.Client, id string) (err error) {
+	_, err = c.AccountMute(ctx, id)
+	return
+}
+
+func (svc *service) UnMute(ctx context.Context, c *model.Client, id string) (err error) {
+	_, err = c.AccountUnmute(ctx, id)
+	return
+}
+
+func (svc *service) Block(ctx context.Context, c *model.Client, id string) (err error) {
+	_, err = c.AccountBlock(ctx, id)
+	return
+}
+
+func (svc *service) UnBlock(ctx context.Context, c *model.Client, id string) (err error) {
+	_, err = c.AccountUnblock(ctx, id)
 	return
 }
 

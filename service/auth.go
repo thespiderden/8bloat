@@ -274,6 +274,54 @@ func (s *as) UnFollow(ctx context.Context, c *model.Client, id string) (err erro
 	return s.Service.UnFollow(ctx, c, id)
 }
 
+func (s *as) Mute(ctx context.Context, c *model.Client, id string) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.Mute(ctx, c, id)
+}
+
+func (s *as) UnMute(ctx context.Context, c *model.Client, id string) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.UnMute(ctx, c, id)
+}
+
+func (s *as) Block(ctx context.Context, c *model.Client, id string) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.Block(ctx, c, id)
+}
+
+func (s *as) UnBlock(ctx context.Context, c *model.Client, id string) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.UnBlock(ctx, c, id)
+}
+
 func (s *as) SaveSettings(ctx context.Context, c *model.Client, settings *model.Settings) (err error) {
 	err = s.authenticateClient(ctx, c)
 	if err != nil {
