@@ -527,6 +527,7 @@ func (svc *service) ServeUserPage(ctx context.Context, c *model.Client,
 
 	data := &renderer.UserData{
 		User:       user,
+		IsCurrent:  commonData.IsCurrentUser(user.ID),
 		Type:       pageType,
 		Users:      users,
 		Statuses:   statuses,

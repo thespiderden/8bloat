@@ -18,6 +18,7 @@
 				source
 			</a>
 		</div>
+		{{if not .IsCurrent}}
 		<div>
 			<span> {{if .User.Pleroma.Relationship.FollowedBy}} follows you - {{end}} </span>  
 			{{if .User.Pleroma.Relationship.Following}} 
@@ -64,6 +65,7 @@
 			</form>
 			{{end}} 
 		</div>
+		{{end}}
 		<div>
 			<a href="/user/{{.User.ID}}"> statuses ({{.User.StatusesCount}}) </a> - 
 			<a href="/user/{{.User.ID}}/following"> following ({{.User.FollowingCount}}) </a> - 
