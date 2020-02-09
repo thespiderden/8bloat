@@ -43,6 +43,7 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 		"StatusContentFilter":     StatusContentFilter,
 		"DisplayInteractionCount": DisplayInteractionCount,
 		"TimeSince":               TimeSince,
+		"TimeUntil":               TimeUntil,
 		"FormatTimeRFC3339":       FormatTimeRFC3339,
 		"FormatTimeRFC822":        FormatTimeRFC822,
 		"WithContext":             WithContext,
@@ -86,7 +87,7 @@ func (r *renderer) RenderUserPage(ctx *Context, writer io.Writer,
 	return r.template.ExecuteTemplate(writer, "user.tmpl", WithContext(data, ctx))
 }
 
-func (r *renderer) RenderUserSearchPage(ctx *Context, writer io.Writer, 
+func (r *renderer) RenderUserSearchPage(ctx *Context, writer io.Writer,
 	data *UserSearchData) (err error) {
 	return r.template.ExecuteTemplate(writer, "usersearch.tmpl", WithContext(data, ctx))
 }
@@ -158,8 +159,7 @@ func DisplayInteractionCount(c int64) string {
 	return ""
 }
 
-func TimeSince(t time.Time) string {
-	dur := time.Since(t)
+func DurToStr(dur time.Duration) string {
 	s := dur.Seconds()
 	if s < 60 {
 		return strconv.Itoa(int(s)) + "s"
@@ -182,6 +182,14 @@ func TimeSince(t time.Time) string {
 	}
 	y := mo / 12
 	return strconv.Itoa(int(y)) + "y"
+}
+
+func TimeSince(t time.Time) string {
+	return DurToStr(time.Since(t))
+}
+
+func TimeUntil(t time.Time) string {
+	return DurToStr(time.Until(t))
 }
 
 func FormatTimeRFC3339(t time.Time) string {

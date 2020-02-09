@@ -419,6 +419,24 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		w.WriteHeader(http.StatusFound)
 	}
 
+	vote := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+		statusID := req.FormValue("status_id")
+		choices, _ := req.PostForm["choices"]
+
+		err := s.Vote(ctx, c, id, choices)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer")+"#status-"+statusID)
+		w.WriteHeader(http.StatusFound)
+	}
+
 	follow := func(w http.ResponseWriter, req *http.Request) {
 		c := newClient(w)
 		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
@@ -697,6 +715,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/unlike/{id}", unlike).Methods(http.MethodPost)
 	r.HandleFunc("/retweet/{id}", retweet).Methods(http.MethodPost)
 	r.HandleFunc("/unretweet/{id}", unretweet).Methods(http.MethodPost)
+	r.HandleFunc("/vote/{id}", vote).Methods(http.MethodPost)
 	r.HandleFunc("/follow/{id}", follow).Methods(http.MethodPost)
 	r.HandleFunc("/unfollow/{id}", unfollow).Methods(http.MethodPost)
 	r.HandleFunc("/mute/{id}", mute).Methods(http.MethodPost)

@@ -77,7 +77,7 @@ func (s *ls) ServeNotificationPage(ctx context.Context, c *model.Client,
 	return s.Service.ServeNotificationPage(ctx, c, maxID, minID)
 }
 
-func (s *ls) ServeUserPage(ctx context.Context, c *model.Client, id string, 
+func (s *ls) ServeUserPage(ctx context.Context, c *model.Client, id string,
 	pageType string, maxID string, minID string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, type=%v, took=%v, err=%v\n",
@@ -111,7 +111,7 @@ func (s *ls) ServeSearchPage(ctx context.Context, c *model.Client, q string,
 	return s.Service.ServeSearchPage(ctx, c, q, qType, offset)
 }
 
-func (s *ls)  ServeUserSearchPage(ctx context.Context, c *model.Client,
+func (s *ls) ServeUserSearchPage(ctx context.Context, c *model.Client,
 	id string, q string, offset int) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, took=%v, err=%v\n",
@@ -187,6 +187,14 @@ func (s *ls) UnRetweet(ctx context.Context, c *model.Client, id string) (count i
 			"UnRetweet", id, time.Since(begin), err)
 	}(time.Now())
 	return s.Service.UnRetweet(ctx, c, id)
+}
+
+func (s *ls) Vote(ctx context.Context, c *model.Client, id string, choices []string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"Vote", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.Vote(ctx, c, id, choices)
 }
 
 func (s *ls) Follow(ctx context.Context, c *model.Client, id string) (err error) {

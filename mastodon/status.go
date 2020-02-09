@@ -47,13 +47,14 @@ type Status struct {
 	Application        Application  `json:"application"`
 	Language           string       `json:"language"`
 	Pinned             interface{}  `json:"pinned"`
+	Poll               *Poll        `json:"poll"`
 
 	// Custom fields
-	Pleroma         StatusPleroma          `json:"pleroma"`
-	ShowReplies     bool                   `json:"show_replies"`
-	ReplyMap        map[string][]ReplyInfo `json:"reply_map"`
-	ReplyNumber     int                    `json:"reply_number"`
-	RetweetedByID   string                 `json:"retweeted_by_id"`
+	Pleroma       StatusPleroma          `json:"pleroma"`
+	ShowReplies   bool                   `json:"show_replies"`
+	ReplyMap      map[string][]ReplyInfo `json:"reply_map"`
+	ReplyNumber   int                    `json:"reply_number"`
+	RetweetedByID string                 `json:"retweeted_by_id"`
 }
 
 // Context hold information for mastodon context.

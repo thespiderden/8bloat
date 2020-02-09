@@ -452,6 +452,14 @@ a:hover,
 	margin: 2px;
 }
 
+.poll-form button[type=submit] {
+	margin-top: 6px;
+}
+
+.poll-info {
+	margin-top: 6px;
+}
+
 .dark {
 	background-color: #222222;
 	background-image: none;

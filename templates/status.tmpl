@@ -25,11 +25,11 @@
 					<span class="status-uname"> {{.Account.Acct}} </span>
 				</a>
 				<div class="more-container" title="more">
-					<div class="remote-link" title="mute">
+					<div class="remote-link">
 						{{.Visibility}}
 					</div>
 					<div class="more-content">
-						<a class="more-link" href="{{.URL}}" target="_blank" title="mute">
+						<a class="more-link" href="{{.URL}}" target="_blank" title="source">
 							source
 						</a>
 						{{if .Muted}}
@@ -74,41 +74,76 @@
 			<div class="status-content"> {{StatusContentFilter .SpoilerText .Content .Emojis .Mentions}} </div>
 			{{end}}
 			<div class="status-media-container">
-			{{range .MediaAttachments}}
-			{{if eq .Type "image"}}
-			<a class="img-link" href="{{.URL}}" target="_blank">
-				<img class="status-image" src="{{.URL}}" alt="status-image" />
-				{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
-				<div class="status-nsfw-overlay"></div>
-				{{end}}
-			</a>
-			{{else if eq .Type "audio"}}
-			<audio class="status-audio" controls preload="none">
-				<source src="{{.URL}}">
-				<p> Your browser doesn't support HTML5 audio </p>
-			</audio>
-			{{else if eq .Type "video"}}
-			<div class="status-video-container">
-				<video class="status-video" controls preload="none">
+				{{range .MediaAttachments}}
+				{{if eq .Type "image"}}
+				<a class="img-link" href="{{.URL}}" target="_blank">
+					<img class="status-image" src="{{.URL}}" alt="status-image" />
+					{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
+					<div class="status-nsfw-overlay"></div>
+					{{end}}
+				</a>
+				{{else if eq .Type "audio"}}
+				<audio class="status-audio" controls preload="none">
 					<source src="{{.URL}}">
-					<p> Your browser doesn't support HTML5 video </p>
-				</video>
-				{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
-				<div class="status-nsfw-overlay"></div>
+					<p> Your browser doesn't support HTML5 audio </p>
+				</audio>
+				{{else if eq .Type "video"}}
+				<div class="status-video-container">
+					<video class="status-video" controls preload="none">
+						<source src="{{.URL}}">
+						<p> Your browser doesn't support HTML5 video </p>
+					</video>
+					{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
+					<div class="status-nsfw-overlay"></div>
+					{{end}}
+				</div>
+				{{else}}
+				<a href="{{.URL}}" target="_blank"> attachment </a>
+				{{end}}
 				{{end}}
 			</div>
-			{{else}}
-			<a href="{{.URL}}" target="_blank"> attachment </a>
+			{{if .Poll}}
+			<form class="poll-form" action="/vote/{{.Poll.ID}}" method="POST">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="status_id" value="{{$s.ID}}">
+				{{range $i, $o := .Poll.Options}}
+				<div class="poll-option">
+					{{if (or $s.Poll.Expired $s.Poll.Voted)}}
+					<div> {{$o.Title}} - {{$o.VotesCount}} votes </div>
+					{{else}}
+					<input type="{{if $s.Poll.Multiple}}checkbox{{else}}radio{{end}}" name="choices" 
+						id="poll-{{$s.ID}}-{{$i}}" value="{{$i}}">
+					<label for="poll-{{$s.ID}}-{{$i}}"> 
+						{{$o.Title}} 
+					</label>
+					{{end}}
+				</div>
+				{{end}}
+				{{if not (or .Poll.Expired .Poll.Voted)}}
+				<button type="submit"> Vote </button>
+				{{end}}
+				<div class="poll-info">
+					<span>{{.Poll.VotesCount}} votes</span>
+					{{if .Poll.Expired}}
+					<span> - poll expired </span>
+					{{else}}
+					<span>
+						- poll ends in
+						<time datetime="{{FormatTimeRFC3339 .Poll.ExpiresAt}}" title="{{FormatTimeRFC822 .Poll.ExpiresAt}}"> 
+							{{TimeUntil .Poll.ExpiresAt}} 
+						</time> 
+					</span>
+					{{end}}
+				</div>
+			</form>
 			{{end}}
-			{{end}}
-			</div>
 			<div class="status-action-container"> 
 				<div class="status-action">
 					<a href="/thread/{{.ID}}?reply=true#status-{{.ID}}" title="reply"> 
 						reply
 					</a>
 					<a class="status-reply-count" href="/thread/{{.ID}}#status-{{.ID}}" {{if $.Ctx.ThreadInNewTab}}target="_blank"{{end}}>
-					{{if .RepliesCount}} ({{DisplayInteractionCount .RepliesCount}}) {{end}}
+						{{if .RepliesCount}} ({{DisplayInteractionCount .RepliesCount}}) {{end}}
 					</a>
 				</div>
 				<div class="status-action">
@@ -154,8 +189,11 @@
 					</a>
 				</div>
 				<div class="status-action">
-					<a class="status-time" href="{{if not .ShowReplies}}/thread/{{.ID}}{{end}}#status-{{.ID}}" {{if $.Ctx.ThreadInNewTab}}target="_blank"{{end}}> 
-						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}"> {{TimeSince .CreatedAt}} </time> 
+					<a class="status-time" href="{{if not .ShowReplies}}/thread/{{.ID}}{{end}}#status-{{.ID}}" 
+						{{if $.Ctx.ThreadInNewTab}}target="_blank"{{end}}> 
+						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}"> 
+							{{TimeSince .CreatedAt}}
+						</time> 
 					</a>
 				</div>
 			</div>
