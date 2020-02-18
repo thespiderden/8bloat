@@ -68,6 +68,22 @@ func (s *as) ServeSigninPage(ctx context.Context, c *model.Client) (err error) {
 	return s.Service.ServeSigninPage(ctx, c)
 }
 
+func (s *as) ServeRootPage(ctx context.Context, c *model.Client) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeRootPage(ctx, c)
+}
+
+func (s *as) ServeNavPage(ctx context.Context, c *model.Client) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.ServeNavPage(ctx, c)
+}
+
 func (s *as) ServeTimelinePage(ctx context.Context, c *model.Client, tType string,
 	maxID string, minID string) (err error) {
 	err = s.authenticateClient(ctx, c)
@@ -381,4 +397,17 @@ func (s *as) Delete(ctx context.Context, c *model.Client, id string) (err error)
 		return
 	}
 	return s.Service.Delete(ctx, c, id)
+}
+
+func (s *as) ReadNotifications(ctx context.Context, c *model.Client,
+	maxID string) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.ReadNotifications(ctx, c, maxID)
 }

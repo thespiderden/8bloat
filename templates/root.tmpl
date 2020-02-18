@@ -1,0 +1,17 @@
+{{with .Data}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset='utf-8'>
+	<meta content='width=device-width, initial-scale=1' name='viewport'>
+	<title>{{.Title}}</title>
+</head>
+<frameset cols="30%,*">
+	<frameset rows="316px,*">
+		<frame name="nav" class="nav-frame" src="/nav" /> 
+		<frame name="notification" class="notification-frame" src="/notifications" /> 
+	</frameset>
+	<frame name="main" class="main-frame" src="/timeline/home" /> 
+</frameset>
+</html>
+{{end}}

@@ -64,14 +64,30 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 	rootPage := func(w http.ResponseWriter, req *http.Request) {
 		sessionID, _ := req.Cookie("session_id")
-
-		location := "/signin"
 		if sessionID != nil && len(sessionID.Value) > 0 {
-			location = "/timeline/home"
+			c := newClient(w)
+			ctx := newCtxWithSesion(req)
+			err := s.ServeRootPage(ctx, c)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				s.ServeErrorPage(ctx, c, err)
+				return
+			}
+		} else {
+			w.Header().Add("Location", "/signin")
+			w.WriteHeader(http.StatusFound)
 		}
+	}
 
-		w.Header().Add("Location", location)
-		w.WriteHeader(http.StatusFound)
+	navPage := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesion(req)
+		err := s.ServeNavPage(ctx, c)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
 	}
 
 	signinPage := func(w http.ResponseWriter, req *http.Request) {
@@ -297,7 +313,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 
-		w.Header().Add("Location", "/timeline/home")
+		w.Header().Add("Location", "/")
 		w.WriteHeader(http.StatusFound)
 	}
 
@@ -326,7 +342,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 
-		location := "/timeline/home" + "#status-" + id
+		location := req.Header.Get("Referer")
 		if len(replyToID) > 0 {
 			location = "/thread/" + replyToID + "#status-" + id
 		}
@@ -540,16 +556,18 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		copyScope := req.FormValue("copy_scope") == "true"
 		threadInNewTab := req.FormValue("thread_in_new_tab") == "true"
 		maskNSFW := req.FormValue("mask_nsfw") == "true"
+		arn := req.FormValue("auto_refresh_notifications") == "true"
 		fluorideMode := req.FormValue("fluoride_mode") == "true"
 		darkMode := req.FormValue("dark_mode") == "true"
 
 		settings := &model.Settings{
-			DefaultVisibility: visibility,
-			CopyScope:         copyScope,
-			ThreadInNewTab:    threadInNewTab,
-			MaskNSFW:          maskNSFW,
-			FluorideMode:      fluorideMode,
-			DarkMode:          darkMode,
+			DefaultVisibility:        visibility,
+			CopyScope:                copyScope,
+			ThreadInNewTab:           threadInNewTab,
+			MaskNSFW:                 maskNSFW,
+			AutoRefreshNotifications: arn,
+			FluorideMode:             fluorideMode,
+			DarkMode:                 darkMode,
 		}
 
 		err := s.SaveSettings(ctx, c, settings)
@@ -559,7 +577,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 
-		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.Header().Add("Location", "/")
 		w.WriteHeader(http.StatusFound)
 	}
 
@@ -601,6 +619,22 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		id, _ := mux.Vars(req)["id"]
 
 		err := s.Delete(ctx, c, id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}
+
+	readNotifications := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		maxID := req.URL.Query().Get("max_id")
+
+		err := s.ReadNotifications(ctx, c, maxID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)
@@ -694,7 +728,9 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	r.HandleFunc("/", rootPage).Methods(http.MethodGet)
+	r.HandleFunc("/nav", navPage).Methods(http.MethodGet)
 	r.HandleFunc("/signin", signinPage).Methods(http.MethodGet)
+	r.HandleFunc("//{type}", timelinePage).Methods(http.MethodGet)
 	r.HandleFunc("/timeline/{type}", timelinePage).Methods(http.MethodGet)
 	r.HandleFunc("/timeline", timelineOldPage).Methods(http.MethodGet)
 	r.HandleFunc("/thread/{id}", threadPage).Methods(http.MethodGet)
@@ -726,6 +762,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/muteconv/{id}", muteConversation).Methods(http.MethodPost)
 	r.HandleFunc("/unmuteconv/{id}", unMuteConversation).Methods(http.MethodPost)
 	r.HandleFunc("/delete/{id}", delete).Methods(http.MethodPost)
+	r.HandleFunc("/notifications/read", readNotifications).Methods(http.MethodPost)
 	r.HandleFunc("/signout", signout).Methods(http.MethodGet)
 	r.HandleFunc("/fluoride/like/{id}", fLike).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/unlike/{id}", fUnlike).Methods(http.MethodPost)

@@ -34,6 +34,22 @@ func (s *ls) ServeSigninPage(ctx context.Context, c *model.Client) (err error) {
 	return s.Service.ServeSigninPage(ctx, c)
 }
 
+func (s *ls) ServeRootPage(ctx context.Context, c *model.Client) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, took=%v, err=%v\n",
+			"ServeRootPage", time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeRootPage(ctx, c)
+}
+
+func (s *ls) ServeNavPage(ctx context.Context, c *model.Client) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, took=%v, err=%v\n",
+			"ServeNavPage", time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ServeNavPage(ctx, c)
+}
+
 func (s *ls) ServeTimelinePage(ctx context.Context, c *model.Client, tType string,
 	maxID string, minID string) (err error) {
 	defer func(begin time.Time) {
@@ -275,4 +291,13 @@ func (s *ls) Delete(ctx context.Context, c *model.Client, id string) (err error)
 			"Delete", id, time.Since(begin), err)
 	}(time.Now())
 	return s.Service.Delete(ctx, c, id)
+}
+
+func (s *ls) ReadNotifications(ctx context.Context, c *model.Client,
+	maxID string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, max_id=%v, took=%v, err=%v\n",
+			"ReadNotifications", maxID, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.ReadNotifications(ctx, c, maxID)
 }

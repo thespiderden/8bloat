@@ -7,7 +7,10 @@
 	{{if .CSRFToken}}
 	<meta name="csrf_token" content="{{.CSRFToken}}">
 	{{end}}
-	<title>{{if gt .NotificationCount 0}}({{.NotificationCount}}) {{end}}{{.Title}}</title>
+	{{if .AutoRefresh}}
+	<meta http-equiv="refresh" content="30">
+	{{end}}
+	<title>{{.Title}}</title>
 	<link rel="stylesheet" href="/static/style.css">
 	{{if .CustomCSS}}
 	<link rel="stylesheet" href="{{.CustomCSS}}">

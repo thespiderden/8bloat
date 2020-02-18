@@ -1,11 +1,11 @@
 {{with .Data}}
-{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
+{{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
 <div class="page-title"> Error </div>
 
 <div class="error-text"> {{.Error}} </div>
 <div>
 	<a href="/timeline/home">Home</a>
-	<a href="/signin">Sign In</a>
+	<a href="/signin" target="_top">Sign In</a>
 </div>
 
 {{template "footer.tmpl"}}

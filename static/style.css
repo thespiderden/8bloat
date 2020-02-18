@@ -460,6 +460,19 @@ a:hover,
 	margin-top: 6px;
 }
 
+.notification-title-container>* {
+	display: inline;
+}
+
+.notification-title {
+	font-size: 18pt;
+	margin-right: 8px;
+}
+
+.notification-refresh {
+	margin-right: 8px;
+}
+
 .dark {
 	background-color: #222222;
 	background-image: none;

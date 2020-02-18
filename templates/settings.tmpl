@@ -1,6 +1,5 @@
 {{with .Data}}
-{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
-{{template "navigation.tmpl" (WithContext .NavbarData $.Ctx)}}
+{{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
 <div class="page-title"> Settings </div>
 
 <form id="settings-form" action="/settings" method="POST">
@@ -24,11 +23,15 @@
 	</div>
 	<div class="settings-form-field">
 		<input id="mask-nsfw" name="mask_nsfw" type="checkbox" value="true" {{if .Settings.MaskNSFW}}checked{{end}}>
-		<label for="mask-nsfw"> Mask NSFW Attachments </label>
+		<label for="mask-nsfw"> Mask NSFW attachments </label>
+	</div>
+	<div class="settings-form-field">
+		<input id="auto-refresh-notifications" name="auto_refresh_notifications" type="checkbox" value="true" {{if .Settings.AutoRefreshNotifications}}checked{{end}}>
+		<label for="auto-refresh-notifications"> Auto refresh notifications </label>
 	</div>
 	<div class="settings-form-field">
 		<input id="fluoride-mode" name="fluoride_mode" type="checkbox" value="true" {{if .Settings.FluorideMode}}checked{{end}}>
-		<label for="fluoride-mode"> Enable Fluoride Mode </label>
+		<label for="fluoride-mode"> Enable fluoride mode </label>
 	</div>
 	<div class="settings-form-field">
 		<input id="dark-mode" name="dark_mode" type="checkbox" value="true" {{if .Settings.DarkMode}}checked{{end}}>

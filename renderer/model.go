@@ -14,30 +14,17 @@ type Context struct {
 	UserID         string
 }
 
-type HeaderData struct {
-	Title             string
-	NotificationCount int
-	CustomCSS         string
-	CSRFToken         string
-}
-
-type NavbarData struct {
-	User              *mastodon.Account
-	NotificationCount int
+type NavData struct {
+	CommonData  *CommonData
+	User        *mastodon.Account
+	PostContext model.PostContext
 }
 
 type CommonData struct {
-	HeaderData *HeaderData
-	NavbarData *NavbarData
-}
-
-func (c CommonData) IsCurrentUser(id string) bool {
-	if c.NavbarData != nil &&
-		c.NavbarData.User != nil &&
-		c.NavbarData.User.ID == id {
-		return true
-	}
-	return false
+	Title       string
+	CustomCSS   string
+	CSRFToken   string
+	AutoRefresh bool
 }
 
 type ErrorData struct {
@@ -53,13 +40,16 @@ type SigninData struct {
 	*CommonData
 }
 
+type RootData struct {
+	Title string
+}
+
 type TimelineData struct {
 	*CommonData
-	Title       string
-	Statuses    []*mastodon.Status
-	NextLink    string
-	PrevLink    string
-	PostContext model.PostContext
+	Title    string
+	Statuses []*mastodon.Status
+	NextLink string
+	PrevLink string
 }
 
 type ThreadData struct {
@@ -72,8 +62,9 @@ type ThreadData struct {
 type NotificationData struct {
 	*CommonData
 	Notifications []*mastodon.Notification
+	UnreadCount   int
+	ReadID        string
 	NextLink      string
-	DarkMode      bool
 }
 
 type UserData struct {
@@ -84,7 +75,6 @@ type UserData struct {
 	Users     []*mastodon.Account
 	Statuses  []*mastodon.Status
 	NextLink  string
-	DarkMode  bool
 }
 
 type UserSearchData struct {

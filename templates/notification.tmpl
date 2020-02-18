@@ -1,14 +1,25 @@
 {{with .Data}}
-{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
-{{template "navigation.tmpl" (WithContext .NavbarData $.Ctx)}}
-<div class="page-title"> Notifications </div>
+{{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
+<div class="notification-title-container">
+	<div class="notification-title">
+		Notifications
+		{{if gt .UnreadCount 0}}({{.UnreadCount }}){{end}}
+	</div>
+	<a class="notification-refresh" href="/notifications">refresh</a>
+	{{if .ReadID}}
+	<form action="/notifications/read?max_id={{.ReadID}}" method="post">
+		<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+		<input type="submit" value="read" class="btn-link">
+	</form>
+	{{end}}
+</div>
 
 {{range .Notifications}}
 <div class="notification-container {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
 	{{if eq .Type "follow"}}
 	<div class="notification-follow-container">
 		<div class="status-profile-img-container">
-			<a class="img-link" href="/user/{{.Account.ID}}" >
+			<a class="img-link" href="/user/{{.Account.ID}}" target="main" >
 				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
 			</a>
 		</div>
@@ -31,7 +42,7 @@
 
 	{{else if eq .Type "reblog"}}
 	<div class="retweet-info">
-		<a class="img-link" href="/user/{{.Account.ID}}">
+		<a class="img-link" href="/user/{{.Account.ID}}" target="main">
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
@@ -44,7 +55,7 @@
 
 	{{else if eq .Type "favourite"}}
 	<div class="retweet-info">
-		<a class="img-link" href="/user/{{.Account.ID}}">
+		<a class="img-link" href="/user/{{.Account.ID}}" target="main">
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  

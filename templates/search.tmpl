@@ -1,6 +1,5 @@
 {{with .Data}}
-{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
-{{template "navigation.tmpl" (WithContext .NavbarData $.Ctx)}}
+{{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
 <div class="page-title"> Search </div>
 
 <form class="search-form" action="/search" method="GET">

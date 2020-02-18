@@ -1,6 +1,5 @@
 {{with $s := .Data}}
-{{template "header.tmpl" (WithContext .HeaderData $.Ctx)}}
-{{template "navigation.tmpl" (WithContext .NavbarData $.Ctx)}}
+{{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
 <div class="page-title"> Thread </div>
 
 {{range .Statuses}}

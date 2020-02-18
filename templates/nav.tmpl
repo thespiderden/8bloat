@@ -1,0 +1,34 @@
+{{with .Data}}
+{{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
+<div class="user-info">
+	<div class="user-info-img-container">
+		<a class="img-link" href="/timeline/home" title="home" target="main">
+			<img class="user-info-img" src="{{.User.AvatarStatic}}" alt="profile-avatar" />
+		</a>
+	</div>
+	<div class="user-info-details-container">
+		<div>
+			<span class="status-dname"> {{EmojiFilter .User.DisplayName .User.Emojis}} </span>  
+			<a class="nav-link" href="/user/{{.User.ID}}" target="main">
+				<span class="status-uname"> {{.User.Acct}} </span>
+			</a>
+		</div>
+		<div>
+			<a class="nav-link" href="/timeline/home" target="main">home</a>
+			<a class="nav-link" href="/timeline/direct" target="main">direct</a>
+			<a class="nav-link" href="/timeline/local" target="main">local</a>
+			<a class="nav-link" href="/timeline/twkn" target="main">twkn</a>
+			<a class="nav-link" href="/search" target="main">search</a>
+			<a class="nav-link" href="/about" target="main">about</a>
+		</div>
+		<div>
+			<a class="nav-link" href="/settings" target="_top">settings</a>
+			<a class="nav-link" href="/signout" target="_top">sign out</a>
+		</div>
+	</div>
+</div>
+
+{{template "postform.tmpl" (WithContext .PostContext $.Ctx)}}
+
+{{template "footer.tmpl"}}
+{{end}}

@@ -19,6 +19,8 @@ type TemplateData struct {
 type Renderer interface {
 	RenderSigninPage(ctx *Context, writer io.Writer, data *SigninData) (err error)
 	RenderErrorPage(ctx *Context, writer io.Writer, data *ErrorData)
+	RenderRootPage(ctx *Context, writer io.Writer, data *RootData) (err error)
+	RenderNavPage(ctx *Context, writer io.Writer, data *NavData) (err error)
 	RenderTimelinePage(ctx *Context, writer io.Writer, data *TimelineData) (err error)
 	RenderThreadPage(ctx *Context, writer io.Writer, data *ThreadData) (err error)
 	RenderNotificationPage(ctx *Context, writer io.Writer, data *NotificationData) (err error)
@@ -65,6 +67,16 @@ func (r *renderer) RenderErrorPage(ctx *Context, writer io.Writer,
 	errorData *ErrorData) {
 	r.template.ExecuteTemplate(writer, "error.tmpl", WithContext(errorData, ctx))
 	return
+}
+
+func (r *renderer) RenderNavPage(ctx *Context, writer io.Writer,
+	data *NavData) (err error) {
+	return r.template.ExecuteTemplate(writer, "nav.tmpl", WithContext(data, ctx))
+}
+
+func (r *renderer) RenderRootPage(ctx *Context, writer io.Writer,
+	data *RootData) (err error) {
+	return r.template.ExecuteTemplate(writer, "root.tmpl", WithContext(data, ctx))
 }
 
 func (r *renderer) RenderTimelinePage(ctx *Context, writer io.Writer,

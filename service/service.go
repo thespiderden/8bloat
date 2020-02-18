@@ -21,6 +21,8 @@ var (
 type Service interface {
 	ServeErrorPage(ctx context.Context, c *model.Client, err error)
 	ServeSigninPage(ctx context.Context, c *model.Client) (err error)
+	ServeRootPage(ctx context.Context, c *model.Client) (err error)
+	ServeNavPage(ctx context.Context, c *model.Client) (err error)
 	ServeTimelinePage(ctx context.Context, c *model.Client, tType string, maxID string, minID string) (err error)
 	ServeThreadPage(ctx context.Context, c *model.Client, id string, reply bool) (err error)
 	ServeLikedByPage(ctx context.Context, c *model.Client, id string) (err error)
@@ -53,6 +55,7 @@ type Service interface {
 	MuteConversation(ctx context.Context, c *model.Client, id string) (err error)
 	UnMuteConversation(ctx context.Context, c *model.Client, id string) (err error)
 	Delete(ctx context.Context, c *model.Client, id string) (err error)
+	ReadNotifications(ctx context.Context, c *model.Client, maxID string) (err error)
 }
 
 type service struct {
@@ -126,45 +129,14 @@ func addToReplyMap(m map[string][]mastodon.ReplyInfo, key interface{},
 }
 
 func (svc *service) getCommonData(ctx context.Context, c *model.Client,
-	title string) (data *renderer.CommonData, err error) {
-
-	data = new(renderer.CommonData)
-	data.HeaderData = &renderer.HeaderData{
-		Title:             title + " - " + svc.clientName,
-		NotificationCount: 0,
-		CustomCSS:         svc.customCSS,
+	title string) (data *renderer.CommonData) {
+	data = &renderer.CommonData{
+		Title:     title + " - " + svc.clientName,
+		CustomCSS: svc.customCSS,
 	}
-
-	if c == nil || !c.Session.IsLoggedIn() {
-		return
+	if c != nil && c.Session.IsLoggedIn() {
+		data.CSRFToken = c.Session.CSRFToken
 	}
-
-	notifications, err := c.GetNotifications(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var notificationCount int
-	for i := range notifications {
-		if notifications[i].Pleroma != nil &&
-			!notifications[i].Pleroma.IsSeen {
-			notificationCount++
-		}
-	}
-
-	u, err := c.GetAccountCurrentUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	data.NavbarData = &renderer.NavbarData{
-		User:              u,
-		NotificationCount: notificationCount,
-	}
-
-	data.HeaderData.NotificationCount = notificationCount
-	data.HeaderData.CSRFToken = c.Session.CSRFToken
-
 	return
 }
 
@@ -174,11 +146,7 @@ func (svc *service) ServeErrorPage(ctx context.Context, c *model.Client, err err
 		errStr = err.Error()
 	}
 
-	commonData, err := svc.getCommonData(ctx, nil, "error")
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, nil, "error")
 	data := &renderer.ErrorData{
 		CommonData: commonData,
 		Error:      errStr,
@@ -191,17 +159,44 @@ func (svc *service) ServeErrorPage(ctx context.Context, c *model.Client, err err
 func (svc *service) ServeSigninPage(ctx context.Context, c *model.Client) (
 	err error) {
 
-	commonData, err := svc.getCommonData(ctx, nil, "signin")
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, nil, "signin")
 	data := &renderer.SigninData{
 		CommonData: commonData,
 	}
 
 	rCtx := getRendererContext(nil)
 	return svc.renderer.RenderSigninPage(rCtx, c.Writer, data)
+}
+
+func (svc *service) ServeRootPage(ctx context.Context, c *model.Client) (err error) {
+	data := &renderer.RootData{
+		Title: svc.clientName,
+	}
+
+	rCtx := getRendererContext(c)
+	return svc.renderer.RenderRootPage(rCtx, c.Writer, data)
+}
+
+func (svc *service) ServeNavPage(ctx context.Context, c *model.Client) (err error) {
+	u, err := c.GetAccountCurrentUser(ctx)
+	if err != nil {
+		return
+	}
+
+	postContext := model.PostContext{
+		DefaultVisibility: c.Session.Settings.DefaultVisibility,
+		Formats:           svc.postFormats,
+	}
+
+	commonData := svc.getCommonData(ctx, c, "Nav")
+	data := &renderer.NavData{
+		User:        u,
+		CommonData:  commonData,
+		PostContext: postContext,
+	}
+
+	rCtx := getRendererContext(c)
+	return svc.renderer.RenderNavPage(rCtx, c.Writer, data)
 }
 
 func (svc *service) ServeTimelinePage(ctx context.Context, c *model.Client,
@@ -269,23 +264,13 @@ func (svc *service) ServeTimelinePage(ctx context.Context, c *model.Client,
 		nextLink = fmt.Sprintf("/timeline/%s?max_id=%s", tType, pg.MaxID)
 	}
 
-	postContext := model.PostContext{
-		DefaultVisibility: c.Session.Settings.DefaultVisibility,
-		Formats:           svc.postFormats,
-	}
-
-	commonData, err := svc.getCommonData(ctx, c, tType+" timeline ")
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, c, tType+" timeline ")
 	data := &renderer.TimelineData{
-		Title:       title,
-		Statuses:    statuses,
-		NextLink:    nextLink,
-		PrevLink:    prevLink,
-		PostContext: postContext,
-		CommonData:  commonData,
+		Title:      title,
+		Statuses:   statuses,
+		NextLink:   nextLink,
+		PrevLink:   prevLink,
+		CommonData: commonData,
 	}
 
 	rCtx := getRendererContext(c)
@@ -356,11 +341,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, c *model.Client,
 		addToReplyMap(replies, statuses[i].InReplyToID, statuses[i].ID, i+1)
 	}
 
-	commonData, err := svc.getCommonData(ctx, c, "post by "+status.Account.DisplayName)
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, c, "post by "+status.Account.DisplayName)
 	data := &renderer.ThreadData{
 		Statuses:    statuses,
 		PostContext: postContext,
@@ -380,11 +361,7 @@ func (svc *service) ServeLikedByPage(ctx context.Context, c *model.Client,
 		return
 	}
 
-	commonData, err := svc.getCommonData(ctx, c, "likes")
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, c, "likes")
 	data := &renderer.LikedByData{
 		CommonData: commonData,
 		Users:      likers,
@@ -402,11 +379,7 @@ func (svc *service) ServeRetweetedByPage(ctx context.Context, c *model.Client,
 		return
 	}
 
-	commonData, err := svc.getCommonData(ctx, c, "retweets")
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, c, "retweets")
 	data := &renderer.RetweetedByData{
 		CommonData: commonData,
 		Users:      retweeters,
@@ -421,6 +394,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, c *model.Client,
 
 	var nextLink string
 	var unreadCount int
+	var readID string
 	var pg = mastodon.Pagination{
 		MaxID: maxID,
 		MinID: minID,
@@ -439,23 +413,19 @@ func (svc *service) ServeNotificationPage(ctx context.Context, c *model.Client,
 	}
 
 	if unreadCount > 0 {
-		err := c.ReadNotifications(ctx, notifications[0].ID)
-		if err != nil {
-			return err
-		}
+		readID = notifications[0].ID
 	}
 
-	if len(pg.MaxID) > 0 {
+	if len(notifications) == 20 && len(pg.MaxID) > 0 {
 		nextLink = "/notifications?max_id=" + pg.MaxID
 	}
 
-	commonData, err := svc.getCommonData(ctx, c, "notifications")
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, c, "notifications")
+	commonData.AutoRefresh = c.Session.Settings.AutoRefreshNotifications
 	data := &renderer.NotificationData{
 		Notifications: notifications,
+		UnreadCount:   unreadCount,
+		ReadID:        readID,
 		NextLink:      nextLink,
 		CommonData:    commonData,
 	}
@@ -521,14 +491,10 @@ func (svc *service) ServeUserPage(ctx context.Context, c *model.Client,
 		return errInvalidArgument
 	}
 
-	commonData, err := svc.getCommonData(ctx, c, user.DisplayName)
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, c, user.DisplayName)
 	data := &renderer.UserData{
 		User:       user,
-		IsCurrent:  commonData.IsCurrentUser(user.ID),
+		IsCurrent:  c.Session.UserID == user.ID,
 		Type:       pageType,
 		Users:      users,
 		Statuses:   statuses,
@@ -564,11 +530,7 @@ func (svc *service) ServeUserSearchPage(ctx context.Context, c *model.Client,
 		title += " \"" + q + "\""
 	}
 
-	commonData, err := svc.getCommonData(ctx, c, title)
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, c, title)
 	data := &renderer.UserSearchData{
 		CommonData: commonData,
 		User:       user,
@@ -582,11 +544,7 @@ func (svc *service) ServeUserSearchPage(ctx context.Context, c *model.Client,
 }
 
 func (svc *service) ServeAboutPage(ctx context.Context, c *model.Client) (err error) {
-	commonData, err := svc.getCommonData(ctx, c, "about")
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, c, "about")
 	data := &renderer.AboutData{
 		CommonData: commonData,
 	}
@@ -596,16 +554,12 @@ func (svc *service) ServeAboutPage(ctx context.Context, c *model.Client) (err er
 }
 
 func (svc *service) ServeEmojiPage(ctx context.Context, c *model.Client) (err error) {
-	commonData, err := svc.getCommonData(ctx, c, "emojis")
-	if err != nil {
-		return
-	}
-
 	emojis, err := c.GetInstanceEmojis(ctx)
 	if err != nil {
 		return
 	}
 
+	commonData := svc.getCommonData(ctx, c, "emojis")
 	data := &renderer.EmojiData{
 		Emojis:     emojis,
 		CommonData: commonData,
@@ -636,11 +590,7 @@ func (svc *service) ServeSearchPage(ctx context.Context, c *model.Client,
 		title += " \"" + q + "\""
 	}
 
-	commonData, err := svc.getCommonData(ctx, c, title)
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, c, title)
 	data := &renderer.SearchData{
 		CommonData: commonData,
 		Q:          q,
@@ -655,11 +605,7 @@ func (svc *service) ServeSearchPage(ctx context.Context, c *model.Client,
 }
 
 func (svc *service) ServeSettingsPage(ctx context.Context, c *model.Client) (err error) {
-	commonData, err := svc.getCommonData(ctx, c, "settings")
-	if err != nil {
-		return
-	}
-
+	commonData := svc.getCommonData(ctx, c, "settings")
 	data := &renderer.SettingsData{
 		CommonData: commonData,
 		Settings:   &c.Session.Settings,
@@ -910,4 +856,9 @@ func (svc *service) UnMuteConversation(ctx context.Context, c *model.Client,
 func (svc *service) Delete(ctx context.Context, c *model.Client,
 	id string) (err error) {
 	return c.DeleteStatus(ctx, id)
+}
+
+func (svc *service) ReadNotifications(ctx context.Context, c *model.Client,
+	maxID string) (err error) {
+	return c.ReadNotifications(ctx, maxID)
 }

@@ -1,0 +1,3 @@
+Here's a list of known bugs in bloat:
+
+- <frameset> and <frame> tags are not supported in HTML5
