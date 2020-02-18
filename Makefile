@@ -1,33 +1,48 @@
 GO=go
 GOFLAGS=-mod=vendor
-BINPATH=/usr/local/bin
-DATAPATH=/var/bloat
-ETCPATH=/etc
+PREFIX=/usr/local
+BINPATH=$(PREFIX)/bin
+SHAREPATH=$(PREFIX)/share/bloat
 
-all: bloat
+TMPL=templates/*.tmpl
+SRC=main.go		\
+	config/*.go 	\
+	kv/*.go 	\
+	mastodon/*.go	\
+	model/*.go	\
+	renderer/*.go 	\
+	repo/*.go 	\
+	service/*.go 	\
+	util/*.go 	\
 
-bloat: main.go 
+all: bloat bloat.def.conf
+
+bloat: $(SRC) $(TMPL)
 	$(GO) build $(GOFLAGS) -o bloat main.go
 
+bloat.def.conf:
+	sed -e "s%=database%=/var/bloat%g" \
+		-e "s%=templates%=$(SHAREPATH)/templates%g" \
+		-e "s%=static%=$(SHAREPATH)/static%g" \
+		< bloat.conf > bloat.def.conf
+
 install: bloat
+	mkdir -p $(BINPATH) $(SHAREPATH)/templates $(SHAREPATH)/static
 	cp bloat $(BINPATH)/bloat
 	chmod 0755 $(BINPATH)/bloat
-	mkdir -p $(DATAPATH)/database
-	cp -r templates $(DATAPATH)/
-	cp -r static $(DATAPATH)/
-	sed -e "s%=database%=$(DATAPATH)/database%g" \
-		-e "s%=templates%=$(DATAPATH)/templates%g" \
-		-e "s%=static%=$(DATAPATH)/static%g" \
-		< bloat.conf > $(ETCPATH)/bloat.conf
+	cp -r templates/* $(SHAREPATH)/templates
+	chmod 0644 $(SHAREPATH)/templates/*
+	cp -r static/* $(SHAREPATH)/static
+	chmod 0644 $(SHAREPATH)/static/*
+
+tags: $(SRC)
+	gotags $(SRC) > tags
 
 uninstall:
 	rm -f $(BINPATH)/bloat
-	rm -fr $(DATAPATH)/templates
-	rm -fr $(DATAPATH)/static
-	rm -f $(ETCPATH)/bloat.conf
+	rm -fr $(SHAREPATH)/templates
+	rm -fr $(SHAREPATH)/static
 
 clean: 
 	rm -f bloat
-
-run: bloat
-	./bloat -f bloat.conf
+	rm -f bloat.def.conf
