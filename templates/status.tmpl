@@ -126,7 +126,7 @@
 					<span>{{.Poll.VotesCount}} votes</span>
 					{{if .Poll.Expired}}
 					<span> - poll expired </span>
-					{{else}}
+					{{else if .Poll.ExpiresAt}}
 					<span>
 						- poll ends in
 						<time datetime="{{FormatTimeRFC3339 .Poll.ExpiresAt}}" title="{{FormatTimeRFC822 .Poll.ExpiresAt}}"> 

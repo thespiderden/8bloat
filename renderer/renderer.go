@@ -197,11 +197,19 @@ func DurToStr(dur time.Duration) string {
 }
 
 func TimeSince(t time.Time) string {
-	return DurToStr(time.Since(t))
+	d := time.Since(t)
+	if d < 0 {
+		d = 0
+	}
+	return DurToStr(d)
 }
 
 func TimeUntil(t time.Time) string {
-	return DurToStr(time.Until(t))
+	d := time.Until(t)
+	if d < 0 {
+		d = 0
+	}
+	return DurToStr(d)
 }
 
 func FormatTimeRFC3339(t time.Time) string {

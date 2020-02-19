@@ -10,7 +10,7 @@ import (
 
 type Poll struct {
 	ID          string       `json:"id"`
-	ExpiresAt   time.Time    `json:"expires_at"`
+	ExpiresAt   *time.Time    `json:"expires_at"`
 	Expired     bool         `json:"expired"`
 	Multiple    bool         `json:"multiple"`
 	VotesCount  int64        `json:"votes_count"`
