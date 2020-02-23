@@ -1,17 +1,16 @@
 {{with .Data}}
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
+<html>
 <head>
-	<meta charset='utf-8'>
-	<meta content='width=device-width, initial-scale=1' name='viewport'>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
 	<title>{{.Title}}</title>
 </head>
-<frameset cols="30%,*">
+<frameset cols="420px,*">
 	<frameset rows="316px,*">
-		<frame name="nav" class="nav-frame" src="/nav" /> 
-		<frame name="notification" class="notification-frame" src="/notifications" /> 
+		<frame name="nav" src="/nav"> 
+		<frame name="notification" src="/notifications"> 
 	</frameset>
-	<frame name="main" class="main-frame" src="/timeline/home" /> 
+	<frame name="main" src="/timeline/home"> 
 </frameset>
 </html>
 {{end}}
