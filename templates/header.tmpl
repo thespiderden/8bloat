@@ -4,6 +4,9 @@
 <head>
 	<meta charset='utf-8'>
 	<meta content='width=device-width, initial-scale=1' name='viewport'>
+	{{if .Target}}
+	<base href="" target="{{.Target}}">
+	{{end}}
 	{{if .CSRFToken}}
 	<meta name="csrf_token" content="{{.CSRFToken}}">
 	{{end}}

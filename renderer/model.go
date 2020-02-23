@@ -25,6 +25,7 @@ type CommonData struct {
 	CustomCSS   string
 	CSRFToken   string
 	AutoRefresh bool
+	Target      string
 }
 
 type ErrorData struct {

@@ -189,6 +189,7 @@ func (svc *service) ServeNavPage(ctx context.Context, c *model.Client) (err erro
 	}
 
 	commonData := svc.getCommonData(ctx, c, "Nav")
+	commonData.Target = "main"
 	data := &renderer.NavData{
 		User:        u,
 		CommonData:  commonData,
@@ -422,6 +423,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, c *model.Client,
 
 	commonData := svc.getCommonData(ctx, c, "notifications")
 	commonData.AutoRefresh = c.Session.Settings.AutoRefreshNotifications
+	commonData.Target = "main"
 	data := &renderer.NotificationData{
 		Notifications: notifications,
 		UnreadCount:   unreadCount,

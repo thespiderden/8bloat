@@ -5,9 +5,9 @@
 		Notifications
 		{{if gt .UnreadCount 0}}({{.UnreadCount }}){{end}}
 	</div>
-	<a class="notification-refresh" href="/notifications">refresh</a>
+	<a class="notification-refresh" href="/notifications" target="_self">refresh</a>
 	{{if .ReadID}}
-	<form action="/notifications/read?max_id={{.ReadID}}" method="post">
+	<form action="/notifications/read?max_id={{.ReadID}}" method="post" target="_self">
 		<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 		<input type="submit" value="read" class="btn-link">
 	</form>
@@ -19,7 +19,7 @@
 	{{if eq .Type "follow"}}
 	<div class="notification-follow-container">
 		<div class="status-profile-img-container">
-			<a class="img-link" href="/user/{{.Account.ID}}" target="main" >
+			<a class="img-link" href="/user/{{.Account.ID}}">
 				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="profile-avatar" />
 			</a>
 		</div>
@@ -42,7 +42,7 @@
 
 	{{else if eq .Type "reblog"}}
 	<div class="retweet-info">
-		<a class="img-link" href="/user/{{.Account.ID}}" target="main">
+		<a class="img-link" href="/user/{{.Account.ID}}">
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
@@ -55,7 +55,7 @@
 
 	{{else if eq .Type "favourite"}}
 	<div class="retweet-info">
-		<a class="img-link" href="/user/{{.Account.ID}}" target="main">
+		<a class="img-link" href="/user/{{.Account.ID}}">
 			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
@@ -71,7 +71,7 @@
 
 <div class="pagination">
 	{{if .NextLink}}
-		<a href="{{.NextLink}}">next</a>
+		<a href="{{.NextLink}}" target="_self">next</a>
 	{{end}}
 </div>
 
