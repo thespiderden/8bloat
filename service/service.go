@@ -153,7 +153,7 @@ func (svc *service) ServeErrorPage(ctx context.Context, c *model.Client, err err
 	}
 
 	rCtx := getRendererContext(c)
-	svc.renderer.RenderErrorPage(rCtx, c.Writer, data)
+	svc.renderer.Render(rCtx, c.Writer, renderer.ErrorPage, data)
 }
 
 func (svc *service) ServeSigninPage(ctx context.Context, c *model.Client) (
@@ -165,7 +165,7 @@ func (svc *service) ServeSigninPage(ctx context.Context, c *model.Client) (
 	}
 
 	rCtx := getRendererContext(nil)
-	return svc.renderer.RenderSigninPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.SigninPage, data)
 }
 
 func (svc *service) ServeRootPage(ctx context.Context, c *model.Client) (err error) {
@@ -174,7 +174,7 @@ func (svc *service) ServeRootPage(ctx context.Context, c *model.Client) (err err
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderRootPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.RootPage, data)
 }
 
 func (svc *service) ServeNavPage(ctx context.Context, c *model.Client) (err error) {
@@ -197,7 +197,7 @@ func (svc *service) ServeNavPage(ctx context.Context, c *model.Client) (err erro
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderNavPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.NavPage, data)
 }
 
 func (svc *service) ServeTimelinePage(ctx context.Context, c *model.Client,
@@ -275,7 +275,7 @@ func (svc *service) ServeTimelinePage(ctx context.Context, c *model.Client,
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderTimelinePage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.TimelinePage, data)
 }
 
 func (svc *service) ServeThreadPage(ctx context.Context, c *model.Client,
@@ -351,7 +351,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, c *model.Client,
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderThreadPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.ThreadPage, data)
 }
 
 func (svc *service) ServeLikedByPage(ctx context.Context, c *model.Client,
@@ -369,7 +369,7 @@ func (svc *service) ServeLikedByPage(ctx context.Context, c *model.Client,
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderLikedByPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.LikedByPage, data)
 }
 
 func (svc *service) ServeRetweetedByPage(ctx context.Context, c *model.Client,
@@ -387,7 +387,7 @@ func (svc *service) ServeRetweetedByPage(ctx context.Context, c *model.Client,
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderRetweetedByPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.RetweetedByPage, data)
 }
 
 func (svc *service) ServeNotificationPage(ctx context.Context, c *model.Client,
@@ -432,7 +432,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, c *model.Client,
 		CommonData:    commonData,
 	}
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderNotificationPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.NotificationPage, data)
 }
 
 func (svc *service) ServeUserPage(ctx context.Context, c *model.Client,
@@ -504,7 +504,7 @@ func (svc *service) ServeUserPage(ctx context.Context, c *model.Client,
 		CommonData: commonData,
 	}
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderUserPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.UserPage, data)
 }
 
 func (svc *service) ServeUserSearchPage(ctx context.Context, c *model.Client,
@@ -542,7 +542,7 @@ func (svc *service) ServeUserSearchPage(ctx context.Context, c *model.Client,
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderUserSearchPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.UserSearchPage, data)
 }
 
 func (svc *service) ServeAboutPage(ctx context.Context, c *model.Client) (err error) {
@@ -552,7 +552,7 @@ func (svc *service) ServeAboutPage(ctx context.Context, c *model.Client) (err er
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderAboutPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.AboutPage, data)
 }
 
 func (svc *service) ServeEmojiPage(ctx context.Context, c *model.Client) (err error) {
@@ -568,7 +568,7 @@ func (svc *service) ServeEmojiPage(ctx context.Context, c *model.Client) (err er
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderEmojiPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.EmojiPage, data)
 }
 
 func (svc *service) ServeSearchPage(ctx context.Context, c *model.Client,
@@ -603,7 +603,7 @@ func (svc *service) ServeSearchPage(ctx context.Context, c *model.Client,
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderSearchPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.SearchPage, data)
 }
 
 func (svc *service) ServeSettingsPage(ctx context.Context, c *model.Client) (err error) {
@@ -614,7 +614,7 @@ func (svc *service) ServeSettingsPage(ctx context.Context, c *model.Client) (err
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.RenderSettingsPage(rCtx, c.Writer, data)
+	return svc.renderer.Render(rCtx, c.Writer, renderer.SettingsPage, data)
 }
 
 func (svc *service) NewSession(ctx context.Context, instance string) (
