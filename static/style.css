@@ -426,7 +426,7 @@ a:hover,
 }
 
 .search-form {
-	margin: 16px 0 0 0;
+	margin: 16px 0 16px 0;
 }
 
 .more-container {
@@ -471,6 +471,10 @@ a:hover,
 
 .notification-refresh {
 	margin-right: 8px;
+}
+
+.no-data-found {
+	margin: 12px 0;
 }
 
 .dark {
