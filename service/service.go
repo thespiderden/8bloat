@@ -339,6 +339,7 @@ func (svc *service) ServeThreadPage(ctx context.Context, c *model.Client,
 	for i := range statuses {
 		statuses[i].ShowReplies = true
 		statuses[i].ReplyMap = replies
+		statuses[i].ReplyNumber = i
 		addToReplyMap(replies, statuses[i].InReplyToID, statuses[i].ID, i+1)
 	}
 
