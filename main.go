@@ -90,7 +90,8 @@ func main() {
 	if len(config.LogFile) < 1 {
 		logger = log.New(os.Stdout, "", log.LstdFlags)
 	} else {
-		lf, err := os.Open(config.LogFile)
+		lf, err := os.OpenFile(config.LogFile,
+			os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 		if err != nil {
 			errExit(err)
 		}
