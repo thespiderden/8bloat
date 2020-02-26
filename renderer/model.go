@@ -24,6 +24,7 @@ type CommonData struct {
 	Title       string
 	CustomCSS   string
 	CSRFToken   string
+	Count       int
 	AutoRefresh bool
 	Target      string
 }

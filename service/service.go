@@ -424,6 +424,7 @@ func (svc *service) ServeNotificationPage(ctx context.Context, c *model.Client,
 	commonData := svc.getCommonData(ctx, c, "notifications")
 	commonData.AutoRefresh = c.Session.Settings.AutoRefreshNotifications
 	commonData.Target = "main"
+	commonData.Count = unreadCount
 	data := &renderer.NotificationData{
 		Notifications: notifications,
 		UnreadCount:   unreadCount,
