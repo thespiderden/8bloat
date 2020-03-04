@@ -646,12 +646,16 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	signout := func(w http.ResponseWriter, req *http.Request) {
-		// TODO remove session from database
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+
+		s.Signout(ctx, c)
 		http.SetCookie(w, &http.Cookie{
 			Name:    "session_id",
 			Value:   "",
 			Expires: time.Now(),
 		})
+
 		w.Header().Add("Location", "/")
 		w.WriteHeader(http.StatusFound)
 	}
@@ -763,7 +767,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/unmuteconv/{id}", unMuteConversation).Methods(http.MethodPost)
 	r.HandleFunc("/delete/{id}", delete).Methods(http.MethodPost)
 	r.HandleFunc("/notifications/read", readNotifications).Methods(http.MethodPost)
-	r.HandleFunc("/signout", signout).Methods(http.MethodGet)
+	r.HandleFunc("/signout", signout).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/like/{id}", fLike).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/unlike/{id}", fUnlike).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/retweet/{id}", fRetweet).Methods(http.MethodPost)

@@ -23,7 +23,10 @@
 		</div>
 		<div>
 			<a class="nav-link" href="/settings" target="_top">settings</a>
-			<a class="nav-link" href="/signout" target="_top">sign out</a>
+			<form class="signout" action="/signout" method="post" target="_top">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="submit" value="signout" class="btn-link nav-link">
+			</form>
 		</div>
 	</div>
 </div>

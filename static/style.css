@@ -477,6 +477,10 @@ a:hover,
 	margin: 12px 0;
 }
 
+.signout {
+	display: inline;
+}
+
 .dark {
 	background-color: #222222;
 	background-image: none;

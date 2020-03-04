@@ -38,6 +38,7 @@ type Service interface {
 	NewSession(ctx context.Context, instance string) (redirectUrl string, sessionID string, err error)
 	Signin(ctx context.Context, c *model.Client, sessionID string,
 		code string) (token string, userID string, err error)
+	Signout(ctx context.Context, c *model.Client) (err error)
 	Post(ctx context.Context, c *model.Client, content string, replyToID string, format string,
 		visibility string, isNSFW bool, files []*multipart.FileHeader) (id string, err error)
 	Like(ctx context.Context, c *model.Client, id string) (count int64, err error)
@@ -719,6 +720,11 @@ func (svc *service) Signin(ctx context.Context, c *model.Client,
 	}
 	userID = u.ID
 
+	return
+}
+
+func (svc *service) Signout(ctx context.Context, c *model.Client) (err error) {
+	svc.sessionRepo.Remove(c.Session.ID)
 	return
 }
 

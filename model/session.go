@@ -20,6 +20,7 @@ type Session struct {
 type SessionRepo interface {
 	Add(session Session) (err error)
 	Get(sessionID string) (session Session, err error)
+	Remove(sessionID string)
 }
 
 func (s Session) IsLoggedIn() bool {

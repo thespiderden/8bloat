@@ -204,6 +204,19 @@ func (s *as) Signin(ctx context.Context, c *model.Client, sessionID string,
 	return
 }
 
+func (s *as) Signout(ctx context.Context, c *model.Client) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
+	s.Service.Signout(ctx, c)
+	return
+}
+
 func (s *as) Post(ctx context.Context, c *model.Client, content string,
 	replyToID string, format string, visibility string, isNSFW bool,
 	files []*multipart.FileHeader) (id string, err error) {

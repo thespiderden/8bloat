@@ -40,3 +40,8 @@ func (repo *sessionRepo) Get(id string) (s model.Session, err error) {
 
 	return
 }
+
+func (repo *sessionRepo) Remove(id string) {
+	repo.db.Remove(id)
+	return
+}

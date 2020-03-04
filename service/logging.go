@@ -162,6 +162,14 @@ func (s *ls) Signin(ctx context.Context, c *model.Client, sessionID string,
 	return s.Service.Signin(ctx, c, sessionID, code)
 }
 
+func (s *ls) Signout(ctx context.Context, c *model.Client) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, took=%v, err=%v\n",
+			"Signout", time.Since(begin), err)
+	}(time.Now())
+	return s.Service.Signout(ctx, c)
+}
+
 func (s *ls) Post(ctx context.Context, c *model.Client, content string,
 	replyToID string, format string, visibility string, isNSFW bool,
 	files []*multipart.FileHeader) (id string, err error) {
