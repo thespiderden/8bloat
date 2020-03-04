@@ -481,6 +481,10 @@ a:hover,
 	display: inline;
 }
 
+.signin-desc {
+	margin: 8px 0 16px 0;
+}
+
 .dark {
 	background-color: #222222;
 	background-image: none;
