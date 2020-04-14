@@ -134,6 +134,11 @@ function handleReplyToLink(div) {
 		} else {
 			var copy = status.cloneNode(true);
 			copy.id = "reply-to-popup";
+			var ract = event.target.getBoundingClientRect();
+			if (ract.top > window.innerHeight / 2) {
+				copy.style.bottom = (window.innerHeight - 
+					window.scrollY - ract.top) + 'px';
+			}
 			event.target.parentElement.appendChild(copy);
 		}
 	}
@@ -161,6 +166,11 @@ function handleReplyLink(div) {
 		} else {
 			var copy = status.cloneNode(true);
 			copy.id = "reply-popup";
+			var ract = event.target.getBoundingClientRect();
+			if (ract.left > window.innerWidth / 2) {
+				copy.style.right = (window.innerWidth -
+					ract.right - 12) + 'px';;
+			}
 			event.target.parentElement.appendChild(copy);
 		}
 	}

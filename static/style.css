@@ -30,8 +30,8 @@
 .status-content img,
 .status-image,
 .status-video {
-	max-height: 180px;
-	max-width: 220px;
+	max-height: 240px;
+	max-width: 280px;
 	width: auto;
 	vertical-align: bottom;
 }
@@ -413,7 +413,7 @@ a:hover,
 	border: 1px solid #aaaaaa;
 	padding: 4px 8px;
 	z-index: 3;
-	margin: 0 8px 0 8px;
+	margin: 0;
 }
 
 #reply-to-popup {
@@ -422,7 +422,7 @@ a:hover,
 	border: 1px solid #aaaaaa;
 	padding: 4px 8px;
 	z-index: 3;
-	margin: 0 8px 0 8px;
+	margin: 0;
 }
 
 .search-form {
@@ -432,6 +432,7 @@ a:hover,
 .more-container {
 	position: relative;
 	display: inline-block;
+	z-index: 1;
 }
 
 .more-content {
