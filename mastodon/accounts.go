@@ -191,6 +191,7 @@ type Relationship struct {
 	Blocking            bool   `json:"blocking"`
 	Muting              bool   `json:"muting"`
 	MutingNotifications bool   `json:"muting_notifications"`
+	Subscribing         bool   `json:"subscribing"`
 	Requested           bool   `json:"requested"`
 	DomainBlocking      bool   `json:"domain_blocking"`
 	ShowingReblogs      bool   `json:"showing_reblogs"`
@@ -327,4 +328,24 @@ func (c *Client) GetMutes(ctx context.Context, pg *Pagination) ([]*Account, erro
 		return nil, err
 	}
 	return accounts, nil
+}
+
+// Subscribe to receive notifications for all statuses posted by a user
+func (c *Client) Subscribe(ctx context.Context, id string) (*Relationship, error) {
+	var relationship *Relationship
+	err := c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/pleroma/accounts/%s/subscribe", url.PathEscape(id)), nil, &relationship, nil)
+	if err != nil {
+		return nil, err
+	}
+	return relationship, nil
+}
+
+// UnSubscribe to stop receiving notifications from user statuses
+func (c *Client) UnSubscribe(ctx context.Context, id string) (*Relationship, error) {
+	var relationship *Relationship
+	err := c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/pleroma/accounts/%s/unsubscribe", url.PathEscape(id)), nil, &relationship, nil)
+	if err != nil {
+		return nil, err
+	}
+	return relationship, nil
 }

@@ -52,6 +52,8 @@ type Service interface {
 	UnMute(ctx context.Context, c *model.Client, id string) (err error)
 	Block(ctx context.Context, c *model.Client, id string) (err error)
 	UnBlock(ctx context.Context, c *model.Client, id string) (err error)
+	Subscribe(ctx context.Context, c *model.Client, id string) (err error)
+	UnSubscribe(ctx context.Context, c *model.Client, id string) (err error)
 	SaveSettings(ctx context.Context, c *model.Client, settings *model.Settings) (err error)
 	MuteConversation(ctx context.Context, c *model.Client, id string) (err error)
 	UnMuteConversation(ctx context.Context, c *model.Client, id string) (err error)
@@ -836,6 +838,16 @@ func (svc *service) Block(ctx context.Context, c *model.Client, id string) (err 
 
 func (svc *service) UnBlock(ctx context.Context, c *model.Client, id string) (err error) {
 	_, err = c.AccountUnblock(ctx, id)
+	return
+}
+
+func (svc *service) Subscribe(ctx context.Context, c *model.Client, id string) (err error) {
+	_, err = c.Subscribe(ctx, id)
+	return
+}
+
+func (svc *service) UnSubscribe(ctx context.Context, c *model.Client, id string) (err error) {
+	_, err = c.UnSubscribe(ctx, id)
 	return
 }
 

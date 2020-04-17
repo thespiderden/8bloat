@@ -25,39 +25,51 @@
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="submit" value="unfollow" class="btn-link">
 			</form>
-			{{else}} 
+			{{else}}
 			<form class="d-inline" action="/follow/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="submit" value="{{if .User.Pleroma.Relationship.Requested}}resend request{{else}}follow{{end}}" class="btn-link">
 			</form>
 			{{end}}
-			{{if .User.Pleroma.Relationship.Requested}} 
+			{{if .User.Pleroma.Relationship.Requested}}
 			-
 			<form class="d-inline" action="/unfollow/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="submit" value="cancel request" class="btn-link">
 			</form>
-			{{end}} 
+			{{end}}
+			-
+			{{if .User.Pleroma.Relationship.Subscribing}}
+			<form class="d-inline" action="/unsubscribe/{{.User.ID}}" method="post">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="submit" value="unsubscribe" class="btn-link">
+			</form>
+			{{else}}
+			<form class="d-inline" action="/subscribe/{{.User.ID}}" method="post">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="submit" value="subscribe" class="btn-link">
+			</form>
+			{{end}}
 		</div>
 		<div>
-			{{if .User.Pleroma.Relationship.Blocking}} 
+			{{if .User.Pleroma.Relationship.Blocking}}
 			<form class="d-inline" action="/unblock/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="submit" value="unblock" class="btn-link">
 			</form>
-			{{else}} 
+			{{else}}
 			<form class="d-inline" action="/block/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="submit" value="block" class="btn-link">
 			</form>
-			{{end}} 
+			{{end}}
 			-
-			{{if .User.Pleroma.Relationship.Muting}} 
+			{{if .User.Pleroma.Relationship.Muting}}
 			<form class="d-inline" action="/unmute/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="submit" value="unmute" class="btn-link">
 			</form>
-			{{else}} 
+			{{else}}
 			<form class="d-inline" action="/mute/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="submit" value="mute" class="btn-link">

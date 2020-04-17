@@ -549,6 +549,38 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		w.WriteHeader(http.StatusFound)
 	}
 
+	subscribe := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.Subscribe(ctx, c, id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}
+
+	unSubscribe := func(w http.ResponseWriter, req *http.Request) {
+		c := newClient(w)
+		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		id, _ := mux.Vars(req)["id"]
+
+		err := s.UnSubscribe(ctx, c, id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			s.ServeErrorPage(ctx, c, err)
+			return
+		}
+
+		w.Header().Add("Location", req.Header.Get("Referer"))
+		w.WriteHeader(http.StatusFound)
+	}
+
 	settings := func(w http.ResponseWriter, req *http.Request) {
 		c := newClient(w)
 		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
@@ -762,6 +794,8 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/unmute/{id}", unMute).Methods(http.MethodPost)
 	r.HandleFunc("/block/{id}", block).Methods(http.MethodPost)
 	r.HandleFunc("/unblock/{id}", unBlock).Methods(http.MethodPost)
+	r.HandleFunc("/subscribe/{id}", subscribe).Methods(http.MethodPost)
+	r.HandleFunc("/unsubscribe/{id}", unSubscribe).Methods(http.MethodPost)
 	r.HandleFunc("/settings", settings).Methods(http.MethodPost)
 	r.HandleFunc("/muteconv/{id}", muteConversation).Methods(http.MethodPost)
 	r.HandleFunc("/unmuteconv/{id}", unMuteConversation).Methods(http.MethodPost)

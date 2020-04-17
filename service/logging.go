@@ -269,6 +269,22 @@ func (s *ls) UnBlock(ctx context.Context, c *model.Client, id string) (err error
 	return s.Service.UnBlock(ctx, c, id)
 }
 
+func (s *ls) Subscribe(ctx context.Context, c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"Subscribe", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.Subscribe(ctx, c, id)
+}
+
+func (s *ls) UnSubscribe(ctx context.Context, c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"UnSubscribe", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.UnSubscribe(ctx, c, id)
+}
+
 func (s *ls) SaveSettings(ctx context.Context, c *model.Client, settings *model.Settings) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, took=%v, err=%v\n",

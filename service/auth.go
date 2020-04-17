@@ -364,6 +364,30 @@ func (s *as) UnBlock(ctx context.Context, c *model.Client, id string) (err error
 	return s.Service.UnBlock(ctx, c, id)
 }
 
+func (s *as) Subscribe(ctx context.Context, c *model.Client, id string) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.Subscribe(ctx, c, id)
+}
+
+func (s *as) UnSubscribe(ctx context.Context, c *model.Client, id string) (err error) {
+	err = s.authenticateClient(ctx, c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(ctx, c)
+	if err != nil {
+		return
+	}
+	return s.Service.UnSubscribe(ctx, c, id)
+}
+
 func (s *as) SaveSettings(ctx context.Context, c *model.Client, settings *model.Settings) (err error) {
 	err = s.authenticateClient(ctx, c)
 	if err != nil {
