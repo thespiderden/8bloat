@@ -11,16 +11,17 @@ import (
 )
 
 type config struct {
-	ListenAddress        string
-	ClientName           string
-	ClientScope          string
-	ClientWebsite        string
-	StaticDirectory      string
-	TemplatesPath string
-	DatabasePath         string
-	CustomCSS            string
-	PostFormats          []model.PostFormat
-	LogFile              string
+	ListenAddress   string
+	ClientName      string
+	ClientScope     string
+	ClientWebsite   string
+	SingleInstance  string
+	StaticDirectory string
+	TemplatesPath   string
+	DatabasePath    string
+	CustomCSS       string
+	PostFormats     []model.PostFormat
+	LogFile         string
 }
 
 func (c *config) IsValid() bool {
@@ -68,6 +69,8 @@ func Parse(r io.Reader) (c *config, err error) {
 			c.ClientScope = val
 		case "client_website":
 			c.ClientWebsite = val
+		case "single_instance":
+			c.SingleInstance = val
 		case "static_directory":
 			c.StaticDirectory = val
 		case "templates_path":

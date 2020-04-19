@@ -101,7 +101,7 @@ func main() {
 
 	s := service.NewService(config.ClientName, config.ClientScope,
 		config.ClientWebsite, customCSS, config.PostFormats, renderer,
-		sessionRepo, appRepo)
+		sessionRepo, appRepo, config.SingleInstance)
 	s = service.NewAuthService(sessionRepo, appRepo, s)
 	s = service.NewLoggingService(logger, s)
 	handler := service.NewHandler(s, config.StaticDirectory)

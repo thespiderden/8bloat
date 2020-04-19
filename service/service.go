@@ -35,6 +35,7 @@ type Service interface {
 	ServeSearchPage(ctx context.Context, c *model.Client, q string, qType string, offset int) (err error)
 	ServeUserSearchPage(ctx context.Context, c *model.Client, id string, q string, offset int) (err error)
 	ServeSettingsPage(ctx context.Context, c *model.Client) (err error)
+	SingleInstance(ctx context.Context) (instance string, ok bool)
 	NewSession(ctx context.Context, instance string) (redirectUrl string, sessionID string, err error)
 	Signin(ctx context.Context, c *model.Client, sessionID string,
 		code string) (token string, userID string, err error)
@@ -62,14 +63,15 @@ type Service interface {
 }
 
 type service struct {
-	clientName    string
-	clientScope   string
-	clientWebsite string
-	customCSS     string
-	postFormats   []model.PostFormat
-	renderer      renderer.Renderer
-	sessionRepo   model.SessionRepo
-	appRepo       model.AppRepo
+	clientName     string
+	clientScope    string
+	clientWebsite  string
+	customCSS      string
+	postFormats    []model.PostFormat
+	renderer       renderer.Renderer
+	sessionRepo    model.SessionRepo
+	appRepo        model.AppRepo
+	singleInstance string
 }
 
 func NewService(clientName string,
@@ -80,16 +82,18 @@ func NewService(clientName string,
 	renderer renderer.Renderer,
 	sessionRepo model.SessionRepo,
 	appRepo model.AppRepo,
+	singleInstance string,
 ) Service {
 	return &service{
-		clientName:    clientName,
-		clientScope:   clientScope,
-		clientWebsite: clientWebsite,
-		customCSS:     customCSS,
-		postFormats:   postFormats,
-		renderer:      renderer,
-		sessionRepo:   sessionRepo,
-		appRepo:       appRepo,
+		clientName:     clientName,
+		clientScope:    clientScope,
+		clientWebsite:  clientWebsite,
+		customCSS:      customCSS,
+		postFormats:    postFormats,
+		renderer:       renderer,
+		sessionRepo:    sessionRepo,
+		appRepo:        appRepo,
+		singleInstance: singleInstance,
 	}
 }
 
@@ -620,6 +624,14 @@ func (svc *service) ServeSettingsPage(ctx context.Context, c *model.Client) (err
 
 	rCtx := getRendererContext(c)
 	return svc.renderer.Render(rCtx, c.Writer, renderer.SettingsPage, data)
+}
+
+func (svc *service) SingleInstance(ctx context.Context) (instance string, ok bool) {
+	if len(svc.singleInstance) > 0 {
+		instance = svc.singleInstance
+		ok = true
+	}
+	return
 }
 
 func (svc *service) NewSession(ctx context.Context, instance string) (

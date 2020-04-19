@@ -14,10 +14,22 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	sessionExp = 365 * 24 * time.Hour
+)
+
 func newClient(w io.Writer) *model.Client {
 	return &model.Client{
 		Writer: w,
 	}
+}
+
+func setSessionCookie(w http.ResponseWriter, sessionID string, exp time.Duration) {
+	http.SetCookie(w, &http.Cookie{
+		Name:    "session_id",
+		Value:   sessionID,
+		Expires: time.Now().Add(exp),
+	})
 }
 
 func newCtxWithSesion(req *http.Request) context.Context {
@@ -93,11 +105,25 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	signinPage := func(w http.ResponseWriter, req *http.Request) {
 		c := newClient(w)
 		ctx := context.Background()
-		err := s.ServeSigninPage(ctx, c)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
-			return
+		instance, ok := s.SingleInstance(ctx)
+		if ok {
+			url, sessionID, err := s.NewSession(ctx, instance)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				s.ServeErrorPage(ctx, c, err)
+				return
+			}
+
+			setSessionCookie(w, sessionID, sessionExp)
+			w.Header().Add("Location", url)
+			w.WriteHeader(http.StatusFound)
+		} else {
+			err := s.ServeSigninPage(ctx, c)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				s.ServeErrorPage(ctx, c, err)
+				return
+			}
 		}
 	}
 
@@ -291,12 +317,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			return
 		}
 
-		http.SetCookie(w, &http.Cookie{
-			Name:    "session_id",
-			Value:   sessionID,
-			Expires: time.Now().Add(365 * 24 * time.Hour),
-		})
-
+		setSessionCookie(w, sessionID, sessionExp)
 		w.Header().Add("Location", url)
 		w.WriteHeader(http.StatusFound)
 	}
@@ -689,12 +710,8 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
 
 		s.Signout(ctx, c)
-		http.SetCookie(w, &http.Cookie{
-			Name:    "session_id",
-			Value:   "",
-			Expires: time.Now(),
-		})
 
+		setSessionCookie(w, "", 0)
 		w.Header().Add("Location", "/")
 		w.WriteHeader(http.StatusFound)
 	}
