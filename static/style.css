@@ -27,10 +27,6 @@
 	margin: 0px;
 }
 
-.status-content pre {
-	overflow-x: auto;
-}
-
 .status-content img,
 .status-image,
 .status-video {
@@ -56,8 +52,6 @@
 }
 
 .status {
-	overflow-x: auto;
-	width: 100%;
 }
 
 .status-dname {
