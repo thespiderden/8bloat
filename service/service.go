@@ -46,7 +46,7 @@ type Service interface {
 	Retweet(ctx context.Context, c *model.Client, id string) (count int64, err error)
 	UnRetweet(ctx context.Context, c *model.Client, id string) (count int64, err error)
 	Vote(ctx context.Context, c *model.Client, id string, choices []string) (err error)
-	Follow(ctx context.Context, c *model.Client, id string) (err error)
+	Follow(ctx context.Context, c *model.Client, id string, reblogs *bool) (err error)
 	UnFollow(ctx context.Context, c *model.Client, id string) (err error)
 	Mute(ctx context.Context, c *model.Client, id string) (err error)
 	UnMute(ctx context.Context, c *model.Client, id string) (err error)
@@ -811,8 +811,8 @@ func (svc *service) Vote(ctx context.Context, c *model.Client, id string,
 	return
 }
 
-func (svc *service) Follow(ctx context.Context, c *model.Client, id string) (err error) {
-	_, err = c.AccountFollow(ctx, id)
+func (svc *service) Follow(ctx context.Context, c *model.Client, id string, reblogs *bool) (err error) {
+	_, err = c.AccountFollow(ctx, id, reblogs)
 	return
 }
 

@@ -199,9 +199,13 @@ type Relationship struct {
 }
 
 // AccountFollow follow the account.
-func (c *Client) AccountFollow(ctx context.Context, id string) (*Relationship, error) {
+func (c *Client) AccountFollow(ctx context.Context, id string, reblogs *bool) (*Relationship, error) {
 	var relationship Relationship
-	err := c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/accounts/%s/follow", url.PathEscape(string(id))), nil, &relationship, nil)
+	params := url.Values{}
+	if reblogs != nil {
+		params.Set("reblogs", strconv.FormatBool(*reblogs))
+	}
+	err := c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/accounts/%s/follow", url.PathEscape(id)), params, &relationship, nil)
 	if err != nil {
 		return nil, err
 	}

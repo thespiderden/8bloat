@@ -221,12 +221,12 @@ func (s *ls) Vote(ctx context.Context, c *model.Client, id string, choices []str
 	return s.Service.Vote(ctx, c, id, choices)
 }
 
-func (s *ls) Follow(ctx context.Context, c *model.Client, id string) (err error) {
+func (s *ls) Follow(ctx context.Context, c *model.Client, id string, reblogs *bool) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
 			"Follow", id, time.Since(begin), err)
 	}(time.Now())
-	return s.Service.Follow(ctx, c, id)
+	return s.Service.Follow(ctx, c, id, reblogs)
 }
 
 func (s *ls) UnFollow(ctx context.Context, c *model.Client, id string) (err error) {

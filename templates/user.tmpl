@@ -74,7 +74,19 @@
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="submit" value="mute" class="btn-link">
 			</form>
-			{{end}} 
+			{{end}}
+			-
+			{{if .User.Pleroma.Relationship.ShowingReblogs}}
+			<form class="d-inline" action="/follow/{{.User.ID}}?reblogs=false" method="post">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="submit" value="hide retweets" class="btn-link">
+			</form>
+			{{else}}
+			<form class="d-inline" action="/follow/{{.User.ID}}" method="post">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="submit" value="show retweets" class="btn-link">
+			</form>
+			{{end}}
 		</div>
 		{{end}}
 		<div>

@@ -458,7 +458,14 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.Follow(ctx, c, id)
+		var reblogs *bool
+		r, ok := req.URL.Query()["reblogs"]
+		if ok && len(r) > 0 {
+			reblogs = new(bool)
+			*reblogs = r[0] == "true"
+		}
+
+		err := s.Follow(ctx, c, id, reblogs)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			s.ServeErrorPage(ctx, c, err)

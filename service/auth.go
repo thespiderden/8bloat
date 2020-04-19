@@ -292,7 +292,7 @@ func (s *as) Vote(ctx context.Context, c *model.Client, id string,
 	return s.Service.Vote(ctx, c, id, choices)
 }
 
-func (s *as) Follow(ctx context.Context, c *model.Client, id string) (err error) {
+func (s *as) Follow(ctx context.Context, c *model.Client, id string, reblogs *bool) (err error) {
 	err = s.authenticateClient(ctx, c)
 	if err != nil {
 		return
@@ -301,7 +301,7 @@ func (s *as) Follow(ctx context.Context, c *model.Client, id string) (err error)
 	if err != nil {
 		return
 	}
-	return s.Service.Follow(ctx, c, id)
+	return s.Service.Follow(ctx, c, id, reblogs)
 }
 
 func (s *as) UnFollow(ctx context.Context, c *model.Client, id string) (err error) {
