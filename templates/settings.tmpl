@@ -22,6 +22,10 @@
 		<label for="thread-tab"> Open threads in new tab from timeline </label>
 	</div>
 	<div class="settings-form-field">
+		<input id="hide-attachments" name="hide_attachments" type="checkbox" value="true" {{if .Settings.HideAttachments}}checked{{end}}>
+		<label for="hide-attachments"> Hide attachments </label>
+	</div>
+	<div class="settings-form-field">
 		<input id="mask-nsfw" name="mask_nsfw" type="checkbox" value="true" {{if .Settings.MaskNSFW}}checked{{end}}>
 		<label for="mask-nsfw"> Mask NSFW attachments </label>
 	</div>

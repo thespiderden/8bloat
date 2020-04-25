@@ -615,6 +615,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		visibility := req.FormValue("visibility")
 		copyScope := req.FormValue("copy_scope") == "true"
 		threadInNewTab := req.FormValue("thread_in_new_tab") == "true"
+		hideAttachments := req.FormValue("hide_attachments") == "true"
 		maskNSFW := req.FormValue("mask_nsfw") == "true"
 		arn := req.FormValue("auto_refresh_notifications") == "true"
 		fluorideMode := req.FormValue("fluoride_mode") == "true"
@@ -624,6 +625,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			DefaultVisibility:        visibility,
 			CopyScope:                copyScope,
 			ThreadInNewTab:           threadInNewTab,
+			HideAttachments:          hideAttachments,
 			MaskNSFW:                 maskNSFW,
 			AutoRefreshNotifications: arn,
 			FluorideMode:             fluorideMode,

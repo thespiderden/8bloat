@@ -75,31 +75,48 @@
 			{{end}}
 			<div class="status-media-container">
 				{{range .MediaAttachments}}
+
 				{{if eq .Type "image"}}
+				{{if $.Ctx.HideAttachments}}
+				<a href="{{.URL}}" target="_blank"> [image] </a>
+				{{else}}
 				<a class="img-link" href="{{.URL}}" target="_blank">
 					<img class="status-image" src="{{.URL}}" alt="status-image" />
 					{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
 					<div class="status-nsfw-overlay"></div>
 					{{end}}
 				</a>
+				{{end}}
+
 				{{else if eq .Type "audio"}}
+				{{if $.Ctx.HideAttachments}}
+				<a href="{{.URL}}" target="_blank"> [audio] </a>
+				{{else}}
 				<audio class="status-audio" controls preload="none">
 					<source src="{{.URL}}">
-					<p> Your browser doesn't support HTML5 audio </p>
+					<a href="{{.URL}}" target="_blank"> [audio] </a>
 				</audio>
+				{{end}}
+
 				{{else if eq .Type "video"}}
+				{{if $.Ctx.HideAttachments}}
+				<a href="{{.URL}}" target="_blank"> [video] </a>
+				{{else}}
 				<div class="status-video-container">
 					<video class="status-video" controls preload="none">
 						<source src="{{.URL}}">
-						<p> Your browser doesn't support HTML5 video </p>
+						<a href="{{.URL}}" target="_blank"> [video] </a>
 					</video>
 					{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
 					<div class="status-nsfw-overlay"></div>
 					{{end}}
 				</div>
-				{{else}}
-				<a href="{{.URL}}" target="_blank"> attachment </a>
 				{{end}}
+
+				{{else}}
+				<a href="{{.URL}}" target="_blank"> [attachment] </a>
+				{{end}}
+
 				{{end}}
 			</div>
 			{{if .Poll}}

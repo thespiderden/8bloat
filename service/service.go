@@ -107,12 +107,13 @@ func getRendererContext(c *model.Client) *renderer.Context {
 		settings = *model.NewSettings()
 	}
 	return &renderer.Context{
-		MaskNSFW:       settings.MaskNSFW,
-		ThreadInNewTab: settings.ThreadInNewTab,
-		FluorideMode:   settings.FluorideMode,
-		DarkMode:       settings.DarkMode,
-		CSRFToken:      session.CSRFToken,
-		UserID:         session.UserID,
+		HideAttachments: settings.HideAttachments,
+		MaskNSFW:        settings.MaskNSFW,
+		ThreadInNewTab:  settings.ThreadInNewTab,
+		FluorideMode:    settings.FluorideMode,
+		DarkMode:        settings.DarkMode,
+		CSRFToken:       session.CSRFToken,
+		UserID:          session.UserID,
 	}
 }
 

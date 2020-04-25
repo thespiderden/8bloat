@@ -6,12 +6,13 @@ import (
 )
 
 type Context struct {
-	MaskNSFW       bool
-	FluorideMode   bool
-	ThreadInNewTab bool
-	DarkMode       bool
-	CSRFToken      string
-	UserID         string
+	HideAttachments bool
+	MaskNSFW        bool
+	FluorideMode    bool
+	ThreadInNewTab  bool
+	DarkMode        bool
+	CSRFToken       string
+	UserID          string
 }
 
 type NavData struct {
