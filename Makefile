@@ -35,9 +35,6 @@ install: bloat
 	cp -r static/* $(SHAREPATH)/static
 	chmod 0644 $(SHAREPATH)/static/*
 
-tags: $(SRC)
-	gotags $(SRC) > tags
-
 uninstall:
 	rm -f $(BINPATH)/bloat
 	rm -fr $(SHAREPATH)/templates

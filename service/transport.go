@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"mime/multipart"
@@ -18,9 +17,20 @@ const (
 	sessionExp = 365 * 24 * time.Hour
 )
 
-func newClient(w io.Writer) *model.Client {
+func newClient(w io.Writer, req *http.Request, csrfToken string) *model.Client {
+	var sessionID string
+	if req != nil {
+		c, err := req.Cookie("session_id")
+		if err == nil {
+			sessionID = c.Value
+		}
+	}
 	return &model.Client{
 		Writer: w,
+		Ctx: model.ClientCtx{
+			SessionID: sessionID,
+			CSRFToken: csrfToken,
+		},
 	}
 }
 
@@ -30,20 +40,6 @@ func setSessionCookie(w http.ResponseWriter, sessionID string, exp time.Duration
 		Value:   sessionID,
 		Expires: time.Now().Add(exp),
 	})
-}
-
-func newCtxWithSesion(req *http.Request) context.Context {
-	ctx := context.Background()
-	sessionID, err := req.Cookie("session_id")
-	if err != nil {
-		return ctx
-	}
-	return context.WithValue(ctx, "session_id", sessionID.Value)
-}
-
-func newCtxWithSesionCSRF(req *http.Request, csrfToken string) context.Context {
-	ctx := newCtxWithSesion(req)
-	return context.WithValue(ctx, "csrf_token", csrfToken)
 }
 
 func getMultipartFormValue(mf *multipart.Form, key string) (val string) {
@@ -77,12 +73,11 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	rootPage := func(w http.ResponseWriter, req *http.Request) {
 		sessionID, _ := req.Cookie("session_id")
 		if sessionID != nil && len(sessionID.Value) > 0 {
-			c := newClient(w)
-			ctx := newCtxWithSesion(req)
-			err := s.ServeRootPage(ctx, c)
+			c := newClient(w, req, "")
+			err := s.ServeRootPage(c)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				s.ServeErrorPage(ctx, c, err)
+				s.ServeErrorPage(c, err)
 				return
 			}
 		} else {
@@ -92,25 +87,23 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	navPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
-		err := s.ServeNavPage(ctx, c)
+		c := newClient(w, req, "")
+		err := s.ServeNavPage(c)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
 	signinPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := context.Background()
-		instance, ok := s.SingleInstance(ctx)
+		c := newClient(w, nil, "")
+		instance, ok := s.SingleInstance()
 		if ok {
-			url, sessionID, err := s.NewSession(ctx, instance)
+			url, sessionID, err := s.NewSession(instance)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				s.ServeErrorPage(ctx, c, err)
+				s.ServeErrorPage(c, err)
 				return
 			}
 
@@ -118,108 +111,101 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			w.Header().Add("Location", url)
 			w.WriteHeader(http.StatusFound)
 		} else {
-			err := s.ServeSigninPage(ctx, c)
+			err := s.ServeSigninPage(c)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				s.ServeErrorPage(ctx, c, err)
+				s.ServeErrorPage(c, err)
 				return
 			}
 		}
 	}
 
 	timelinePage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 		tType, _ := mux.Vars(req)["type"]
 		maxID := req.URL.Query().Get("max_id")
 		minID := req.URL.Query().Get("min_id")
 
-		err := s.ServeTimelinePage(ctx, c, tType, maxID, minID)
+		err := s.ServeTimelinePage(c, tType, maxID, minID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
-	timelineOldPage := func(w http.ResponseWriter, req *http.Request) {
+	defaultTimelinePage := func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Add("Location", "/timeline/home")
 		w.WriteHeader(http.StatusFound)
 	}
 
 	threadPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 		id, _ := mux.Vars(req)["id"]
 		reply := req.URL.Query().Get("reply")
 
-		err := s.ServeThreadPage(ctx, c, id, len(reply) > 1)
+		err := s.ServeThreadPage(c, id, len(reply) > 1)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
 	likedByPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.ServeLikedByPage(ctx, c, id)
+		err := s.ServeLikedByPage(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
 	retweetedByPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.ServeRetweetedByPage(ctx, c, id)
+		err := s.ServeRetweetedByPage(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
 	notificationsPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 		maxID := req.URL.Query().Get("max_id")
 		minID := req.URL.Query().Get("min_id")
 
-		err := s.ServeNotificationPage(ctx, c, maxID, minID)
+		err := s.ServeNotificationPage(c, maxID, minID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
 	userPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 		id, _ := mux.Vars(req)["id"]
 		pageType, _ := mux.Vars(req)["type"]
 		maxID := req.URL.Query().Get("max_id")
 		minID := req.URL.Query().Get("min_id")
 
-		err := s.ServeUserPage(ctx, c, id, pageType, maxID, minID)
+		err := s.ServeUserPage(c, id, pageType, maxID, minID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
 	userSearchPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 		id, _ := mux.Vars(req)["id"]
 		q := req.URL.Query().Get("q")
 		offsetStr := req.URL.Query().Get("offset")
@@ -230,46 +216,43 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			offset, err = strconv.Atoi(offsetStr)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				s.ServeErrorPage(ctx, c, err)
+				s.ServeErrorPage(c, err)
 				return
 			}
 		}
 
-		err = s.ServeUserSearchPage(ctx, c, id, q, offset)
+		err = s.ServeUserSearchPage(c, id, q, offset)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
 	aboutPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 
-		err := s.ServeAboutPage(ctx, c)
+		err := s.ServeAboutPage(c)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
 	emojisPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 
-		err := s.ServeEmojiPage(ctx, c)
+		err := s.ServeEmojiPage(c)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
 	searchPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 		q := req.URL.Query().Get("q")
 		qType := req.URL.Query().Get("type")
 		offsetStr := req.URL.Query().Get("offset")
@@ -280,40 +263,38 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			offset, err = strconv.Atoi(offsetStr)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				s.ServeErrorPage(ctx, c, err)
+				s.ServeErrorPage(c, err)
 				return
 			}
 		}
 
-		err = s.ServeSearchPage(ctx, c, q, qType, offset)
+		err = s.ServeSearchPage(c, q, qType, offset)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
 	settingsPage := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 
-		err := s.ServeSettingsPage(ctx, c)
+		err := s.ServeSettingsPage(c)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 	}
 
 	signin := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := context.Background()
+		c := newClient(w, nil, "")
 		instance := req.FormValue("instance")
 
-		url, sessionID, err := s.NewSession(ctx, instance)
+		url, sessionID, err := s.NewSession(instance)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -323,14 +304,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	oauthCallback := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesion(req)
+		c := newClient(w, req, "")
 		token := req.URL.Query().Get("code")
 
-		_, _, err := s.Signin(ctx, c, "", token)
+		_, _, err := s.Signin(c, "", token)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -339,15 +319,15 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	post := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
+		c := newClient(w, req, "")
 		err := req.ParseMultipartForm(4 << 20)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(context.Background(), c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
-		ctx := newCtxWithSesionCSRF(req,
+		c = newClient(w, req,
 			getMultipartFormValue(req.MultipartForm, "csrf_token"))
 		content := getMultipartFormValue(req.MultipartForm, "content")
 		replyToID := getMultipartFormValue(req.MultipartForm, "reply_to_id")
@@ -356,10 +336,10 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		isNSFW := "on" == getMultipartFormValue(req.MultipartForm, "is_nsfw")
 		files := req.MultipartForm.File["attachments"]
 
-		id, err := s.Post(ctx, c, content, replyToID, format, visibility, isNSFW, files)
+		id, err := s.Post(c, content, replyToID, format, visibility, isNSFW, files)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -372,15 +352,14 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	like := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 		retweetedByID := req.FormValue("retweeted_by_id")
 
-		_, err := s.Like(ctx, c, id)
+		_, err := s.Like(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -393,15 +372,14 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	unlike := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 		retweetedByID := req.FormValue("retweeted_by_id")
 
-		_, err := s.UnLike(ctx, c, id)
+		_, err := s.UnLike(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -414,15 +392,14 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	retweet := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 		retweetedByID := req.FormValue("retweeted_by_id")
 
-		_, err := s.Retweet(ctx, c, id)
+		_, err := s.Retweet(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -435,15 +412,14 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	unretweet := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 		retweetedByID := req.FormValue("retweeted_by_id")
 
-		_, err := s.UnRetweet(ctx, c, id)
+		_, err := s.UnRetweet(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -457,16 +433,15 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	vote := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 		statusID := req.FormValue("status_id")
 		choices, _ := req.PostForm["choices"]
 
-		err := s.Vote(ctx, c, id, choices)
+		err := s.Vote(c, id, choices)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -475,8 +450,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	follow := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
 		var reblogs *bool
@@ -486,10 +460,10 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			*reblogs = r[0] == "true"
 		}
 
-		err := s.Follow(ctx, c, id, reblogs)
+		err := s.Follow(c, id, reblogs)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -498,14 +472,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	unfollow := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.UnFollow(ctx, c, id)
+		err := s.UnFollow(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -514,14 +487,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	mute := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.Mute(ctx, c, id)
+		err := s.Mute(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -530,14 +502,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	unMute := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.UnMute(ctx, c, id)
+		err := s.UnMute(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -546,14 +517,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	block := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.Block(ctx, c, id)
+		err := s.Block(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -562,14 +532,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	unBlock := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.UnBlock(ctx, c, id)
+		err := s.UnBlock(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -578,14 +547,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	subscribe := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.Subscribe(ctx, c, id)
+		err := s.Subscribe(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -594,14 +562,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	unSubscribe := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.UnSubscribe(ctx, c, id)
+		err := s.UnSubscribe(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -610,8 +577,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	settings := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		visibility := req.FormValue("visibility")
 		copyScope := req.FormValue("copy_scope") == "true"
 		threadInNewTab := req.FormValue("thread_in_new_tab") == "true"
@@ -632,10 +598,10 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			DarkMode:                 darkMode,
 		}
 
-		err := s.SaveSettings(ctx, c, settings)
+		err := s.SaveSettings(c, settings)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -644,14 +610,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	muteConversation := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.MuteConversation(ctx, c, id)
+		err := s.MuteConversation(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -660,14 +625,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	unMuteConversation := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.UnMuteConversation(ctx, c, id)
+		err := s.UnMuteConversation(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -676,14 +640,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	delete := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		err := s.Delete(ctx, c, id)
+		err := s.Delete(c, id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -692,14 +655,13 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	readNotifications := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		maxID := req.URL.Query().Get("max_id")
 
-		err := s.ReadNotifications(ctx, c, maxID)
+		err := s.ReadNotifications(c, maxID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			s.ServeErrorPage(ctx, c, err)
+			s.ServeErrorPage(c, err)
 			return
 		}
 
@@ -708,10 +670,9 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	signout := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 
-		s.Signout(ctx, c)
+		s.Signout(c)
 
 		setSessionCookie(w, "", 0)
 		w.Header().Add("Location", "/")
@@ -719,11 +680,10 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	fLike := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		count, err := s.Like(ctx, c, id)
+		count, err := s.Like(c, id)
 		if err != nil {
 			serveJsonError(w, err)
 			return
@@ -737,10 +697,10 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	fUnlike := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
-		count, err := s.UnLike(ctx, c, id)
+
+		count, err := s.UnLike(c, id)
 		if err != nil {
 			serveJsonError(w, err)
 			return
@@ -754,11 +714,10 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	fRetweet := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		count, err := s.Retweet(ctx, c, id)
+		count, err := s.Retweet(c, id)
 		if err != nil {
 			serveJsonError(w, err)
 			return
@@ -772,11 +731,10 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	}
 
 	fUnretweet := func(w http.ResponseWriter, req *http.Request) {
-		c := newClient(w)
-		ctx := newCtxWithSesionCSRF(req, req.FormValue("csrf_token"))
+		c := newClient(w, req, req.FormValue("csrf_token"))
 		id, _ := mux.Vars(req)["id"]
 
-		count, err := s.UnRetweet(ctx, c, id)
+		count, err := s.UnRetweet(c, id)
 		if err != nil {
 			serveJsonError(w, err)
 			return
@@ -792,9 +750,8 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	r.HandleFunc("/", rootPage).Methods(http.MethodGet)
 	r.HandleFunc("/nav", navPage).Methods(http.MethodGet)
 	r.HandleFunc("/signin", signinPage).Methods(http.MethodGet)
-	r.HandleFunc("//{type}", timelinePage).Methods(http.MethodGet)
 	r.HandleFunc("/timeline/{type}", timelinePage).Methods(http.MethodGet)
-	r.HandleFunc("/timeline", timelineOldPage).Methods(http.MethodGet)
+	r.HandleFunc("/timeline", defaultTimelinePage).Methods(http.MethodGet)
 	r.HandleFunc("/thread/{id}", threadPage).Methods(http.MethodGet)
 	r.HandleFunc("/likedby/{id}", likedByPage).Methods(http.MethodGet)
 	r.HandleFunc("/retweetedby/{id}", retweetedByPage).Methods(http.MethodGet)

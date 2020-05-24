@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"errors"
 	"mime/multipart"
 
@@ -24,178 +23,174 @@ func NewAuthService(sessionRepo model.SessionRepo, appRepo model.AppRepo, s Serv
 	return &as{sessionRepo, appRepo, s}
 }
 
-func (s *as) authenticateClient(ctx context.Context, c *model.Client) (err error) {
-	sessionID, ok := ctx.Value("session_id").(string)
-	if !ok || len(sessionID) < 1 {
+func (s *as) authenticateClient(c *model.Client) (err error) {
+	if len(c.Ctx.SessionID) < 1 {
 		return errInvalidSession
 	}
-	session, err := s.sessionRepo.Get(sessionID)
+	session, err := s.sessionRepo.Get(c.Ctx.SessionID)
 	if err != nil {
 		return errInvalidSession
 	}
-	client, err := s.appRepo.Get(session.InstanceDomain)
+	app, err := s.appRepo.Get(session.InstanceDomain)
 	if err != nil {
 		return
 	}
 	mc := mastodon.NewClient(&mastodon.Config{
-		Server:       client.InstanceURL,
-		ClientID:     client.ClientID,
-		ClientSecret: client.ClientSecret,
+		Server:       app.InstanceURL,
+		ClientID:     app.ClientID,
+		ClientSecret: app.ClientSecret,
 		AccessToken:  session.AccessToken,
 	})
-	if c == nil {
-		c = &model.Client{}
-	}
 	c.Client = mc
 	c.Session = session
 	return nil
 }
 
-func checkCSRF(ctx context.Context, c *model.Client) (err error) {
-	token, ok := ctx.Value("csrf_token").(string)
-	if !ok || token != c.Session.CSRFToken {
+func checkCSRF(c *model.Client) (err error) {
+	if c.Ctx.CSRFToken != c.Session.CSRFToken {
 		return errInvalidCSRFToken
 	}
 	return nil
 }
 
-func (s *as) ServeErrorPage(ctx context.Context, c *model.Client, err error) {
-	s.authenticateClient(ctx, c)
-	s.Service.ServeErrorPage(ctx, c, err)
+func (s *as) ServeErrorPage(c *model.Client, err error) {
+	s.authenticateClient(c)
+	s.Service.ServeErrorPage(c, err)
 }
 
-func (s *as) ServeSigninPage(ctx context.Context, c *model.Client) (err error) {
-	return s.Service.ServeSigninPage(ctx, c)
+func (s *as) ServeSigninPage(c *model.Client) (err error) {
+	return s.Service.ServeSigninPage(c)
 }
 
-func (s *as) ServeRootPage(ctx context.Context, c *model.Client) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) ServeRootPage(c *model.Client) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeRootPage(ctx, c)
+	return s.Service.ServeRootPage(c)
 }
 
-func (s *as) ServeNavPage(ctx context.Context, c *model.Client) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) ServeNavPage(c *model.Client) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeNavPage(ctx, c)
+	return s.Service.ServeNavPage(c)
 }
 
-func (s *as) ServeTimelinePage(ctx context.Context, c *model.Client, tType string,
+func (s *as) ServeTimelinePage(c *model.Client, tType string,
 	maxID string, minID string) (err error) {
-	err = s.authenticateClient(ctx, c)
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeTimelinePage(ctx, c, tType, maxID, minID)
+	return s.Service.ServeTimelinePage(c, tType, maxID, minID)
 }
 
-func (s *as) ServeThreadPage(ctx context.Context, c *model.Client, id string, reply bool) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) ServeThreadPage(c *model.Client, id string, reply bool) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeThreadPage(ctx, c, id, reply)
+	return s.Service.ServeThreadPage(c, id, reply)
 }
 
-func (s *as) ServeLikedByPage(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) ServeLikedByPage(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeLikedByPage(ctx, c, id)
+	return s.Service.ServeLikedByPage(c, id)
 }
 
-func (s *as) ServeRetweetedByPage(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) ServeRetweetedByPage(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeRetweetedByPage(ctx, c, id)
+	return s.Service.ServeRetweetedByPage(c, id)
 }
 
-func (s *as) ServeNotificationPage(ctx context.Context, c *model.Client,
+func (s *as) ServeNotificationPage(c *model.Client,
 	maxID string, minID string) (err error) {
-	err = s.authenticateClient(ctx, c)
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeNotificationPage(ctx, c, maxID, minID)
+	return s.Service.ServeNotificationPage(c, maxID, minID)
 }
 
-func (s *as) ServeUserPage(ctx context.Context, c *model.Client, id string,
+func (s *as) ServeUserPage(c *model.Client, id string,
 	pageType string, maxID string, minID string) (err error) {
-	err = s.authenticateClient(ctx, c)
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeUserPage(ctx, c, id, pageType, maxID, minID)
+	return s.Service.ServeUserPage(c, id, pageType, maxID, minID)
 }
 
-func (s *as) ServeAboutPage(ctx context.Context, c *model.Client) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) ServeAboutPage(c *model.Client) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeAboutPage(ctx, c)
+	return s.Service.ServeAboutPage(c)
 }
 
-func (s *as) ServeEmojiPage(ctx context.Context, c *model.Client) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) ServeEmojiPage(c *model.Client) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeEmojiPage(ctx, c)
+	return s.Service.ServeEmojiPage(c)
 }
 
-func (s *as) ServeSearchPage(ctx context.Context, c *model.Client, q string,
+func (s *as) ServeSearchPage(c *model.Client, q string,
 	qType string, offset int) (err error) {
-	err = s.authenticateClient(ctx, c)
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeSearchPage(ctx, c, q, qType, offset)
+	return s.Service.ServeSearchPage(c, q, qType, offset)
 }
 
-func (s *as) ServeUserSearchPage(ctx context.Context, c *model.Client,
+func (s *as) ServeUserSearchPage(c *model.Client,
 	id string, q string, offset int) (err error) {
-	err = s.authenticateClient(ctx, c)
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeUserSearchPage(ctx, c, id, q, offset)
+	return s.Service.ServeUserSearchPage(c, id, q, offset)
 }
 
-func (s *as) ServeSettingsPage(ctx context.Context, c *model.Client) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) ServeSettingsPage(c *model.Client) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ServeSettingsPage(ctx, c)
+	return s.Service.ServeSettingsPage(c)
 }
 
-func (s *as) NewSession(ctx context.Context, instance string) (redirectUrl string,
+func (s *as) NewSession(instance string) (redirectUrl string,
 	sessionID string, err error) {
-	return s.Service.NewSession(ctx, instance)
+	return s.Service.NewSession(instance)
 }
 
-func (s *as) Signin(ctx context.Context, c *model.Client, sessionID string,
+func (s *as) Signin(c *model.Client, sessionID string,
 	code string) (token string, userID string, err error) {
-	err = s.authenticateClient(ctx, c)
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
 
-	token, userID, err = s.Service.Signin(ctx, c, c.Session.ID, code)
+	token, userID, err = s.Service.Signin(c, c.Session.ID, code)
 	if err != nil {
 		return
 	}
 
 	c.Session.AccessToken = token
 	c.Session.UserID = userID
+
 	err = s.sessionRepo.Add(c.Session)
 	if err != nil {
 		return
@@ -204,247 +199,247 @@ func (s *as) Signin(ctx context.Context, c *model.Client, sessionID string,
 	return
 }
 
-func (s *as) Signout(ctx context.Context, c *model.Client) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) Signout(c *model.Client) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	s.Service.Signout(ctx, c)
+	s.Service.Signout(c)
 	return
 }
 
-func (s *as) Post(ctx context.Context, c *model.Client, content string,
+func (s *as) Post(c *model.Client, content string,
 	replyToID string, format string, visibility string, isNSFW bool,
 	files []*multipart.FileHeader) (id string, err error) {
-	err = s.authenticateClient(ctx, c)
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.Post(ctx, c, content, replyToID, format, visibility, isNSFW, files)
+	return s.Service.Post(c, content, replyToID, format, visibility, isNSFW, files)
 }
 
-func (s *as) Like(ctx context.Context, c *model.Client, id string) (count int64, err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) Like(c *model.Client, id string) (count int64, err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.Like(ctx, c, id)
+	return s.Service.Like(c, id)
 }
 
-func (s *as) UnLike(ctx context.Context, c *model.Client, id string) (count int64, err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) UnLike(c *model.Client, id string) (count int64, err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.UnLike(ctx, c, id)
+	return s.Service.UnLike(c, id)
 }
 
-func (s *as) Retweet(ctx context.Context, c *model.Client, id string) (count int64, err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) Retweet(c *model.Client, id string) (count int64, err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.Retweet(ctx, c, id)
+	return s.Service.Retweet(c, id)
 }
 
-func (s *as) UnRetweet(ctx context.Context, c *model.Client, id string) (count int64, err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) UnRetweet(c *model.Client, id string) (count int64, err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.UnRetweet(ctx, c, id)
+	return s.Service.UnRetweet(c, id)
 }
 
-func (s *as) Vote(ctx context.Context, c *model.Client, id string,
+func (s *as) Vote(c *model.Client, id string,
 	choices []string) (err error) {
-	err = s.authenticateClient(ctx, c)
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.Vote(ctx, c, id, choices)
+	return s.Service.Vote(c, id, choices)
 }
 
-func (s *as) Follow(ctx context.Context, c *model.Client, id string, reblogs *bool) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) Follow(c *model.Client, id string, reblogs *bool) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.Follow(ctx, c, id, reblogs)
+	return s.Service.Follow(c, id, reblogs)
 }
 
-func (s *as) UnFollow(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) UnFollow(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.UnFollow(ctx, c, id)
+	return s.Service.UnFollow(c, id)
 }
 
-func (s *as) Mute(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) Mute(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.Mute(ctx, c, id)
+	return s.Service.Mute(c, id)
 }
 
-func (s *as) UnMute(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) UnMute(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.UnMute(ctx, c, id)
+	return s.Service.UnMute(c, id)
 }
 
-func (s *as) Block(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) Block(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.Block(ctx, c, id)
+	return s.Service.Block(c, id)
 }
 
-func (s *as) UnBlock(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) UnBlock(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.UnBlock(ctx, c, id)
+	return s.Service.UnBlock(c, id)
 }
 
-func (s *as) Subscribe(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) Subscribe(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.Subscribe(ctx, c, id)
+	return s.Service.Subscribe(c, id)
 }
 
-func (s *as) UnSubscribe(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) UnSubscribe(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.UnSubscribe(ctx, c, id)
+	return s.Service.UnSubscribe(c, id)
 }
 
-func (s *as) SaveSettings(ctx context.Context, c *model.Client, settings *model.Settings) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) SaveSettings(c *model.Client, settings *model.Settings) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.SaveSettings(ctx, c, settings)
+	return s.Service.SaveSettings(c, settings)
 }
 
-func (s *as) MuteConversation(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) MuteConversation(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.MuteConversation(ctx, c, id)
+	return s.Service.MuteConversation(c, id)
 }
 
-func (s *as) UnMuteConversation(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) UnMuteConversation(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.UnMuteConversation(ctx, c, id)
+	return s.Service.UnMuteConversation(c, id)
 }
 
-func (s *as) Delete(ctx context.Context, c *model.Client, id string) (err error) {
-	err = s.authenticateClient(ctx, c)
+func (s *as) Delete(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.Delete(ctx, c, id)
+	return s.Service.Delete(c, id)
 }
 
-func (s *as) ReadNotifications(ctx context.Context, c *model.Client,
+func (s *as) ReadNotifications(c *model.Client,
 	maxID string) (err error) {
-	err = s.authenticateClient(ctx, c)
+	err = s.authenticateClient(c)
 	if err != nil {
 		return
 	}
-	err = checkCSRF(ctx, c)
+	err = checkCSRF(c)
 	if err != nil {
 		return
 	}
-	return s.Service.ReadNotifications(ctx, c, maxID)
+	return s.Service.ReadNotifications(c, maxID)
 }

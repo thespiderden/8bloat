@@ -4,12 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"bloat/config"
 	"bloat/kv"
@@ -22,10 +20,6 @@ import (
 var (
 	configFile = "/etc/bloat.conf"
 )
-
-func init() {
-	rand.Seed(time.Now().Unix())
-}
 
 func errExit(err error) {
 	fmt.Fprintln(os.Stderr, err.Error())
