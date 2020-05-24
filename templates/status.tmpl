@@ -78,9 +78,9 @@
 
 				{{if eq .Type "image"}}
 				{{if $.Ctx.HideAttachments}}
-				<a href="{{.URL}}" target="_blank"> [image] </a>
+				<a href="{{.URL}}" target="_blank" title="{{.Description}}"> [image] </a>
 				{{else}}
-				<a class="img-link" href="{{.URL}}" target="_blank">
+				<a class="img-link" href="{{.URL}}" target="_blank" title="{{.Description}}">
 					<img class="status-image" src="{{.URL}}" alt="status-image" />
 					{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
 					<div class="status-nsfw-overlay"></div>
@@ -90,9 +90,9 @@
 
 				{{else if eq .Type "audio"}}
 				{{if $.Ctx.HideAttachments}}
-				<a href="{{.URL}}" target="_blank"> [audio] </a>
+				<a href="{{.URL}}" target="_blank" title="{{.Description}}"> [audio] </a>
 				{{else}}
-				<audio class="status-audio" controls>
+				<audio class="status-audio" controls title="{{.Description}}">
 					<source src="{{.URL}}">
 					<a href="{{.URL}}" target="_blank"> [audio] </a>
 				</audio>
@@ -100,9 +100,9 @@
 
 				{{else if eq .Type "video"}}
 				{{if $.Ctx.HideAttachments}}
-				<a href="{{.URL}}" target="_blank"> [video] </a>
+				<a href="{{.URL}}" target="_blank" title="{{.Description}}"> [video] </a>
 				{{else}}
-				<div class="status-video-container">
+				<div class="status-video-container" title="{{.Description}}">
 					<video class="status-video" controls>
 						<source src="{{.URL}}">
 						<a href="{{.URL}}" target="_blank"> [video] </a>
@@ -114,7 +114,7 @@
 				{{end}}
 
 				{{else}}
-				<a href="{{.URL}}" target="_blank"> [attachment] </a>
+				<a href="{{.URL}}" target="_blank" title="{{.Description}}"> [attachment] </a>
 				{{end}}
 
 				{{end}}
