@@ -4,8 +4,8 @@
 
 <div class="emoji-list-container">
 	{{range .Emojis}}
-	<div class="emoji">
-		<img class="emoji-img" src="{{.URL}}" alt="{{.ShortCode}}" />
+	<div class="emoji-item">
+		<img class="emoji" src="{{.URL}}" alt="{{.ShortCode}}" />
 		<div class="emoji-shortcode">:{{.ShortCode}}:</div>
 	</div>
 	{{end}}
