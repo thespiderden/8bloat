@@ -10,6 +10,7 @@ import (
 
 var (
 	errInvalidSession   = errors.New("invalid session")
+	errInvalidAccessToken = errors.New("invalid access token")
 	errInvalidCSRFToken = errors.New("invalid csrf token")
 )
 
@@ -23,7 +24,7 @@ func NewAuthService(sessionRepo model.SessionRepo, appRepo model.AppRepo, s Serv
 	return &as{sessionRepo, appRepo, s}
 }
 
-func (s *as) authenticateClient(c *model.Client) (err error) {
+func (s *as) initClient(c *model.Client) (err error) {
 	if len(c.Ctx.SessionID) < 1 {
 		return errInvalidSession
 	}
@@ -43,6 +44,17 @@ func (s *as) authenticateClient(c *model.Client) (err error) {
 	})
 	c.Client = mc
 	c.Session = session
+	return nil
+}
+
+func (s *as) authenticateClient(c *model.Client) (err error) {
+	err = s.initClient(c)
+	if err != nil {
+		return
+	}
+	if len(c.Session.AccessToken) < 1 {
+		return errInvalidAccessToken
+	}
 	return nil
 }
 
@@ -179,7 +191,7 @@ func (s *as) NewSession(instance string) (redirectUrl string,
 func (s *as) Signin(c *model.Client, sessionID string,
 	code string) (token string, userID string, err error) {
 	err = s.authenticateClient(c)
-	if err != nil {
+	if err != nil && err != errInvalidAccessToken {
 		return
 	}
 

@@ -76,6 +76,11 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			c := newClient(w, req, "")
 			err := s.ServeRootPage(c)
 			if err != nil {
+				if (err == errInvalidAccessToken) {
+					w.Header().Add("Location", "/signin")
+					w.WriteHeader(http.StatusFound)
+					return
+				}
 				w.WriteHeader(http.StatusInternalServerError)
 				s.ServeErrorPage(c, err)
 				return
