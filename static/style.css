@@ -52,6 +52,7 @@
 }
 
 .status {
+	flex: 1;
 }
 
 .status-dname {
