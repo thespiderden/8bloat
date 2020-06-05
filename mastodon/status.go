@@ -52,8 +52,8 @@ type Status struct {
 	// Custom fields
 	Pleroma       StatusPleroma          `json:"pleroma"`
 	ShowReplies   bool                   `json:"show_replies"`
-	ReplyMap      map[string][]ReplyInfo `json:"reply_map"`
-	ReplyNumber   int                    `json:"reply_number"`
+	IDReplies     map[string][]ReplyInfo `json:"id_replies"`
+	IDNumbers     map[string]int         `json:"id_numbers"`
 	RetweetedByID string                 `json:"retweeted_by_id"`
 }
 

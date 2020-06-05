@@ -342,12 +342,16 @@ func (svc *service) ServeThreadPage(c *model.Client, id string, reply bool) (err
 
 	statuses := append(append(context.Ancestors, status), context.Descendants...)
 	replies := make(map[string][]mastodon.ReplyInfo)
+	idNumbers := make(map[string]int)
 
 	for i := range statuses {
 		statuses[i].ShowReplies = true
-		statuses[i].ReplyMap = replies
-		statuses[i].ReplyNumber = i
-		addToReplyMap(replies, statuses[i].InReplyToID, statuses[i].ID, i+1)
+
+		statuses[i].IDNumbers = idNumbers
+		idNumbers[statuses[i].ID] = i + 1
+
+		statuses[i].IDReplies = replies
+		addToReplyMap(replies, statuses[i].InReplyToID, statuses[i].ID, i + 1)
 	}
 
 	commonData := svc.getCommonData(c, "post by "+status.Account.DisplayName)

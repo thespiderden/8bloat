@@ -438,6 +438,7 @@ img.emoji {
 	background-color: #ffffff;
 	padding: 2px 4px;
 	border: 1px solid #aaaaaa;
+	right: 0;
 }
 
 .more-container:hover .more-content {

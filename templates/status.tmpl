@@ -26,7 +26,7 @@
 				</a>
 				<div class="more-container">
 					<div class="remote-link">
-						{{.Visibility}}
+						{{if .IDNumbers}}#{{index .IDNumbers .ID}}{{end}} {{.Visibility}}
 					</div>
 					<div class="more-content">
 						<a class="more-link" href="{{.URL}}" target="_blank">
@@ -56,14 +56,14 @@
 				{{if .InReplyToID}}
 				<div class="status-reply-to">
 					<a class="status-reply-to-link" href="{{if not .ShowReplies}}/thread/{{.InReplyToID}}{{end}}#status-{{.InReplyToID}}"> 
-						 in reply to {{if .Pleroma.InReplyToAccountAcct}}{{.Pleroma.InReplyToAccountAcct}}{{else if .ReplyNumber}}#{{.ReplyNumber}}{{else}}{{.InReplyToID}}{{end}}
+						 in reply to {{if .IDNumbers}}#{{index .IDNumbers .InReplyToID}}{{end}} {{if .Pleroma.InReplyToAccountAcct}}{{.Pleroma.InReplyToAccountAcct}}{{else if not .IDNumbers}}{{.InReplyToID}}{{end}}
 					</a>
 				</div>
-				{{if index .ReplyMap .ID}} <span class="status-reply-info-divider"> - </span> {{end}}
+				{{if index .IDReplies .ID}} <span class="status-reply-info-divider"> - </span> {{end}}
 				{{end}}
 				{{if .ShowReplies}}
-				{{if index .ReplyMap .ID}} <span class="status-reply-text"> replies: </span> {{end}}
-				{{range index .ReplyMap .ID}}
+				{{if index .IDReplies .ID}} <span class="status-reply-text"> replies: </span> {{end}}
+				{{range index .IDReplies .ID}}
 				<div class="status-reply">
 					<a class="status-reply-link" href="#status-{{.ID}}">#{{.Number}}</a>
 				</div>
