@@ -60,6 +60,7 @@
 }
 
 .status-uname {
+	user-select: all;
 	font-style: italic;
 	font-size: 10pt;
 }
@@ -336,6 +337,7 @@ img.emoji {
 }
 
 .emoji-shortcode {
+	user-select: all;
 	vertical-align: middle;
 	display: inline-block;
 }
