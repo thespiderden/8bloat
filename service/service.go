@@ -313,12 +313,9 @@ func (svc *service) ServeThreadPage(c *model.Client, id string, reply bool) (err
 			}
 		}
 
-		if c.Session.Settings.CopyScope {
-			s, err := c.GetStatus(ctx, id)
-			if err != nil {
-				return err
-			}
-			visibility = s.Visibility
+		isDirect := status.Visibility == "direct" 
+		if isDirect || c.Session.Settings.CopyScope {
+			visibility = status.Visibility
 		} else {
 			visibility = c.Session.Settings.DefaultVisibility
 		}
@@ -327,9 +324,10 @@ func (svc *service) ServeThreadPage(c *model.Client, id string, reply bool) (err
 			DefaultVisibility: visibility,
 			Formats:           svc.postFormats,
 			ReplyContext: &model.ReplyContext{
-				InReplyToID:   id,
-				InReplyToName: status.Account.Acct,
-				ReplyContent:  content,
+				InReplyToID:     id,
+				InReplyToName:   status.Account.Acct,
+				ReplyContent:    content,
+				ForceVisibility: isDirect,
 			},
 			DarkMode: c.Session.Settings.DarkMode,
 		}
@@ -351,7 +349,7 @@ func (svc *service) ServeThreadPage(c *model.Client, id string, reply bool) (err
 		idNumbers[statuses[i].ID] = i + 1
 
 		statuses[i].IDReplies = replies
-		addToReplyMap(replies, statuses[i].InReplyToID, statuses[i].ID, i + 1)
+		addToReplyMap(replies, statuses[i].InReplyToID, statuses[i].ID, i+1)
 	}
 
 	commonData := svc.getCommonData(c, "post by "+status.Account.DisplayName)

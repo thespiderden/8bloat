@@ -24,7 +24,7 @@
 		{{end}}
 		<span class="post-form-field">
 			<label for="post-visilibity"> Scope </label>
-			<select id="post-visilibity" name="visibility">
+			<select id="post-visilibity" name="visibility" {{if .ReplyContext}}{{if .ReplyContext.ForceVisibility}}disabled{{end}}{{end}}>
 				<option value="public" {{if eq .DefaultVisibility "public"}}selected{{end}}>Public</option>
 				<option value="unlisted" {{if eq .DefaultVisibility "unlisted"}}selected{{end}}>Unlisted</option>
 				<option value="private" {{if eq .DefaultVisibility "private"}}selected{{end}}>Private</option>

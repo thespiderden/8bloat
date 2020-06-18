@@ -13,7 +13,8 @@ type PostContext struct {
 }
 
 type ReplyContext struct {
-	InReplyToID   string
-	InReplyToName string
-	ReplyContent  string
+	InReplyToID     string
+	InReplyToName   string
+	ReplyContent    string
+	ForceVisibility bool
 }
