@@ -53,6 +53,7 @@
 
 .status {
 	flex: 1;
+	overflow-x: auto;
 }
 
 .status-dname {
