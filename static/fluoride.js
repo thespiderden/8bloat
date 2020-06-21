@@ -186,6 +186,12 @@ function handleReplyLink(div) {
 	}
 }
 
+function handleStatusLink(a) {
+	if (a.classList.contains("mention"))
+		return;
+	a.target = "_blank";
+}
+
 document.addEventListener("DOMContentLoaded", function() { 
 	var statuses = document.querySelectorAll(".status-container");
 	for (var i = 0; i < statuses.length; i++) {
@@ -204,6 +210,11 @@ document.addEventListener("DOMContentLoaded", function() {
 		var replyLinks = s.querySelectorAll(".status-reply");
 		for (var j = 0; j < replyLinks.length; j++) {
 			handleReplyLink(replyLinks[j]);
+		}
+
+		var links = s.querySelectorAll(".status-content a");
+		for (var j = 0; j < links.length; j++) {
+			handleStatusLink(links[j]);
 		}
 	}
 });
