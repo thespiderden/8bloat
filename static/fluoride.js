@@ -8,7 +8,7 @@ var reverseActions = {
 };
 
 function getCSRFToken() {
-	var tag = document.querySelector("meta[name='csrf_token']")
+	var tag = document.querySelector("meta[name='csrf_token']");
 	if (tag)
 		return tag.getAttribute("content");
 	return "";
@@ -34,7 +34,7 @@ function http(method, url, body, type, success, error) {
 }
 
 function updateActionForm(id, f, action) {
-	f.querySelector('[type="submit"]').value = action;
+	f.querySelector("[type='submit']").value = action;
 	f.action = "/" + action + "/" + id;
 	f.dataset.action = action;
 }
@@ -44,20 +44,23 @@ function handleLikeForm(id, f) {
 		event.preventDefault();
 
 		var action = f.dataset.action;
-		var forms = document.querySelectorAll(".status-"+id+" .status-like");
+		var forms = document.
+			querySelectorAll(".status-"+id+" .status-like");
 		for (var i = 0; i < forms.length; i++) {
 			updateActionForm(id, forms[i], reverseActions[action]);
 		}
 
 		var body = "csrf_token=" + encodeURIComponent(getCSRFToken());
 		var contentType = "application/x-www-form-urlencoded";
-		http("POST", "/fluoride/" + action + "/" + id, body, contentType, function(res, type) {
+		http("POST", "/fluoride/" + action + "/" + id, 
+			body, contentType, function(res, type) {
+
 			var data = JSON.parse(res);
 			var count = data.data;
-			if (count === 0) {
+			if (count === 0)
 				count = "";
-			}
-			var counts = document.querySelectorAll(".status-"+id+" .status-like-count");
+			var counts = document.
+				querySelectorAll(".status-"+id+" .status-like-count");
 			for (var i = 0; i < counts.length; i++) {
 				if (count > 0) {
 					counts[i].innerHTML = "(" + count + ")";
@@ -78,20 +81,23 @@ function handleRetweetForm(id, f) {
 		event.preventDefault();
 
 		var action = f.dataset.action;
-		var forms = document.querySelectorAll(".status-"+id+" .status-retweet");
+		var forms = document.
+			querySelectorAll(".status-"+id+" .status-retweet");
 		for (var i = 0; i < forms.length; i++) {
 			updateActionForm(id, forms[i], reverseActions[action]);
 		}
 
 		var body = "csrf_token=" + encodeURIComponent(getCSRFToken());
 		var contentType = "application/x-www-form-urlencoded";
-		http("POST", "/fluoride/" + action + "/" + id, body, contentType, function(res, type) {
+		http("POST", "/fluoride/" + action + "/" + id, 
+			body, contentType, function(res, type) {
+
 			var data = JSON.parse(res);
 			var count = data.data;
-			if (count === 0) {
+			if (count === 0)
 				count = "";
-			}
-			var counts = document.querySelectorAll(".status-"+id+" .status-retweet-count");
+			var counts = document.
+				querySelectorAll(".status-"+id+" .status-retweet-count");
 			for (var i = 0; i < counts.length; i++) {
 				if (count > 0) {
 					counts[i].innerHTML = "(" + count + ")";
@@ -109,26 +115,22 @@ function handleRetweetForm(id, f) {
 
 function isInView(el) {
 	var ract = el.getBoundingClientRect();
-	if (ract.top > 0 && ract.bottom < window.innerHeight) {
+	if (ract.top > 0 && ract.bottom < window.innerHeight)
 		return true;
-	}
 	return false;
 }
 
 function handleReplyToLink(div) {
-	if (!div) {
+	if (!div)
 		return;
-	}
-	var id = div.firstElementChild.getAttribute('href');
-	if (!id || id[0] != '#') {
+	var id = div.firstElementChild.getAttribute("href");
+	if (!id || id[0] != "#")
 		return;
-	}
 	div.firstElementChild.onmouseenter = function(event) {
-		var id = event.target.getAttribute('href');
+		var id = event.target.getAttribute("href");
 		var status = document.querySelector(id);
-		if (!status) {
+		if (!status)
 			return;
-		}
 		if (isInView(status)) {
 			status.classList.add("highlight");
 		} else {
@@ -137,7 +139,7 @@ function handleReplyToLink(div) {
 			var ract = event.target.getBoundingClientRect();
 			if (ract.top > window.innerHeight / 2) {
 				copy.style.bottom = (window.innerHeight - 
-					window.scrollY - ract.top) + 'px';
+					window.scrollY - ract.top) + "px";
 			}
 			event.target.parentElement.appendChild(copy);
 		}
@@ -147,7 +149,7 @@ function handleReplyToLink(div) {
 		if (popup) {
 			event.target.parentElement.removeChild(popup);    
 		} else {
-			var id = event.target.getAttribute('href');
+			var id = event.target.getAttribute("href");
 			document.querySelector(id)
 				.classList.remove("highlight");
 		}
@@ -156,11 +158,10 @@ function handleReplyToLink(div) {
 
 function handleReplyLink(div) {
 	div.firstElementChild.onmouseenter = function(event) {
-		var id = event.target.getAttribute('href');
+		var id = event.target.getAttribute("href");
 		var status = document.querySelector(id);
-		if (!status) {
+		if (!status)
 			return;
-		}
 		if (isInView(status)) {
 			status.classList.add("highlight");
 		} else {
@@ -169,7 +170,7 @@ function handleReplyLink(div) {
 			var ract = event.target.getBoundingClientRect();
 			if (ract.left > window.innerWidth / 2) {
 				copy.style.right = (window.innerWidth -
-					ract.right - 12) + 'px';;
+					ract.right - 12) + "px";
 			}
 			event.target.parentElement.appendChild(copy);
 		}
@@ -177,11 +178,10 @@ function handleReplyLink(div) {
 	div.firstElementChild.onmouseleave = function(event) {
 		var popup = document.getElementById("reply-popup");
 		if (popup) {
-			event.target.parentElement.removeChild(popup);    
+			event.target.parentElement.removeChild(popup);
 		} else {
-			var id = event.target.getAttribute('href');
-			document.querySelector(id)
-				.classList.remove("highlight");
+			var id = event.target.getAttribute("href");
+			document.querySelector(id).classList.remove("highlight");
 		}
 	}
 }
@@ -195,7 +195,7 @@ function handleStatusLink(a) {
 document.addEventListener("DOMContentLoaded", function() { 
 	var statuses = document.querySelectorAll(".status-container");
 	for (var i = 0; i < statuses.length; i++) {
-		var s = statuses[i]
+		var s = statuses[i];
 		var id = s.dataset.id;
 
 		var likeForm = s.querySelector(".status-like");
