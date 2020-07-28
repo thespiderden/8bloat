@@ -228,7 +228,7 @@ func (svc *service) ServeTimelinePage(c *model.Client, tType string,
 		title = "Timeline"
 	case "direct":
 		statuses, err = c.GetTimelineDirect(ctx, &pg)
-		title = "Local Timeline"
+		title = "Direct Timeline"
 	case "local":
 		statuses, err = c.GetTimelinePublic(ctx, true, &pg)
 		title = "Local Timeline"
@@ -313,7 +313,7 @@ func (svc *service) ServeThreadPage(c *model.Client, id string, reply bool) (err
 			}
 		}
 
-		isDirect := status.Visibility == "direct" 
+		isDirect := status.Visibility == "direct"
 		if isDirect || c.Session.Settings.CopyScope {
 			visibility = status.Visibility
 		} else {
