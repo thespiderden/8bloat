@@ -3,11 +3,11 @@
 <div class="page-title"> Search </div>
 
 <form class="search-form" action="/search" method="GET">
-	<span class="post-form-field>
+	<span class="post-form-field">
 		<label for="query"> Query </label>
 		<input id="query" name="q" value="{{.Q | HTMLEscape}}">
 	</span>
-	<span class="post-form-field>
+	<span class="post-form-field">
 		<label for="type"> Type </label>
 		<select id="type" name="type">
 			<option value="statuses" {{if eq .Type "statuses"}}selected{{end}}>Statuses</option>
@@ -23,8 +23,8 @@
 {{else}}
 <div class="no-data-found">No data found</div>
 {{end}}
-
 {{end}}
+
 {{if eq .Type "accounts"}}
 {{template "userlist.tmpl" (WithContext .Users $.Ctx)}}
 {{end}}

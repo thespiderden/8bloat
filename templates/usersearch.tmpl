@@ -12,6 +12,8 @@
 
 {{range .Statuses}}
 {{template "status.tmpl" (WithContext . $.Ctx)}}
+{{else}}
+<div class="no-data-found">No data found</div>
 {{end}}
 
 <div class="pagination">
