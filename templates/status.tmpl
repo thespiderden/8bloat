@@ -3,7 +3,7 @@
 	{{if .Reblog}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="{{.Account.Acct}}" alt="avatar" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
 		retweeted
@@ -15,7 +15,7 @@
 	<div class="status-container status-{{.ID}}" data-id="{{.ID}}">
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
-				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" alt="avatar" />
+				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="{{.Account.Acct}}" alt="avatar" />
 			</a>
 		</div>
 		<div class="status"> 
