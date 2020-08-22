@@ -15,7 +15,7 @@ var (
 )
 
 type Database struct {
-	data    map[string][]byte
+	cache   map[string][]byte
 	basedir string
 	m       sync.RWMutex
 }
@@ -27,40 +27,37 @@ func NewDatabse(basedir string) (db *Database, err error) {
 	}
 
 	return &Database{
-		data:    make(map[string][]byte),
+		cache:   make(map[string][]byte),
 		basedir: basedir,
 	}, nil
 }
 
 func (db *Database) Set(key string, val []byte) (err error) {
-	if len(key) < 1 {
+	if len(key) < 1 || strings.ContainsRune(key, os.PathSeparator) {
 		return errInvalidKey
 	}
 
-	db.m.Lock()
-	defer func() {
-		if err != nil {
-			delete(db.data, key)
-		}
-		db.m.Unlock()
-	}()
-
-	db.data[key] = val
-
 	err = ioutil.WriteFile(filepath.Join(db.basedir, key), val, 0644)
+	if err != nil {
+		return
+	}
+
+	db.m.Lock()
+	db.cache[key] = val
+	db.m.Unlock()
 
 	return
 }
 
 func (db *Database) Get(key string) (val []byte, err error) {
-	if len(key) < 1 {
+	if len(key) < 1 || strings.ContainsRune(key, os.PathSeparator) {
 		return nil, errInvalidKey
 	}
 
 	db.m.RLock()
-	defer db.m.RUnlock()
+	data, ok := db.cache[key]
+	db.m.RUnlock()
 
-	data, ok := db.data[key]
 	if !ok {
 		data, err = ioutil.ReadFile(filepath.Join(db.basedir, key))
 		if err != nil {
@@ -68,7 +65,9 @@ func (db *Database) Get(key string) (val []byte, err error) {
 			return nil, err
 		}
 
-		db.data[key] = data
+		db.m.Lock()
+		db.cache[key] = data
+		db.m.Unlock()
 	}
 
 	val = make([]byte, len(data))
@@ -82,11 +81,11 @@ func (db *Database) Remove(key string) {
 		return
 	}
 
-	db.m.Lock()
-	defer db.m.Unlock()
-
-	delete(db.data, key)
 	os.Remove(filepath.Join(db.basedir, key))
+
+	db.m.Lock()
+	delete(db.cache, key)
+	db.m.Unlock()
 
 	return
 }
