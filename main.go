@@ -75,7 +75,7 @@ func main() {
 	appRepo := repo.NewAppRepo(appDB)
 
 	customCSS := config.CustomCSS
-	if !strings.HasPrefix(customCSS, "http://") &&
+	if len(customCSS) > 0 && !strings.HasPrefix(customCSS, "http://") &&
 		!strings.HasPrefix(customCSS, "https://") {
 		customCSS = "/static/" + customCSS
 	}
