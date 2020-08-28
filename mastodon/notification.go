@@ -23,9 +23,13 @@ type Notification struct {
 }
 
 // GetNotifications return notifications.
-func (c *Client) GetNotifications(ctx context.Context, pg *Pagination) ([]*Notification, error) {
+func (c *Client) GetNotifications(ctx context.Context, pg *Pagination, excludes ...string) ([]*Notification, error) {
 	var notifications []*Notification
-	err := c.doAPI(ctx, http.MethodGet, "/api/v1/notifications", nil, &notifications, pg)
+	params := url.Values{}
+	for _, exclude := range excludes {
+		params.Add("exclude_types[]", exclude)
+	}
+	err := c.doAPI(ctx, http.MethodGet, "/api/v1/notifications", params, &notifications, pg)
 	if err != nil {
 		return nil, err
 	}
