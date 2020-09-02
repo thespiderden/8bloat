@@ -591,6 +591,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		arn := req.FormValue("auto_refresh_notifications") == "true"
 		fluorideMode := req.FormValue("fluoride_mode") == "true"
 		darkMode := req.FormValue("dark_mode") == "true"
+		antiDopamineMode := req.FormValue("anti_dopamine_mode") == "true"
 
 		settings := &model.Settings{
 			DefaultVisibility:        visibility,
@@ -601,6 +602,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 			AutoRefreshNotifications: arn,
 			FluorideMode:             fluorideMode,
 			DarkMode:                 darkMode,
+			AntiDopamineMode:         antiDopamineMode,
 		}
 
 		err := s.SaveSettings(c, settings)

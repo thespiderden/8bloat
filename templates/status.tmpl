@@ -160,7 +160,9 @@
 						reply
 					</a>
 					<a class="status-reply-count" href="/thread/{{.ID}}#status-{{.ID}}" {{if $.Ctx.ThreadInNewTab}}target="_blank"{{end}}>
-						{{if .RepliesCount}} ({{DisplayInteractionCount .RepliesCount}}) {{end}}
+						{{if and (not $.Ctx.AntiDopamineMode) .RepliesCount}}
+							({{DisplayInteractionCount .RepliesCount}})
+						{{end}}
 					</a>
 				</div>
 				<div class="status-action">
@@ -184,7 +186,9 @@
 					{{end}}
 					{{end}}
 					<a class="status-retweet-count" href="/retweetedby/{{.ID}}" title="click to see the the list"> 
-						{{if .ReblogsCount}} ({{DisplayInteractionCount .ReblogsCount}}) {{end}}
+						{{if and (not $.Ctx.AntiDopamineMode) .ReblogsCount}}
+							({{DisplayInteractionCount .ReblogsCount}})
+						{{end}}
 					</a>
 				</div>
 				<div class="status-action">
@@ -202,7 +206,9 @@
 					</form>
 					{{end}}
 					<a class="status-like-count" href="/likedby/{{.ID}}" title="click to see the the list"> 
-						{{if .FavouritesCount}} ({{DisplayInteractionCount .FavouritesCount}}) {{end}}
+						{{if and (not $.Ctx.AntiDopamineMode) .FavouritesCount}}
+							({{DisplayInteractionCount .FavouritesCount}})
+						{{end}}
 					</a>
 				</div>
 				<div class="status-action">

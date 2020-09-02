@@ -3,7 +3,9 @@
 <div class="notification-title-container">
 	<div class="notification-title">
 		Notifications
-		{{if gt .UnreadCount 0}}({{.UnreadCount }}){{end}}
+		{{if and (not $.Ctx.AntiDopamineMode) (gt .UnreadCount 0)}}
+			({{.UnreadCount }})
+		{{end}}
 	</div>
 	<a class="notification-refresh" href="/notifications" target="_self">refresh</a>
 	{{if .ReadID}}

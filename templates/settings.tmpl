@@ -41,6 +41,11 @@
 		<input id="dark-mode" name="dark_mode" type="checkbox" value="true" {{if .Settings.DarkMode}}checked{{end}}>
 		<label for="dark-mode"> Use dark theme </label>
 	</div>
+	<div class="settings-form-field">
+		<input id="anti-dopamine-mode" name="anti_dopamine_mode" type="checkbox"
+		value="true" {{if .Settings.AntiDopamineMode}}checked{{end}}>
+		<label for="anti-dopamine-mode"> Remove addictive social media features </label>
+	</div>
 	<button type="submit"> Save </button>
 </form>
 

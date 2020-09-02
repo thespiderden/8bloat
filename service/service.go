@@ -116,6 +116,7 @@ func getRendererContext(c *model.Client) *renderer.Context {
 		DarkMode:        settings.DarkMode,
 		CSRFToken:       session.CSRFToken,
 		UserID:          session.UserID,
+		AntiDopamineMode: settings.AntiDopamineMode,
 	}
 }
 
@@ -402,13 +403,19 @@ func (svc *service) ServeNotificationPage(c *model.Client, maxID string,
 	var nextLink string
 	var unreadCount int
 	var readID string
+	var excludes []string
 	var pg = mastodon.Pagination{
 		MaxID: maxID,
 		MinID: minID,
 		Limit: 20,
 	}
 
-	notifications, err := c.GetNotifications(ctx, &pg)
+	dope := c.Session.Settings.AntiDopamineMode
+	if dope {
+		excludes = append(excludes, "follow", "favourite", "reblog")
+	}
+
+	notifications, err := c.GetNotifications(ctx, &pg, excludes...)
 	if err != nil {
 		return
 	}

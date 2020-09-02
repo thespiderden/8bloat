@@ -13,6 +13,7 @@ type Context struct {
 	DarkMode        bool
 	CSRFToken       string
 	UserID          string
+	AntiDopamineMode bool
 }
 
 type NavData struct {
