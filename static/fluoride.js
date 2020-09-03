@@ -7,11 +7,19 @@ var reverseActions = {
 	"unretweet": "retweet"
 };
 
-function getCSRFToken() {
+var csrfToken = "";
+var antiDopamineMode = false;
+
+function checkCSRFToken() {
 	var tag = document.querySelector("meta[name='csrf_token']");
 	if (tag)
-		return tag.getAttribute("content");
-	return "";
+		csrfToken = tag.getAttribute("content");
+}
+
+function checkAntiDopamineMode() {
+	var tag = document.querySelector("meta[name='antidopamine_mode']");
+	if (tag)
+		antiDopamineMode = tag.getAttribute("content") === "true";
 }
 
 function http(method, url, body, type, success, error) {
@@ -50,11 +58,13 @@ function handleLikeForm(id, f) {
 			updateActionForm(id, forms[i], reverseActions[action]);
 		}
 
-		var body = "csrf_token=" + encodeURIComponent(getCSRFToken());
+		var body = "csrf_token=" + encodeURIComponent(csrfToken);
 		var contentType = "application/x-www-form-urlencoded";
 		http("POST", "/fluoride/" + action + "/" + id, 
 			body, contentType, function(res, type) {
 
+			if (antiDopamineMode)
+				return;
 			var data = JSON.parse(res);
 			var count = data.data;
 			if (count === 0)
@@ -87,11 +97,13 @@ function handleRetweetForm(id, f) {
 			updateActionForm(id, forms[i], reverseActions[action]);
 		}
 
-		var body = "csrf_token=" + encodeURIComponent(getCSRFToken());
+		var body = "csrf_token=" + encodeURIComponent(csrfToken);
 		var contentType = "application/x-www-form-urlencoded";
 		http("POST", "/fluoride/" + action + "/" + id, 
 			body, contentType, function(res, type) {
 
+			if (antiDopamineMode)
+				return;
 			var data = JSON.parse(res);
 			var count = data.data;
 			if (count === 0)
@@ -193,6 +205,9 @@ function handleStatusLink(a) {
 }
 
 document.addEventListener("DOMContentLoaded", function() { 
+	checkCSRFToken();
+	checkAntiDopamineMode();
+
 	var statuses = document.querySelectorAll(".status-container");
 	for (var i = 0; i < statuses.length; i++) {
 		var s = statuses[i];

@@ -6,13 +6,13 @@ import (
 )
 
 type Context struct {
-	HideAttachments bool
-	MaskNSFW        bool
-	FluorideMode    bool
-	ThreadInNewTab  bool
-	DarkMode        bool
-	CSRFToken       string
-	UserID          string
+	HideAttachments  bool
+	MaskNSFW         bool
+	FluorideMode     bool
+	ThreadInNewTab   bool
+	DarkMode         bool
+	CSRFToken        string
+	UserID           string
 	AntiDopamineMode bool
 }
 

@@ -410,12 +410,11 @@ func (svc *service) ServeNotificationPage(c *model.Client, maxID string,
 		Limit: 20,
 	}
 
-	dope := c.Session.Settings.AntiDopamineMode
-	if dope {
-		excludes = append(excludes, "follow", "favourite", "reblog")
+	if c.Session.Settings.AntiDopamineMode {
+		excludes = []string{"follow", "favourite", "reblog"}
 	}
 
-	notifications, err := c.GetNotifications(ctx, &pg, excludes...)
+	notifications, err := c.GetNotifications(ctx, &pg, excludes)
 	if err != nil {
 		return
 	}

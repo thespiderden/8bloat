@@ -38,13 +38,13 @@
 		<label for="fluoride-mode"> Enable <abbr title="Enable JavaScript based functionality, e.g., like/retweet without page reload and reply preview on thread page">fluoride mode</abbr> </label>
 	</div>
 	<div class="settings-form-field">
-		<input id="dark-mode" name="dark_mode" type="checkbox" value="true" {{if .Settings.DarkMode}}checked{{end}}>
-		<label for="dark-mode"> Use dark theme </label>
-	</div>
-	<div class="settings-form-field">
 		<input id="anti-dopamine-mode" name="anti_dopamine_mode" type="checkbox"
 		value="true" {{if .Settings.AntiDopamineMode}}checked{{end}}>
-		<label for="anti-dopamine-mode"> Remove addictive social media features </label>
+		<label for="anti-dopamine-mode"> Enable <abbr title="Remove like/retweet/unread notification count and disable like/retweet/follow notifications">anti-dopamine mode</abbr> </label>
+	</div>
+	<div class="settings-form-field">
+		<input id="dark-mode" name="dark_mode" type="checkbox" value="true" {{if .Settings.DarkMode}}checked{{end}}>
+		<label for="dark-mode"> Use dark theme </label>
 	</div>
 	<button type="submit"> Save </button>
 </form>

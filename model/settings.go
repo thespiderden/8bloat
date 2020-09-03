@@ -9,7 +9,7 @@ type Settings struct {
 	AutoRefreshNotifications bool   `json:"auto_refresh_notifications"`
 	FluorideMode             bool   `json:"fluoride_mode"`
 	DarkMode                 bool   `json:"dark_mode"`
-	AntiDopamineMode         bool 	`json:"anti_dopamine_mode"`
+	AntiDopamineMode         bool   `json:"anti_dopamine_mode"`
 }
 
 func NewSettings() *Settings {
