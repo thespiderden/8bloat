@@ -22,7 +22,7 @@
 	<div>
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
-				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="{{.Account.Acct}}" alt="profile-avatar" height="48" />
+				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="profile-avatar" height="48" />
 			</a>
 		</div>
 		<div class="notification-follow">
@@ -33,8 +33,8 @@
 					- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 				</span>
 			</div>
-			<div class="notification-follow-uname">
-				@{{.Account.Acct}}
+			<div>
+				<a href="/user/{{.Account.ID}}"> <span class="status-uname"> @{{.Account.Acct}} </span> </a>
 			</div>
 		</div>
 	</div>
@@ -45,9 +45,11 @@
 	{{else if eq .Type "reblog"}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="{{.Account.Acct}}" alt="avatar" height="48" />
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
 		</a>
-		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
+		<a href="/user/{{.Account.ID}}">
+			<span class="status-uname"> @{{.Account.Acct}} </span>
+		</a>
 		<span> retweeted your post </span>
 		<span>
 			- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
@@ -58,9 +60,11 @@
 	{{else if eq .Type "favourite"}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="{{.Account.Acct}}" alt="avatar" height="48" />
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
 		</a>
-		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
+		<a href="/user/{{.Account.ID}}">
+			<span class="status-uname"> @{{.Account.Acct}} </span>
+		</a>
 		<span> liked your post </span>
 		<span>
 			- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 

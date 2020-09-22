@@ -3,9 +3,12 @@
 	{{if .Reblog}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="{{.Account.Acct}}" alt="avatar" height="24" />
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="avatar" height="24" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
+		<a href="/user/{{.Account.ID}}"> 
+			<span class="status-uname"> @{{.Account.Acct}} </span> 
+		</a>
 		retweeted
 	</div>
 	{{template "status" (WithContext .Reblog $.Ctx)}}
@@ -15,14 +18,14 @@
 	<div class="status-container status-{{.ID}}" data-id="{{.ID}}">
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
-				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="{{.Account.Acct}}" alt="avatar" height="48" />
+				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
 			</a>
 		</div>
 		<div class="status"> 
 			<div class="status-name">
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span> 
 				<a href="/user/{{.Account.ID}}">
-					<span class="status-uname"> {{.Account.Acct}} </span>
+					<span class="status-uname"> @{{.Account.Acct}} </span>
 				</a>
 				<div class="more-container">
 					<div class="remote-link">
@@ -56,7 +59,7 @@
 				{{if .InReplyToID}}
 				<div class="status-reply-to">
 					<a class="status-reply-to-link" href="{{if not .ShowReplies}}/thread/{{.InReplyToID}}{{end}}#status-{{.InReplyToID}}"> 
-						 in reply to {{if .IDNumbers}}#{{index .IDNumbers .InReplyToID}}{{end}} {{if .Pleroma.InReplyToAccountAcct}}{{.Pleroma.InReplyToAccountAcct}}{{else if not .IDNumbers}}{{.InReplyToID}}{{end}}
+						 in reply to {{if .IDNumbers}}#{{index .IDNumbers .InReplyToID}}{{end}} {{if .Pleroma.InReplyToAccountAcct}}@{{.Pleroma.InReplyToAccountAcct}}{{else if not .IDNumbers}}{{.InReplyToID}}{{end}}
 					</a>
 				</div>
 				{{if index .IDReplies .ID}} <span class="status-reply-info-divider"> - </span> {{end}}
