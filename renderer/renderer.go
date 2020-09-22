@@ -80,19 +80,19 @@ func DurToStr(dur time.Duration) string {
 		return strconv.Itoa(int(s)) + "s"
 	}
 	m := dur.Minutes()
-	if m < 60 {
+	if m < 60*2 {
 		return strconv.Itoa(int(m)) + "m"
 	}
 	h := dur.Hours()
-	if h < 24 {
+	if h < 24*2 {
 		return strconv.Itoa(int(h)) + "h"
 	}
 	d := h / 24
-	if d < 30 {
+	if d < 30*2 {
 		return strconv.Itoa(int(d)) + "d"
 	}
 	mo := d / 30
-	if mo < 12 {
+	if mo < 12*2 {
 		return strconv.Itoa(int(mo)) + "mo"
 	}
 	y := mo / 12
