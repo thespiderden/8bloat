@@ -41,7 +41,7 @@ func emojiFilter(content string, emojis []mastodon.Emoji) string {
 	var replacements []string
 	var r string
 	for _, e := range emojis {
-		r = fmt.Sprintf("<img class=\"emoji\" src=\"%s\" alt=\":%s:\" title=\":%s:\" />",
+		r = fmt.Sprintf("<img class=\"emoji\" src=\"%s\" alt=\":%s:\" title=\":%s:\" height=\"24\" />",
 			e.URL, e.ShortCode, e.ShortCode)
 		replacements = append(replacements, ":"+e.ShortCode+":", r)
 	}
@@ -57,7 +57,7 @@ func statusContentFilter(spoiler string, content string,
 		content = spoiler + "<br />" + content
 	}
 	for _, e := range emojis {
-		r = fmt.Sprintf("<img class=\"emoji\" src=\"%s\" alt=\":%s:\" title=\":%s:\" />",
+		r = fmt.Sprintf("<img class=\"emoji\" src=\"%s\" alt=\":%s:\" title=\":%s:\" height=\"32\" />",
 			e.URL, e.ShortCode, e.ShortCode)
 		replacements = append(replacements, ":"+e.ShortCode+":", r)
 	}

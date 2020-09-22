@@ -12,13 +12,8 @@
 	background-color: #cccccc;
 }
 
-.status-container {
-	display: flex;
-}
-
 .status-content {
 	margin: 4px 0;
-	word-wrap: anywhere;
 	max-height: 600px;
 	overflow: auto;
 }
@@ -30,6 +25,8 @@
 .status-content img,
 .status-image,
 .status-video {
+	height: auto;
+	width: auto;
 	max-height: 240px;
 	max-width: 280px;
 	width: auto;
@@ -42,18 +39,17 @@
 
 .status-profile-img-container {
 	margin-right: 8px;
+	float: left;
 }
 
 .status-profile-img {
 	height: 48px;
 	width: 48px;
-	object-fit: contain;
 	vertical-align: top;
 }
 
 .status {
-	flex: 1;
-	overflow-x: auto;
+	overflow: auto;
 }
 
 .status-dname {
@@ -61,14 +57,8 @@
 }
 
 .status-uname {
-	user-select: all;
 	font-style: italic;
 	font-size: 10pt;
-}
-
-.name-emoji {
-	height: 20px;
-	width: auto;
 }
 
 .status-action-container {
@@ -80,7 +70,7 @@
 	margin-right: 16px;
 }
 
-.status-action:last-child {
+.status-action-last {
 	margin-right: 4px;
 }
 
@@ -105,7 +95,7 @@
 }
 
 .post-form {
-	margin: 8px 0;
+	margin: 4px 0;
 }
 
 .post-form>div {
@@ -159,12 +149,12 @@
 	border-color: #777777;
 }
 
-.notification-follow-container {
-	display: flex;
-}
-
 .notification-info-text span {
 	vertical-align: middle;
+}
+
+.notification-follow {
+	overflow: auto;
 }
 
 .notification-follow-uname {
@@ -232,9 +222,8 @@
 }
 
 .user-profile-img {
-	max-height: 100px;
-	max-width: 100px;
-	object-fit: contain;
+	height: 96px;
+	width: 96px;
 	vertical-align: top;
 }
 
@@ -263,7 +252,7 @@ a, .btn-link {
 
 a:hover,
 .btn-link:hover {
-	opacity: 0.6;
+	color: #9899c4;
 }
 
 .status-visibility {
@@ -282,10 +271,6 @@ a:hover,
 	display: inline-block;
 	position: relative;
 	margin: 2.5px 0;
-}
-
-.img-link:hover {
-	opacity: initial;
 }
 
 .status-profile-img-container .img-link {
@@ -327,8 +312,10 @@ a:hover,
 }
 
 img.emoji {
-	height: 32px;
-	object-fit: contain;
+	height: auto;
+	width: auto;
+	max-height: 32px;
+	max-width: 32px;
 	vertical-align: middle;
 }
 
@@ -337,7 +324,6 @@ img.emoji {
 }
 
 .emoji-shortcode {
-	user-select: all;
 	vertical-align: middle;
 	display: inline-block;
 }
@@ -346,27 +332,19 @@ img.emoji {
 	margin-left: 4px;
 }
 
-.post-form-emoji-link i {
-	font-size: 14pt !important;
-}
-
-.post-form-title {
-	vertical-align: middle;
-}
-
-.user-info {
-	display: flex;
-}
-
 .user-info-img {
-	max-height: 64px;
-	max-width: 64px;
-	object-fit: contain;
+	height: 64px;
+	width: 64px;
 	vertical-align: middle;
+}
+
+.user-info-img-container {
+	float: left;
+	margin-right: 8px;
 }
 
 .user-info-details-container {
-	margin-left: 8px;
+	overflow: auto;
 }
 
 .user-info-details-container>div {
@@ -375,7 +353,6 @@ img.emoji {
 
 .nav-link {
 	margin-right: 2px;
-	text-decoration: underline;
 }
 
 .user-list-container {
@@ -442,7 +419,7 @@ img.emoji {
 }
 
 .more-container:hover .more-content {
-	display: initial;
+	display: block;
 }
 
 .more-link {
@@ -512,6 +489,11 @@ img.emoji {
 
 .dark .btn-link {
 	color: #81a2be;
+}
+
+.dark a:hover,
+.dark .btn-link:hover {
+	color: #497091;
 }
 
 .dark .status-visibility {

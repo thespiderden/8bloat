@@ -3,7 +3,7 @@
 	{{if .Reblog}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="{{.Account.Acct}}" alt="avatar" />
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="{{.Account.Acct}}" alt="avatar" height="24" />
 		</a>
 		<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
 		retweeted
@@ -15,7 +15,7 @@
 	<div class="status-container status-{{.ID}}" data-id="{{.ID}}">
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
-				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="{{.Account.Acct}}" alt="avatar" />
+				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="{{.Account.Acct}}" alt="avatar" height="48" />
 			</a>
 		</div>
 		<div class="status"> 
@@ -81,7 +81,7 @@
 				<a href="{{.URL}}" target="_blank" title="{{.Description}}"> [image] </a>
 				{{else}}
 				<a class="img-link" href="{{.URL}}" target="_blank" title="{{.Description}}">
-					<img class="status-image" src="{{.URL}}" alt="status-image" />
+					<img class="status-image" src="{{.URL}}" alt="status-image" height="240" />
 					{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
 					<div class="status-nsfw-overlay"></div>
 					{{end}}
@@ -103,7 +103,7 @@
 				<a href="{{.URL}}" target="_blank" title="{{.Description}}"> [video] </a>
 				{{else}}
 				<div class="status-video-container" title="{{.Description}}">
-					<video class="status-video" controls>
+					<video class="status-video" controls height="240">
 						<source src="{{.URL}}">
 						<a href="{{.URL}}" target="_blank"> [video] </a>
 					</video>
@@ -211,7 +211,7 @@
 						{{end}}
 					</a>
 				</div>
-				<div class="status-action">
+				<div class="status-action status-action-last">
 					<a class="status-time" href="{{if not .ShowReplies}}/thread/{{.ID}}{{end}}#status-{{.ID}}"
 						{{if $.Ctx.ThreadInNewTab}}target="_blank"{{end}}> 
 						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}"> 
