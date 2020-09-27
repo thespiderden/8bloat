@@ -443,8 +443,7 @@ func (s *as) Delete(c *model.Client, id string) (err error) {
 	return s.Service.Delete(c, id)
 }
 
-func (s *as) ReadNotifications(c *model.Client,
-	maxID string) (err error) {
+func (s *as) ReadNotifications(c *model.Client, maxID string) (err error) {
 	err = s.authenticateClient(c)
 	if err != nil {
 		return
@@ -454,4 +453,28 @@ func (s *as) ReadNotifications(c *model.Client,
 		return
 	}
 	return s.Service.ReadNotifications(c, maxID)
+}
+
+func (s *as) Bookmark(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(c)
+	if err != nil {
+		return
+	}
+	return s.Service.Bookmark(c, id)
+}
+
+func (s *as) UnBookmark(c *model.Client, id string) (err error) {
+	err = s.authenticateClient(c)
+	if err != nil {
+		return
+	}
+	err = checkCSRF(c)
+	if err != nil {
+		return
+	}
+	return s.Service.UnBookmark(c, id)
 }

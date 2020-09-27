@@ -316,11 +316,26 @@ func (s *ls) Delete(c *model.Client, id string) (err error) {
 	return s.Service.Delete(c, id)
 }
 
-func (s *ls) ReadNotifications(c *model.Client,
-	maxID string) (err error) {
+func (s *ls) ReadNotifications(c *model.Client, maxID string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Printf("method=%v, max_id=%v, took=%v, err=%v\n",
 			"ReadNotifications", maxID, time.Since(begin), err)
 	}(time.Now())
 	return s.Service.ReadNotifications(c, maxID)
+}
+
+func (s *ls) Bookmark(c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"Bookmark", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.Bookmark(c, id)
+}
+
+func (s *ls) UnBookmark(c *model.Client, id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Printf("method=%v, id=%v, took=%v, err=%v\n",
+			"UnBookmark", id, time.Since(begin), err)
+	}(time.Now())
+	return s.Service.UnBookmark(c, id)
 }

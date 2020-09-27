@@ -353,3 +353,13 @@ func (c *Client) UnSubscribe(ctx context.Context, id string) (*Relationship, err
 	}
 	return relationship, nil
 }
+
+// GetBookmarks returns the list of bookmarked statuses
+func (c *Client) GetBookmarks(ctx context.Context, pg *Pagination) ([]*Status, error) {
+	var statuses []*Status
+	err := c.doAPI(ctx, http.MethodGet, "/api/v1/bookmarks", nil, &statuses, pg)
+	if err != nil {
+		return nil, err
+	}
+	return statuses, nil
+}

@@ -47,6 +47,7 @@ type Status struct {
 	Application        Application  `json:"application"`
 	Language           string       `json:"language"`
 	Pinned             interface{}  `json:"pinned"`
+	Bookmarked         bool         `json:"bookmarked"`
 	Poll               *Poll        `json:"poll"`
 
 	// Custom fields
@@ -361,6 +362,28 @@ func (c *Client) UnmuteConversation(ctx context.Context, id string) (*Status, er
 	var status Status
 
 	err := c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/statuses/%s/unmute", id), nil, &status, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &status, nil
+}
+
+// Bookmark bookmarks status specified by id.
+func (c *Client) Bookmark(ctx context.Context, id string) (*Status, error) {
+	var status Status
+
+	err := c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/statuses/%s/bookmark", id), nil, &status, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &status, nil
+}
+
+// Unbookmark bookmarks status specified by id.
+func (c *Client) Unbookmark(ctx context.Context, id string) (*Status, error) {
+	var status Status
+
+	err := c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/statuses/%s/unbookmark", id), nil, &status, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -62,6 +62,8 @@ type Service interface {
 	UnMuteConversation(c *model.Client, id string) (err error)
 	Delete(c *model.Client, id string) (err error)
 	ReadNotifications(c *model.Client, maxID string) (err error)
+	Bookmark(c *model.Client, id string) (err error)
+	UnBookmark(c *model.Client, id string) (err error)
 }
 
 type service struct {
@@ -109,13 +111,13 @@ func getRendererContext(c *model.Client) *renderer.Context {
 		settings = *model.NewSettings()
 	}
 	return &renderer.Context{
-		HideAttachments: settings.HideAttachments,
-		MaskNSFW:        settings.MaskNSFW,
-		ThreadInNewTab:  settings.ThreadInNewTab,
-		FluorideMode:    settings.FluorideMode,
-		DarkMode:        settings.DarkMode,
-		CSRFToken:       session.CSRFToken,
-		UserID:          session.UserID,
+		HideAttachments:  settings.HideAttachments,
+		MaskNSFW:         settings.MaskNSFW,
+		ThreadInNewTab:   settings.ThreadInNewTab,
+		FluorideMode:     settings.FluorideMode,
+		DarkMode:         settings.DarkMode,
+		CSRFToken:        session.CSRFToken,
+		UserID:           session.UserID,
 		AntiDopamineMode: settings.AntiDopamineMode,
 	}
 }
@@ -464,6 +466,7 @@ func (svc *service) ServeUserPage(c *model.Client, id string, pageType string,
 	if err != nil {
 		return
 	}
+	isCurrent := c.Session.UserID == user.ID
 
 	switch pageType {
 	case "":
@@ -502,6 +505,18 @@ func (svc *service) ServeUserPage(c *model.Client, id string, pageType string,
 			nextLink = fmt.Sprintf("/user/%s/media?max_id=%s",
 				id, pg.MaxID)
 		}
+	case "bookmarks":
+		if !isCurrent {
+			return errInvalidArgument
+		}
+		statuses, err = c.GetBookmarks(ctx, &pg)
+		if err != nil {
+			return
+		}
+		if len(statuses) == 20 && len(pg.MaxID) > 0 {
+			nextLink = fmt.Sprintf("/user/%s/bookmarks?max_id=%s",
+				id, pg.MaxID)
+		}
 	default:
 		return errInvalidArgument
 	}
@@ -509,7 +524,7 @@ func (svc *service) ServeUserPage(c *model.Client, id string, pageType string,
 	commonData := svc.getCommonData(c, user.DisplayName)
 	data := &renderer.UserData{
 		User:       user,
-		IsCurrent:  c.Session.UserID == user.ID,
+		IsCurrent:  isCurrent,
 		Type:       pageType,
 		Users:      users,
 		Statuses:   statuses,
@@ -889,4 +904,14 @@ func (svc *service) Delete(c *model.Client, id string) (err error) {
 
 func (svc *service) ReadNotifications(c *model.Client, maxID string) (err error) {
 	return c.ReadNotifications(ctx, maxID)
+}
+
+func (svc *service) Bookmark(c *model.Client, id string) (err error) {
+	_, err = c.Bookmark(ctx, id)
+	return
+}
+
+func (svc *service) UnBookmark(c *model.Client, id string) (err error) {
+	_, err = c.Unbookmark(ctx, id)
+	return
 }

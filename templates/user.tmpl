@@ -97,6 +97,11 @@
 			<a href="/user/{{.User.ID}}/followers"> followers ({{.User.FollowersCount}}) </a> - 
 			<a href="/user/{{.User.ID}}/media"> media </a>
 		</div>
+		{{if .IsCurrent}}
+		<div>
+			<a href="/user/{{.User.ID}}/bookmarks"> bookmarks </a>
+		</div>
+		{{end}}
 		<div>
 			<a href="/usersearch/{{.User.ID}}"> search statuses </a>
 		</div>
@@ -111,6 +116,8 @@
 <div class="page-title"> Statuses </div>
 {{range .Statuses}}
 {{template "status.tmpl" (WithContext . $.Ctx)}}
+{{else}}
+<div class="no-data-found">No data found</div>
 {{end}}
 
 {{else if eq .Type "following"}}
@@ -125,6 +132,16 @@
 <div class="page-title"> Statuses with media </div>
 {{range .Statuses}}
 {{template "status.tmpl" (WithContext . $.Ctx)}}
+{{else}}
+<div class="no-data-found">No data found</div>
+{{end}}
+
+{{else if eq .Type "bookmarks"}}
+<div class="page-title"> Bookmarks </div>
+{{range .Statuses}}
+{{template "status.tmpl" (WithContext . $.Ctx)}}
+{{else}}
+<div class="no-data-found">No data found</div>
 {{end}}
 {{end}}
 
