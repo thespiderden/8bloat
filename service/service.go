@@ -273,7 +273,7 @@ func (svc *service) ServeTimelinePage(c *model.Client, tType string,
 		}
 	}
 
-	if len(pg.MaxID) > 0 {
+	if len(pg.MaxID) > 0 && len(statuses) == 20 {
 		nextLink = fmt.Sprintf("/timeline/%s?max_id=%s", tType, pg.MaxID)
 	}
 
