@@ -19,7 +19,7 @@
 {{range .Notifications}}
 <div class="notification-container {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
 	{{if eq .Type "follow"}}
-	<div>
+	<div class="notification-follow-container">
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
 				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="profile-avatar" height="48" />

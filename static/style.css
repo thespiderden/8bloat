@@ -16,6 +16,7 @@
 	margin: 4px 0;
 	max-height: 600px;
 	overflow: auto;
+	word-wrap: anywhere;
 }
 
 .status-content p {
@@ -31,6 +32,7 @@
 	max-width: 280px;
 	width: auto;
 	vertical-align: bottom;
+	object-fit: contain;
 }
 
 .status-media-container {
@@ -46,6 +48,7 @@
 	height: 48px;
 	width: 48px;
 	vertical-align: top;
+	object-fit: contain;
 }
 
 .status {
@@ -154,6 +157,10 @@
 	vertical-align: middle;
 }
 
+.notification-follow-container {
+	overflow: auto;
+}
+
 .notification-follow {
 	overflow: auto;
 }
@@ -222,6 +229,7 @@
 	height: 96px;
 	width: 96px;
 	vertical-align: top;
+	object-fit: contain;
 }
 
 .user-profile-decription {
@@ -333,6 +341,7 @@ img.emoji {
 	height: 64px;
 	width: 64px;
 	vertical-align: middle;
+	object-fit: contain;
 }
 
 .user-info-img-container {
@@ -356,10 +365,17 @@ img.emoji {
 	margin: 8px 0;
 }
 
-.user-list-item>div {
-	display: inline-block;
-	vertical-align: top;
-	margin: 0 4px 8px 0;
+.user-list-item {
+	overflow: auto;
+}
+
+.user-list-profile-img {
+	float: left;
+	margin: 0 8px 8px 0;
+}
+
+.user-list-name {
+	overflow: auto;
 }
 
 #settings-form {
