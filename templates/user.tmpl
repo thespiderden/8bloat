@@ -100,7 +100,8 @@
 		{{if .IsCurrent}}
 		<div>
 			<a href="/user/{{.User.ID}}/bookmarks"> bookmarks </a> -
-			<a href="/user/{{.User.ID}}/mutes"> mutes </a>
+			<a href="/user/{{.User.ID}}/mutes"> mutes </a> -
+			<a href="/user/{{.User.ID}}/blocks"> blocks </a>
 		</div>
 		{{end}}
 		<div>
@@ -147,6 +148,10 @@
 
 {{else if eq .Type "mutes"}}
 <div class="page-title"> Mutes </div>
+{{template "userlist.tmpl" (WithContext .Users $.Ctx)}}
+
+{{else if eq .Type "blocks"}}
+<div class="page-title"> Blocks </div>
 {{template "userlist.tmpl" (WithContext .Users $.Ctx)}}
 {{end}}
 
