@@ -100,6 +100,7 @@
 		{{if .IsCurrent}}
 		<div>
 			<a href="/user/{{.User.ID}}/bookmarks"> bookmarks </a> -
+			<a href="/user/{{.User.ID}}/likes"> likes </a> -
 			<a href="/user/{{.User.ID}}/mutes"> mutes </a> -
 			<a href="/user/{{.User.ID}}/blocks"> blocks </a>
 		</div>
@@ -140,6 +141,14 @@
 
 {{else if eq .Type "bookmarks"}}
 <div class="page-title"> Bookmarks </div>
+{{range .Statuses}}
+{{template "status.tmpl" (WithContext . $.Ctx)}}
+{{else}}
+<div class="no-data-found">No data found</div>
+{{end}}
+
+{{else if eq .Type "likes"}}
+<div class="page-title"> Likes </div>
 {{range .Statuses}}
 {{template "status.tmpl" (WithContext . $.Ctx)}}
 {{else}}
