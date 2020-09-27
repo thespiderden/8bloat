@@ -99,7 +99,8 @@
 		</div>
 		{{if .IsCurrent}}
 		<div>
-			<a href="/user/{{.User.ID}}/bookmarks"> bookmarks </a>
+			<a href="/user/{{.User.ID}}/bookmarks"> bookmarks </a> -
+			<a href="/user/{{.User.ID}}/mutes"> mutes </a>
 		</div>
 		{{end}}
 		<div>
@@ -143,6 +144,10 @@
 {{else}}
 <div class="no-data-found">No data found</div>
 {{end}}
+
+{{else if eq .Type "mutes"}}
+<div class="page-title"> Mutes </div>
+{{template "userlist.tmpl" (WithContext .Users $.Ctx)}}
 {{end}}
 
 <div class="pagination">

@@ -517,6 +517,18 @@ func (svc *service) ServeUserPage(c *model.Client, id string, pageType string,
 			nextLink = fmt.Sprintf("/user/%s/bookmarks?max_id=%s",
 				id, pg.MaxID)
 		}
+	case "mutes":
+		if !isCurrent {
+			return errInvalidArgument
+		}
+		users, err = c.GetMutes(ctx, &pg)
+		if err != nil {
+			return
+		}
+		if len(users) == 20 && len(pg.MaxID) > 0 {
+			nextLink = fmt.Sprintf("/user/%s/mutes?max_id=%s",
+				id, pg.MaxID)
+		}
 	default:
 		return errInvalidArgument
 	}
