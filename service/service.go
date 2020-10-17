@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"mime/multipart"
+	"html/template"
 	"net/url"
 	"strings"
 
@@ -589,18 +590,19 @@ func (svc *service) ServeUserSearchPage(c *model.Client,
 
 	if len(results.Statuses) == 20 {
 		offset += 20
-		nextLink = fmt.Sprintf("/usersearch/%s?q=%s&offset=%d", id, q, offset)
+		nextLink = fmt.Sprintf("/usersearch/%s?q=%s&offset=%d", id, url.QueryEscape(q), offset)
 	}
 
+	qq := template.HTMLEscapeString(q)
 	if len(q) > 0 {
-		title += " \"" + q + "\""
+		title += " \"" + qq + "\""
 	}
 
 	commonData := svc.getCommonData(c, title)
 	data := &renderer.UserSearchData{
 		CommonData: commonData,
 		User:       user,
-		Q:          q,
+		Q:          qq,
 		Statuses:   results.Statuses,
 		NextLink:   nextLink,
 	}
@@ -649,17 +651,18 @@ func (svc *service) ServeSearchPage(c *model.Client,
 	if (qType == "accounts" && len(results.Accounts) == 20) ||
 		(qType == "statuses" && len(results.Statuses) == 20) {
 		offset += 20
-		nextLink = fmt.Sprintf("/search?q=%s&type=%s&offset=%d", q, qType, offset)
+		nextLink = fmt.Sprintf("/search?q=%s&type=%s&offset=%d", url.QueryEscape(q), qType, offset)
 	}
 
+	qq := template.HTMLEscapeString(q)
 	if len(q) > 0 {
-		title += " \"" + q + "\""
+		title += " \"" + qq + "\""
 	}
 
 	commonData := svc.getCommonData(c, title)
 	data := &renderer.SearchData{
 		CommonData: commonData,
-		Q:          q,
+		Q:          qq,
 		Type:       qType,
 		Users:      results.Accounts,
 		Statuses:   results.Statuses,

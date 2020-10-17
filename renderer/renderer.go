@@ -2,7 +2,6 @@ package renderer
 
 import (
 	"fmt"
-	htemplate "html/template"
 	"io"
 	"strconv"
 	"strings"
@@ -146,7 +145,6 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 		"FormatTimeRFC3339":       formatTimeRFC3339,
 		"FormatTimeRFC822":        formatTimeRFC822,
 		"WithContext":             withContext,
-		"HTMLEscape":              htemplate.HTMLEscapeString,
 	}).ParseGlob(templateGlobPattern)
 	if err != nil {
 		return
