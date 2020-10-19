@@ -560,6 +560,12 @@ func (svc *service) ServeUserPage(c *model.Client, id string, pageType string,
 		return errInvalidArgument
 	}
 
+	for i := range statuses {
+		if statuses[i].Reblog != nil {
+			statuses[i].Reblog.RetweetedByID = statuses[i].ID
+		}
+	}
+
 	commonData := svc.getCommonData(c, user.DisplayName)
 	data := &renderer.UserData{
 		User:       user,
