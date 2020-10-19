@@ -583,9 +583,14 @@ func (svc *service) ServeUserSearchPage(c *model.Client,
 		return
 	}
 
-	results, err := c.Search(ctx, q, "statuses", 20, true, offset, id)
-	if err != nil {
-		return
+	var results *mastodon.Results
+	if len(q) > 0 {
+		results, err = c.Search(ctx, q, "statuses", 20, true, offset, id)
+		if err != nil {
+			return err
+		}
+	} else {
+		results = &mastodon.Results{}
 	}
 
 	if len(results.Statuses) == 20 {
@@ -643,9 +648,14 @@ func (svc *service) ServeSearchPage(c *model.Client,
 	var nextLink string
 	var title = "search"
 
-	results, err := c.Search(ctx, q, qType, 20, true, offset, "")
-	if err != nil {
-		return
+	var results *mastodon.Results
+	if len(q) > 0 {
+		results, err = c.Search(ctx, q, qType, 20, true, offset, "")
+		if err != nil {
+			return err
+		}
+	} else {
+		results = &mastodon.Results{}
 	}
 
 	if (qType == "accounts" && len(results.Accounts) == 20) ||
