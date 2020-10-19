@@ -16,8 +16,11 @@
 	<div>
 		{{if gt (len .Formats) 0}}
 		<span class="post-form-field">
+			{{$defFormat := .DefaultFormat}}
 			<select id="post-format" name="format" accesskey="F" title="Format (F)">
-				{{range .Formats}} <option value="{{.Type}}">{{.Name}}</option> {{end}}
+				{{range .Formats}} 
+					<option value="{{.Type}}" {{if eq $defFormat .Type}}selected{{end}}>{{.Name}}</option> 
+				{{end}}
 			</select>
 		</span>
 		{{end}}

@@ -7,6 +7,7 @@ type PostFormat struct {
 
 type PostContext struct {
 	DefaultVisibility string
+	DefaultFormat     string
 	ReplyContext      *ReplyContext
 	Formats           []PostFormat
 	DarkMode          bool

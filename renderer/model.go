@@ -121,5 +121,6 @@ type SearchData struct {
 
 type SettingsData struct {
 	*CommonData
-	Settings *model.Settings
+	Settings    *model.Settings
+	PostFormats []model.PostFormat
 }

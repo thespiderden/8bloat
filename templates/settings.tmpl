@@ -5,6 +5,15 @@
 <form id="settings-form" action="/settings" method="POST">
 	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 	<div class="settings-form-field">
+		<label for="visibility"> Default format </label>
+		{{$defFormat := .Settings.DefaultFormat}}
+		<select id="post-format" name="format">
+			{{range .PostFormats}} 
+				<option value="{{.Type}}" {{if eq $defFormat .Type}}selected{{end}}>{{.Name}}</option> 
+			{{end}}
+		</select>
+	</div>
+	<div class="settings-form-field">
 		<label for="visibility"> Default scope </label>
 		<select id="visibility" name="visibility">
 			<option value="public" {{if eq .Settings.DefaultVisibility "public"}}selected{{end}}>Public</option>

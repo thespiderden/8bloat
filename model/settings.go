@@ -2,6 +2,7 @@ package model
 
 type Settings struct {
 	DefaultVisibility        string `json:"default_visibility"`
+	DefaultFormat            string `json:"default_format"`
 	CopyScope                bool   `json:"copy_scope"`
 	ThreadInNewTab           bool   `json:"thread_in_new_tab"`
 	HideAttachments          bool   `json:"hide_attachments"`
@@ -15,6 +16,7 @@ type Settings struct {
 func NewSettings() *Settings {
 	return &Settings{
 		DefaultVisibility:        "public",
+		DefaultFormat:            "",
 		CopyScope:                true,
 		ThreadInNewTab:           false,
 		HideAttachments:          false,

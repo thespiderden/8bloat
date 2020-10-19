@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"mime/multipart"
 	"html/template"
+	"mime/multipart"
 	"net/url"
 	"strings"
 
@@ -198,6 +198,7 @@ func (svc *service) ServeNavPage(c *model.Client) (err error) {
 
 	postContext := model.PostContext{
 		DefaultVisibility: c.Session.Settings.DefaultVisibility,
+		DefaultFormat:     c.Session.Settings.DefaultFormat,
 		Formats:           svc.postFormats,
 	}
 
@@ -326,6 +327,7 @@ func (svc *service) ServeThreadPage(c *model.Client, id string, reply bool) (err
 
 		postContext = model.PostContext{
 			DefaultVisibility: visibility,
+			DefaultFormat:     c.Session.Settings.DefaultFormat,
 			Formats:           svc.postFormats,
 			ReplyContext: &model.ReplyContext{
 				InReplyToID:     id,
@@ -686,8 +688,9 @@ func (svc *service) ServeSearchPage(c *model.Client,
 func (svc *service) ServeSettingsPage(c *model.Client) (err error) {
 	commonData := svc.getCommonData(c, "settings")
 	data := &renderer.SettingsData{
-		CommonData: commonData,
-		Settings:   &c.Session.Settings,
+		CommonData:  commonData,
+		Settings:    &c.Session.Settings,
+		PostFormats: svc.postFormats,
 	}
 
 	rCtx := getRendererContext(c)

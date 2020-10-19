@@ -584,6 +584,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 	settings := func(w http.ResponseWriter, req *http.Request) {
 		c := newClient(w, req, req.FormValue("csrf_token"))
 		visibility := req.FormValue("visibility")
+		format := req.FormValue("format")
 		copyScope := req.FormValue("copy_scope") == "true"
 		threadInNewTab := req.FormValue("thread_in_new_tab") == "true"
 		hideAttachments := req.FormValue("hide_attachments") == "true"
@@ -595,6 +596,7 @@ func NewHandler(s Service, staticDir string) http.Handler {
 
 		settings := &model.Settings{
 			DefaultVisibility:        visibility,
+			DefaultFormat:            format,
 			CopyScope:                copyScope,
 			ThreadInNewTab:           threadInNewTab,
 			HideAttachments:          hideAttachments,
