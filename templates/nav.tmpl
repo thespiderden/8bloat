@@ -7,13 +7,13 @@
 		</a>
 	</div>
 	<div class="user-info-details-container">
-		<div>
+		<div class="user-info-details-name">
 			<span class="status-dname"> {{EmojiFilter .User.DisplayName .User.Emojis}} </span>  
 			<a class="nav-link" href="/user/{{.User.ID}}">
 				<span class="status-uname"> @{{.User.Acct}} </span>
 			</a>
 		</div>
-		<div>
+		<div class="user-info-details-nav">
 			<a class="nav-link" href="/timeline/home">home</a>
 			<a class="nav-link" href="/timeline/direct">direct</a>
 			<a class="nav-link" href="/timeline/local">local</a>

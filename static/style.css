@@ -9,7 +9,11 @@
 }
 
 .status-container-container.highlight {
-	background-color: #cccccc;
+	background-color: #eeeeee;
+}
+
+.status-container {
+	display: flex;
 }
 
 .status-content {
@@ -30,9 +34,9 @@
 	width: auto;
 	max-height: 240px;
 	max-width: 280px;
-	width: auto;
 	vertical-align: bottom;
 	object-fit: contain;
+	margin-bottom: 5px;
 }
 
 .status-media-container {
@@ -41,18 +45,25 @@
 
 .status-profile-img-container {
 	margin-right: 8px;
-	float: left;
+	display: inline-block;
+	vertical-align: top;
 }
 
 .status-profile-img {
 	height: 48px;
 	width: 48px;
+	min-height: 48px;
+	min-width: 48px;
+	max-height: 48px;
+	max-width: 48px;
 	vertical-align: top;
 	object-fit: contain;
+	margin-top: 2px;
 }
 
 .status {
-	overflow: auto;
+	display: inline-block;
+	vertical-align: top;
 }
 
 .status-dname {
@@ -114,24 +125,29 @@
 }
 
 .retweet-info {
-	margin: 0 0 2px 24px;	
+	margin: 0 0 4px 24px;
 }
 
 .retweet-info .status-profile-img {
 	height: 24px;
 	width: 24px;
+	min-height: 24px;
+	min-width: 24px;
+	max-height: 24px;
+	max-width: 24px;
 	vertical-align: middle;
 }
 
-.retweet-info .status-dname{
-	margin-left: 4px
+.retweet-info .status-dname {
+	margin-left: 4px;
 }
 
 .post-content {
 	padding: 4px;
 	font-size: 11pt;
 	font-family: initial;
-	max-width: 100%;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .pagination {
@@ -159,6 +175,8 @@
 
 .notification-follow-container {
 	overflow: auto;
+	display: flex;
+	align-items: center;
 }
 
 .notification-follow {
@@ -230,6 +248,7 @@
 	width: 96px;
 	vertical-align: top;
 	object-fit: contain;
+	margin-top: 2px;
 }
 
 .user-profile-decription {
@@ -275,12 +294,10 @@ a:hover,
 .img-link {
 	display: inline-block;
 	position: relative;
-	margin: 2.5px 0;
 }
 
 .status-profile-img-container .img-link {
 	width: 48px;
-	overflow: hidden;
 }
 
 .status-nsfw-overlay {
@@ -307,13 +324,18 @@ a:hover,
 }
 
 .post-form-field>* {
-  vertical-align: middle;
+	vertical-align: middle;
 }
 
-.emoji-item {
+.emoji-item-container {
 	min-width: 220px;
 	display: inline-block;
 	margin: 4px 0;
+}
+
+.emoji-item {
+	display: flex;
+	align-items: center;
 }
 
 img.emoji {
@@ -321,16 +343,20 @@ img.emoji {
 	width: auto;
 	max-height: 32px;
 	max-width: 32px;
+	min-height: 32px;
+	min-width: 32px;
 	vertical-align: middle;
+	object-fit: contain;
 }
 
 .status-dname img.emoji {
 	height: 24px;
+	min-height: 24px;
+	min-width: 24px;
 }
 
 .emoji-shortcode {
-	vertical-align: middle;
-	display: inline-block;
+	margin-left: 4px;
 }
 
 .post-form-emoji-link {
@@ -342,6 +368,7 @@ img.emoji {
 	width: 64px;
 	vertical-align: middle;
 	object-fit: contain;
+	margin-top: 2px;
 }
 
 .user-info-img-container {
@@ -353,7 +380,8 @@ img.emoji {
 	overflow: auto;
 }
 
-.user-info-details-container>div {
+.user-info-details-name,
+.user-info-details-nav {
 	margin-bottom: 4px;
 }
 
@@ -367,11 +395,14 @@ img.emoji {
 
 .user-list-item {
 	overflow: auto;
+	margin: 0 0 12px 0;
+	display: flex;
+	align-items: center;
 }
 
 .user-list-profile-img {
 	float: left;
-	margin: 0 8px 8px 0;
+	margin: 0 8px 0 0;
 }
 
 .user-list-name {
