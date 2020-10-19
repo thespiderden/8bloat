@@ -7,11 +7,11 @@
 			({{.UnreadCount }})
 		{{end}}
 	</div>
-	<a class="notification-refresh" href="/notifications" target="_self">refresh</a>
+	<a class="notification-refresh" href="/notifications" target="_self" accesskey="R" title="Refresh (R)">refresh</a>
 	{{if .ReadID}}
 	<form action="/notifications/read?max_id={{.ReadID}}" method="post" target="_self">
 		<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-		<input type="submit" value="read" class="btn-link">
+		<input type="submit" value="read" class="btn-link" accesskey="C" title="Clear unread notifications (C)">
 	</form>
 	{{end}}
 </div>

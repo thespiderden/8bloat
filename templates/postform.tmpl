@@ -7,24 +7,22 @@
 	{{else}}
 	<label for="post-content" class="post-form-title"> New post </label>
 	{{end}}
-	<a class="post-form-emoji-link" href="/emojis" target="_blank" title="emoji list">
+	<a class="post-form-emoji-link" href="/emojis" target="_blank" title="Emoji list (L)" accesskey="L">
 		emoji list
 	</a>
 	<div class="post-form-content-container">
-		<textarea id="post-content" name="content" class="post-content" cols="34" rows="5">{{if .ReplyContext}}{{.ReplyContext.ReplyContent}}{{end}}</textarea>
+		<textarea id="post-content" name="content" class="post-content" cols="34" rows="5" accesskey="E" title="Edit post (E)">{{if .ReplyContext}}{{.ReplyContext.ReplyContent}}{{end}}</textarea>
 	</div>
 	<div>
 		{{if gt (len .Formats) 0}}
 		<span class="post-form-field">
-			<label for="post-format"> Format </label>
-			<select id="post-format" name="format">
+			<select id="post-format" name="format" accesskey="F" title="Format (F)">
 				{{range .Formats}} <option value="{{.Type}}">{{.Name}}</option> {{end}}
 			</select>
 		</span>
 		{{end}}
 		<span class="post-form-field">
-			<label for="post-visilibity"> Scope </label>
-			<select id="post-visilibity" name="visibility" {{if .ReplyContext}}{{if .ReplyContext.ForceVisibility}}disabled{{end}}{{end}}>
+			<select id="post-visilibity" name="visibility" {{if .ReplyContext}}{{if .ReplyContext.ForceVisibility}}disabled{{end}}{{end}} accesskey="S" title="Scope (S)">
 				<option value="public" {{if eq .DefaultVisibility "public"}}selected{{end}}>Public</option>
 				<option value="unlisted" {{if eq .DefaultVisibility "unlisted"}}selected{{end}}>Unlisted</option>
 				<option value="private" {{if eq .DefaultVisibility "private"}}selected{{end}}>Private</option>
@@ -32,17 +30,16 @@
 			</select>
 		</span>
 		<span class="post-form-field">
-			<input type="checkbox" id="nsfw-checkbox" name="is_nsfw" value="on">
-			<label for="nsfw-checkbox"> Is NSFW </label>
+			<input type="checkbox" id="nsfw-checkbox" name="is_nsfw" value="on" accesskey="N" title="NSFW (N)">
+			<label for="nsfw-checkbox"> NSFW </label>
 		</span>
 	</div>
 	<div>
 		<span class="post-form-field">
-			<label for ="post-file-picker"> Attachments </label>
-			<input id="post-file-picker" type="file" name="attachments" multiple>
+			<input id="post-file-picker" type="file" name="attachments" multiple accesskey="A" title="Attachments (A)">
 		</span>
 	</div>
-	<button type="submit"> Post </button>
+	<button type="submit" accesskey="P" title="Post (P)"> Post </button>
 </form>
 {{end}}
 

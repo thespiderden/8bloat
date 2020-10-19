@@ -505,6 +505,22 @@ img.emoji {
 	margin: 8px 0 16px 0;
 }
 
+.keyboard-shortcuts {
+	margin-top: 12px;
+}
+
+.keyboard-shortcuts td {
+	padding: 2px 4px;
+}
+
+kbd {
+	border-radius: 3px;
+	padding: 1px 4px;
+	border: 1px solid #444444;
+	background-color: #eeeeee;
+	font-size: 10pt;
+}
+
 .dark {
 	background-color: #222222;
 	background-image: none;
@@ -547,4 +563,10 @@ img.emoji {
 .dark .more-content {
 	background-color: #222222;
 	border-color: #444444;
+}
+
+.dark kbd {
+	background-color: #333333;
+	border-color: #444444;
+	color: #eaeaea;
 }

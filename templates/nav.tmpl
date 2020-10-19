@@ -2,30 +2,30 @@
 {{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
 <div class="user-info">
 	<div class="user-info-img-container">
-		<a class="img-link" href="/timeline/home" title="home">
+		<a class="img-link" href="/timeline/home" title="Home (1)">
 			<img class="user-info-img" src="{{.User.AvatarStatic}}" alt="profile-avatar" height="64" />
 		</a>
 	</div>
 	<div class="user-info-details-container">
 		<div class="user-info-details-name">
 			<span class="status-dname"> {{EmojiFilter .User.DisplayName .User.Emojis}} </span>  
-			<a class="nav-link" href="/user/{{.User.ID}}">
+			<a class="nav-link" href="/user/{{.User.ID}}" accesskey="0" title="User profile (0)">
 				<span class="status-uname"> @{{.User.Acct}} </span>
 			</a>
 		</div>
 		<div class="user-info-details-nav">
-			<a class="nav-link" href="/timeline/home">home</a>
-			<a class="nav-link" href="/timeline/direct">direct</a>
-			<a class="nav-link" href="/timeline/local">local</a>
-			<a class="nav-link" href="/timeline/twkn">twkn</a>
-			<a class="nav-link" href="/search">search</a>
-			<a class="nav-link" href="/about">about</a>
+			<a class="nav-link" href="/timeline/home" accesskey="1" title="Home timeline (1)">home</a>
+			<a class="nav-link" href="/timeline/direct" accesskey="2" title="Direct timeline (2)">direct</a>
+			<a class="nav-link" href="/timeline/local" accesskey="3" title="Local timeline (3)">local</a>
+			<a class="nav-link" href="/timeline/twkn" accesskey="4" title="The Whole Known Netwwork (4)">twkn</a>
+			<a class="nav-link" href="/search" accesskey="5" title="Search (5)">search</a>
+			<a class="nav-link" href="/about" accesskey="6" title="About (6)">about</a>
 		</div>
 		<div>
-			<a class="nav-link" href="/settings" target="_top">settings</a>
+			<a class="nav-link" href="/settings" target="_top" accesskey="7" title="Settings (7)">settings</a>
 			<form class="signout" action="/signout" method="post" target="_top">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-				<input type="submit" value="signout" class="btn-link nav-link">
+				<input type="submit" value="signout" class="btn-link nav-link" accesskey="8" title="Signout (8)">
 			</form>
 		</div>
 	</div>
