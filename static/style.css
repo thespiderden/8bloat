@@ -1,10 +1,11 @@
 .status-container-container {
-	margin: 12px 0 12px -4px;
+	margin: 0 -4px 12px -4px;
 	padding: 4px;
 	border-left: 4px solid transparent;
 }
 
-.status-container-container:target {
+.status-container-container:target,
+.status-container-container.unread {
 	border-color: #777777;
 }
 
@@ -20,7 +21,11 @@
 	margin: 4px 0;
 	max-height: 600px;
 	overflow: auto;
-	word-wrap: anywhere;
+	overflow-wrap: break-word;
+}
+
+.status-name {
+	overflow-wrap: break-word;
 }
 
 .status-content p {
@@ -40,7 +45,8 @@
 }
 
 .status-media-container {
-	margin: 4px 0;
+	margin: 5px 0 -5px 0;
+	overflow: auto;
 }
 
 .status-profile-img-container {
@@ -64,6 +70,8 @@
 .status {
 	display: inline-block;
 	vertical-align: top;
+	flex: 1;
+	min-width: 0;
 }
 
 .status-dname {
@@ -106,6 +114,7 @@
 
 .page-title {
 	font-size: 18pt;
+	margin: 8px 0;
 }
 
 .post-form {
@@ -126,6 +135,7 @@
 
 .retweet-info {
 	margin: 0 0 4px 24px;
+	overflow-wrap: break-word;
 }
 
 .retweet-info .status-profile-img {
@@ -159,16 +169,6 @@
 	font-size: 13pt;
 }
 
-.notification-container {
-	margin: 16px 0 16px -4px;
-	padding: 0 4px;
-	border-left: 4px solid transparent;
-}
-
-.notification-container.unread {
-	border-color: #777777;
-}
-
 .notification-info-text span {
 	vertical-align: middle;
 }
@@ -193,6 +193,10 @@
 
 .status-reply-to-link {
 	font-size: 10pt
+}
+
+.status-reply-container {
+	word-break: break-all;
 }
 
 .status-reply-container .fa {
@@ -252,7 +256,11 @@
 }
 
 .user-profile-decription {
-	margin: 4px 0;
+	margin: 8px 0;
+}
+
+.user-profile-decription p {
+	margin: 0;
 }
 
 .d-inline {
@@ -301,12 +309,13 @@ a:hover,
 }
 
 .status-nsfw-overlay {
-	height: 100%;
-	width: 100%;
 	background: black;
 	position: absolute;
 	top: 0;
+	bottom: 0;
 	left: 0;
+	right: 0;
+	margin-bottom: 5px;
 }
 
 .img-link:hover .status-nsfw-overlay {
@@ -347,6 +356,7 @@ img.emoji {
 	min-width: 32px;
 	vertical-align: middle;
 	object-fit: contain;
+	margin: 0;
 }
 
 .status-dname img.emoji {
@@ -390,7 +400,6 @@ img.emoji {
 }
 
 .user-list-container {
-	margin: 8px 0;
 }
 
 .user-list-item {
@@ -444,7 +453,7 @@ img.emoji {
 }
 
 .search-form {
-	margin: 16px 0 16px 0;
+	margin: 12px 0;
 }
 
 .more-container {
@@ -459,7 +468,6 @@ img.emoji {
 	background-color: #ffffff;
 	padding: 2px 4px;
 	border: 1px solid #aaaaaa;
-	right: 0;
 }
 
 .more-container:hover .more-content {
@@ -472,6 +480,12 @@ img.emoji {
 	margin: 2px;
 }
 
+.poll-form {
+	margin-top: 5px;
+	overflow: auto;
+	overflow-wrap: break-word;
+}
+
 .poll-form button[type=submit] {
 	margin-top: 6px;
 }
@@ -480,17 +494,20 @@ img.emoji {
 	margin-top: 6px;
 }
 
-.notification-title-container>* {
-	display: inline;
+.notification-title-container {
+	margin: 8px 0;
 }
 
-.notification-title {
-	font-size: 18pt;
-	margin-right: 8px;
+.notification-text {
+	vertical-align: middle;
 }
 
 .notification-refresh {
 	margin-right: 8px;
+}
+
+.notification-read {
+	display: inline-block;
 }
 
 .no-data-found {

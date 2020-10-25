@@ -1,15 +1,15 @@
 {{with .Data}}
 {{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
 <div class="notification-title-container">
-	<div class="notification-title">
+	<span class="page-title">
 		Notifications
 		{{if and (not $.Ctx.AntiDopamineMode) (gt .UnreadCount 0)}}
 			({{.UnreadCount }})
 		{{end}}
-	</div>
+	</span>
 	<a class="notification-refresh" href="/notifications" target="_self" accesskey="R" title="Refresh (R)">refresh</a>
 	{{if .ReadID}}
-	<form action="/notifications/read?max_id={{.ReadID}}" method="post" target="_self">
+	<form class="notification-read" action="/notifications/read?max_id={{.ReadID}}" method="post" target="_self">
 		<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 		<input type="submit" value="read" class="btn-link" accesskey="C" title="Clear unread notifications (C)">
 	</form>
@@ -17,7 +17,7 @@
 </div>
 
 {{range .Notifications}}
-<div class="notification-container {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
+<div class="status-container-container {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
 	{{if eq .Type "follow"}}
 	<div class="notification-follow-container">
 		<div class="status-profile-img-container">
@@ -28,9 +28,8 @@
 		<div class="notification-follow">
 			<div class="notification-info-text">
 				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
-				<span> followed you </span>
-				<span>
-					- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
+				<span class="notification-text"> followed you - 
+					<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 				</span>
 			</div>
 			<div>
@@ -50,9 +49,8 @@
 		<a href="/user/{{.Account.ID}}">
 			<span class="status-uname"> @{{.Account.Acct}} </span>
 		</a>
-		<span> retweeted your post </span>
-		<span>
-			- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
+		<span class="notification-text"> retweeted your post - 
+			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
 	{{template "status" (WithContext .Status $.Ctx)}}
@@ -65,9 +63,8 @@
 		<a href="/user/{{.Account.ID}}">
 			<span class="status-uname"> @{{.Account.Acct}} </span>
 		</a>
-		<span> liked your post </span>
-		<span>
-			- <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
+		<span class="notification-text"> liked your post - 
+			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
 	{{template "status" (WithContext .Status $.Ctx)}}

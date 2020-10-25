@@ -89,6 +89,7 @@
 			{{if .Content}}
 			<div class="status-content"> {{StatusContentFilter .SpoilerText .Content .Emojis .Mentions}} </div>
 			{{end}}
+			{{if .MediaAttachments}}
 			<div class="status-media-container">
 				{{range .MediaAttachments}}
 
@@ -132,9 +133,9 @@
 				{{else}}
 				<a href="{{.URL}}" target="_blank" title="{{.Description}}"> [attachment] </a>
 				{{end}}
-
 				{{end}}
 			</div>
+			{{end}}
 			{{if .Poll}}
 			<form class="poll-form" action="/vote/{{.Poll.ID}}" method="POST" target="_self">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
