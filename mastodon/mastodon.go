@@ -15,7 +15,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/tomnomnom/linkheader"
 )
@@ -30,7 +29,7 @@ type Config struct {
 
 // Client is a API client for mastodon.
 type Client struct {
-	http.Client
+	*http.Client
 	config *Config
 }
 
@@ -144,32 +143,11 @@ func (c *Client) doAPI(ctx context.Context, method string, uri string, params in
 		req.Header.Set("Content-Type", ct)
 	}
 
-	var resp *http.Response
-	backoff := 1000 * time.Millisecond
-	for {
-		resp, err = c.Do(req)
-		if err != nil {
-			return err
-		}
-		defer resp.Body.Close()
-
-		// handle status code 429, which indicates the server is throttling
-		// our requests. Do an exponential backoff and retry the request.
-		if resp.StatusCode == 429 {
-			if backoff > time.Hour {
-				break
-			}
-			backoff *= 2
-
-			select {
-			case <-time.After(backoff):
-			case <-ctx.Done():
-				return ctx.Err()
-			}
-			continue
-		}
-		break
+	resp, err := c.Do(req)
+	if err != nil {
+		return err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		return parseAPIError("bad request", resp)
@@ -190,7 +168,7 @@ func (c *Client) doAPI(ctx context.Context, method string, uri string, params in
 // NewClient return new mastodon API client.
 func NewClient(config *Config) *Client {
 	return &Client{
-		Client: *http.DefaultClient,
+		Client: http.DefaultClient,
 		config: config,
 	}
 }
