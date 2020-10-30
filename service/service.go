@@ -300,19 +300,14 @@ func (svc *service) ServeThreadPage(c *model.Client, id string, reply bool) (err
 		return
 	}
 
-	u, err := c.GetAccountCurrentUser(ctx)
-	if err != nil {
-		return
-	}
-
 	if reply {
 		var content string
 		var visibility string
-		if u.ID != status.Account.ID {
+		if c.Session.UserID != status.Account.ID {
 			content += "@" + status.Account.Acct + " "
 		}
 		for i := range status.Mentions {
-			if status.Mentions[i].ID != u.ID &&
+			if status.Mentions[i].ID != c.Session.UserID &&
 				status.Mentions[i].ID != status.Account.ID {
 				content += "@" + status.Mentions[i].Acct + " "
 			}
