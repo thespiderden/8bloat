@@ -61,7 +61,7 @@ func statusContentFilter(spoiler string, content string,
 		replacements = append(replacements, ":"+e.ShortCode+":", r)
 	}
 	for _, m := range mentions {
-		replacements = append(replacements, "\""+m.URL+"\"", "\"/user/"+m.ID+"\"")
+		replacements = append(replacements, `"`+m.URL+`"`, `"/user/`+m.ID+`" title="@`+m.Acct+`"`)
 	}
 	return strings.NewReplacer(replacements...).Replace(content)
 }
