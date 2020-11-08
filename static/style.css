@@ -41,12 +41,16 @@
 	max-width: 280px;
 	vertical-align: bottom;
 	object-fit: contain;
-	margin-bottom: 5px;
 }
 
 .status-media-container {
 	margin: 5px 0 -5px 0;
 	overflow: auto;
+}
+
+.status-media-container>a {
+	margin-bottom: 5px;
+	display: inline-block;
 }
 
 .status-profile-img-container {
@@ -187,16 +191,12 @@
 	margin-left: 8px;
 }
 
-.status-reply-to {
-	display: inline-block;
-}
-
 .status-reply-to-link {
 	font-size: 10pt
 }
 
 .status-reply-container {
-	word-break: break-all;
+	overflow-wrap: break-word;
 }
 
 .status-reply-container .fa {
@@ -207,10 +207,6 @@
 
 .status-reply-text {
 	font-size: 10pt;
-}
-
-.status-reply {
-	display: inline-block;
 }
 
 .status-reply-link {
@@ -256,6 +252,7 @@
 }
 
 .user-profile-decription {
+	overflow-wrap: break-word;
 	margin: 8px 0;
 }
 
@@ -315,7 +312,6 @@ a:hover,
 	bottom: 0;
 	left: 0;
 	right: 0;
-	margin-bottom: 5px;
 }
 
 .img-link:hover .status-nsfw-overlay {

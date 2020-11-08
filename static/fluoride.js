@@ -132,13 +132,13 @@ function isInView(el) {
 	return false;
 }
 
-function handleReplyToLink(div) {
-	if (!div)
+function handleReplyToLink(a) {
+	if (!a)
 		return;
-	var id = div.firstElementChild.getAttribute("href");
+	var id = a.getAttribute("href");
 	if (!id || id[0] != "#")
 		return;
-	div.firstElementChild.onmouseenter = function(event) {
+	a.onmouseenter = function(event) {
 		var id = event.target.getAttribute("href");
 		var status = document.querySelector(id);
 		if (!status)
@@ -156,7 +156,7 @@ function handleReplyToLink(div) {
 			event.target.parentElement.appendChild(copy);
 		}
 	}
-	div.firstElementChild.onmouseleave = function(event) {
+	a.onmouseleave = function(event) {
 		var popup = document.getElementById("reply-to-popup");
 		if (popup) {
 			event.target.parentElement.removeChild(popup);    
@@ -168,8 +168,8 @@ function handleReplyToLink(div) {
 	}
 }
 
-function handleReplyLink(div) {
-	div.firstElementChild.onmouseenter = function(event) {
+function handleReplyLink(a) {
+	a.onmouseenter = function(event) {
 		var id = event.target.getAttribute("href");
 		var status = document.querySelector(id);
 		if (!status)
@@ -187,7 +187,7 @@ function handleReplyLink(div) {
 			event.target.parentElement.appendChild(copy);
 		}
 	}
-	div.firstElementChild.onmouseleave = function(event) {
+	a.onmouseleave = function(event) {
 		var popup = document.getElementById("reply-popup");
 		if (popup) {
 			event.target.parentElement.removeChild(popup);
@@ -219,10 +219,10 @@ document.addEventListener("DOMContentLoaded", function() {
 		var retweetForm = s.querySelector(".status-retweet");
 		handleRetweetForm(id, retweetForm);
 
-		var replyToLink = s.querySelector(".status-reply-to");
+		var replyToLink = s.querySelector(".status-reply-to-link");
 		handleReplyToLink(replyToLink);
 
-		var replyLinks = s.querySelectorAll(".status-reply");
+		var replyLinks = s.querySelectorAll(".status-reply-link");
 		for (var j = 0; j < replyLinks.length; j++) {
 			handleReplyLink(replyLinks[j]);
 		}
