@@ -200,8 +200,9 @@ function handleReplyLink(a) {
 
 function handleStatusLink(a) {
 	if (a.classList.contains("mention"))
-		return;
-	a.target = "_blank";
+		a.removeAttribute("target");
+	else
+		a.target = "_blank";
 }
 
 document.addEventListener("DOMContentLoaded", function() { 
@@ -231,6 +232,11 @@ document.addEventListener("DOMContentLoaded", function() {
 		for (var j = 0; j < links.length; j++) {
 			handleStatusLink(links[j]);
 		}
+	}
+
+	var links = document.querySelectorAll(".user-profile-decription a");
+	for (var j = 0; j < links.length; j++) {
+		links[j].target = "_blank";
 	}
 });
 
