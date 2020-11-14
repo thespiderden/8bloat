@@ -14,8 +14,8 @@
 	{{if $.Ctx.AntiDopamineMode}}
 	<meta name="antidopamine_mode" content="{{$.Ctx.AntiDopamineMode}}">
 	{{end}}
-	{{if .AutoRefresh}}
-	<meta http-equiv="refresh" content="30">
+	{{if .RefreshInterval}}
+	<meta http-equiv="refresh" content="{{.RefreshInterval}}">
 	{{end}}
 	<title> {{if gt .Count 0}}({{.Count}}){{end}} {{.Title}} </title>
 	<link rel="stylesheet" href="/static/style.css">

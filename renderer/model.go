@@ -23,12 +23,12 @@ type NavData struct {
 }
 
 type CommonData struct {
-	Title       string
-	CustomCSS   string
-	CSRFToken   string
-	Count       int
-	AutoRefresh bool
-	Target      string
+	Title           string
+	CustomCSS       string
+	CSRFToken       string
+	Count           int
+	RefreshInterval int
+	Target          string
 }
 
 type ErrorData struct {

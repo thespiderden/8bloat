@@ -23,6 +23,17 @@
 		</select>
 	</div>
 	<div class="settings-form-field">
+		<label for="notification-interval"> Refresh Notifications </label>
+		<select id="notification-interval" name="notification_interval">
+			<option value="0" {{if eq .Settings.NotificationInterval 0}}selected{{end}}>Disabled</option>
+			<option value="30" {{if eq .Settings.NotificationInterval 30}}selected{{end}}>After 30s</option>
+			<option value="60" {{if eq .Settings.NotificationInterval 60}}selected{{end}}>After 1m</option>
+			<option value="120" {{if eq .Settings.NotificationInterval 120}}selected{{end}}>After 2m</option>
+			<option value="300" {{if eq .Settings.NotificationInterval 300}}selected{{end}}>After 5m</option>
+			<option value="600" {{if eq .Settings.NotificationInterval 600}}selected{{end}}>After 10m</option>
+		</select>
+	</div>
+	<div class="settings-form-field">
 		<input id="copy-scope" name="copy_scope" type="checkbox" value="true" {{if .Settings.CopyScope}}checked{{end}}>
 		<label for="copy-scope"> Copy scope when replying </label>
 	</div>
@@ -37,10 +48,6 @@
 	<div class="settings-form-field">
 		<input id="mask-nsfw" name="mask_nsfw" type="checkbox" value="true" {{if .Settings.MaskNSFW}}checked{{end}}>
 		<label for="mask-nsfw"> Mask NSFW attachments </label>
-	</div>
-	<div class="settings-form-field">
-		<input id="auto-refresh-notifications" name="auto_refresh_notifications" type="checkbox" value="true" {{if .Settings.AutoRefreshNotifications}}checked{{end}}>
-		<label for="auto-refresh-notifications"> Auto refresh notifications </label>
 	</div>
 	<div class="settings-form-field">
 		<input id="fluoride-mode" name="fluoride_mode" type="checkbox" value="true" {{if .Settings.FluorideMode}}checked{{end}}>

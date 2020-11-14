@@ -589,22 +589,22 @@ func NewHandler(s Service, staticDir string) http.Handler {
 		threadInNewTab := req.FormValue("thread_in_new_tab") == "true"
 		hideAttachments := req.FormValue("hide_attachments") == "true"
 		maskNSFW := req.FormValue("mask_nsfw") == "true"
-		arn := req.FormValue("auto_refresh_notifications") == "true"
+		ni, _ := strconv.Atoi(req.FormValue("notification_interval"))
 		fluorideMode := req.FormValue("fluoride_mode") == "true"
 		darkMode := req.FormValue("dark_mode") == "true"
 		antiDopamineMode := req.FormValue("anti_dopamine_mode") == "true"
 
 		settings := &model.Settings{
-			DefaultVisibility:        visibility,
-			DefaultFormat:            format,
-			CopyScope:                copyScope,
-			ThreadInNewTab:           threadInNewTab,
-			HideAttachments:          hideAttachments,
-			MaskNSFW:                 maskNSFW,
-			AutoRefreshNotifications: arn,
-			FluorideMode:             fluorideMode,
-			DarkMode:                 darkMode,
-			AntiDopamineMode:         antiDopamineMode,
+			DefaultVisibility:    visibility,
+			DefaultFormat:        format,
+			CopyScope:            copyScope,
+			ThreadInNewTab:       threadInNewTab,
+			HideAttachments:      hideAttachments,
+			MaskNSFW:             maskNSFW,
+			NotificationInterval: ni,
+			FluorideMode:         fluorideMode,
+			DarkMode:             darkMode,
+			AntiDopamineMode:     antiDopamineMode,
 		}
 
 		err := s.SaveSettings(c, settings)

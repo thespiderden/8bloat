@@ -434,7 +434,7 @@ func (svc *service) ServeNotificationPage(c *model.Client, maxID string,
 	}
 
 	commonData := svc.getCommonData(c, "notifications")
-	commonData.AutoRefresh = c.Session.Settings.AutoRefreshNotifications
+	commonData.RefreshInterval = c.Session.Settings.NotificationInterval
 	commonData.Target = "main"
 	commonData.Count = unreadCount
 	data := &renderer.NotificationData{
@@ -932,6 +932,11 @@ func (svc *service) UnSubscribe(c *model.Client, id string) (err error) {
 }
 
 func (svc *service) SaveSettings(c *model.Client, s *model.Settings) (err error) {
+	switch s.NotificationInterval {
+	case 0, 30, 60, 120, 300, 600:
+	default:
+		return errInvalidArgument
+	}
 	session, err := svc.sessionRepo.Get(c.Session.ID)
 	if err != nil {
 		return
