@@ -231,7 +231,7 @@
 
 .user-profile-img-container {
 	display: inline-block;
-	margin: 0 4px 0 0;
+	margin: 0 4px 4px 0;
 }
 
 .user-profile-details-container {
@@ -321,7 +321,7 @@ a:hover,
 .status-video-container {
 	display: inline-block;
 	position: relative;
-	margin: 2.5px 0;
+	margin-bottom: 5px;
 }
 
 .status-video-container:hover .status-nsfw-overlay {
@@ -422,7 +422,7 @@ img.emoji {
 	margin: 4px 0;
 }
 
-.settings-form-field * {
+.settings-form-field>* {
 	vertical-align: middle;
 }
 
