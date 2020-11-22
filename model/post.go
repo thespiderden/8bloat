@@ -10,7 +10,6 @@ type PostContext struct {
 	DefaultFormat     string
 	ReplyContext      *ReplyContext
 	Formats           []PostFormat
-	DarkMode          bool
 }
 
 type ReplyContext struct {

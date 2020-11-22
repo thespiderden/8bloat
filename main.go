@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"bloat/config"
-	"bloat/kv"
 	"bloat/renderer"
 	"bloat/repo"
 	"bloat/service"
@@ -76,13 +75,13 @@ func main() {
 	}
 
 	sessionDBPath := filepath.Join(config.DatabasePath, "session")
-	sessionDB, err := kv.NewDatabse(sessionDBPath)
+	sessionDB, err := util.NewDatabse(sessionDBPath)
 	if err != nil {
 		errExit(err)
 	}
 
 	appDBPath := filepath.Join(config.DatabasePath, "app")
-	appDB, err := kv.NewDatabse(appDBPath)
+	appDB, err := util.NewDatabse(appDBPath)
 	if err != nil {
 		errExit(err)
 	}
@@ -114,9 +113,7 @@ func main() {
 	s := service.NewService(config.ClientName, config.ClientScope,
 		config.ClientWebsite, customCSS, config.PostFormats, renderer,
 		sessionRepo, appRepo, config.SingleInstance)
-	s = service.NewAuthService(sessionRepo, appRepo, s)
-	s = service.NewLoggingService(logger, s)
-	handler := service.NewHandler(s, config.StaticDirectory)
+	handler := service.NewHandler(s, logger, config.StaticDirectory)
 
 	logger.Println("listening on", config.ListenAddress)
 	err = http.ListenAndServe(config.ListenAddress, handler)

@@ -20,53 +20,6 @@ var (
 	errInvalidArgument = errors.New("invalid argument")
 )
 
-type Service interface {
-	ServeErrorPage(c *model.Client, err error)
-	ServeSigninPage(c *model.Client) (err error)
-	ServeRootPage(c *model.Client) (err error)
-	ServeNavPage(c *model.Client) (err error)
-	ServeTimelinePage(c *model.Client, tType string, maxID string,
-		minID string) (err error)
-	ServeThreadPage(c *model.Client, id string, reply bool) (err error)
-	ServeLikedByPage(c *model.Client, id string) (err error)
-	ServeRetweetedByPage(c *model.Client, id string) (err error)
-	ServeNotificationPage(c *model.Client, maxID string, minID string) (err error)
-	ServeUserPage(c *model.Client, id string, pageType string, maxID string,
-		minID string) (err error)
-	ServeAboutPage(c *model.Client) (err error)
-	ServeEmojiPage(c *model.Client) (err error)
-	ServeSearchPage(c *model.Client, q string, qType string, offset int) (err error)
-	ServeUserSearchPage(c *model.Client, id string, q string, offset int) (err error)
-	ServeSettingsPage(c *model.Client) (err error)
-	SingleInstance() (instance string, ok bool)
-	NewSession(instance string) (redirectUrl string, sessionID string, err error)
-	Signin(c *model.Client, sessionID string, code string) (token string,
-		userID string, err error)
-	Signout(c *model.Client) (err error)
-	Post(c *model.Client, content string, replyToID string, format string, visibility string,
-		isNSFW bool, files []*multipart.FileHeader) (id string, err error)
-	Like(c *model.Client, id string) (count int64, err error)
-	UnLike(c *model.Client, id string) (count int64, err error)
-	Retweet(c *model.Client, id string) (count int64, err error)
-	UnRetweet(c *model.Client, id string) (count int64, err error)
-	Vote(c *model.Client, id string, choices []string) (err error)
-	Follow(c *model.Client, id string, reblogs *bool) (err error)
-	UnFollow(c *model.Client, id string) (err error)
-	Mute(c *model.Client, id string) (err error)
-	UnMute(c *model.Client, id string) (err error)
-	Block(c *model.Client, id string) (err error)
-	UnBlock(c *model.Client, id string) (err error)
-	Subscribe(c *model.Client, id string) (err error)
-	UnSubscribe(c *model.Client, id string) (err error)
-	SaveSettings(c *model.Client, settings *model.Settings) (err error)
-	MuteConversation(c *model.Client, id string) (err error)
-	UnMuteConversation(c *model.Client, id string) (err error)
-	Delete(c *model.Client, id string) (err error)
-	ReadNotifications(c *model.Client, maxID string) (err error)
-	Bookmark(c *model.Client, id string) (err error)
-	UnBookmark(c *model.Client, id string) (err error)
-}
-
 type service struct {
 	clientName     string
 	clientScope    string
@@ -88,7 +41,7 @@ func NewService(clientName string,
 	sessionRepo model.SessionRepo,
 	appRepo model.AppRepo,
 	singleInstance string,
-) Service {
+) *service {
 	return &service{
 		clientName:     clientName,
 		clientScope:    clientScope,
@@ -102,7 +55,7 @@ func NewService(clientName string,
 	}
 }
 
-func getRendererContext(c *model.Client) *renderer.Context {
+func getRendererContext(c *client) *renderer.Context {
 	var settings model.Settings
 	var session model.Session
 	if c != nil {
@@ -128,26 +81,21 @@ func addToReplyMap(m map[string][]mastodon.ReplyInfo, key interface{},
 	if key == nil {
 		return
 	}
-
 	keyStr, ok := key.(string)
 	if !ok {
 		return
 	}
-
 	_, ok = m[keyStr]
 	if !ok {
 		m[keyStr] = []mastodon.ReplyInfo{}
 	}
-
 	m[keyStr] = append(m[keyStr], mastodon.ReplyInfo{val, number})
 }
 
-func (svc *service) getCommonData(c *model.Client,
-	title string) (data *renderer.CommonData) {
-
+func (s *service) getCommonData(c *client, title string) (data *renderer.CommonData) {
 	data = &renderer.CommonData{
-		Title:     title + " - " + svc.clientName,
-		CustomCSS: svc.customCSS,
+		Title:     title + " - " + s.clientName,
+		CustomCSS: s.customCSS,
 	}
 	if c != nil && c.Session.IsLoggedIn() {
 		data.CSRFToken = c.Session.CSRFToken
@@ -155,66 +103,59 @@ func (svc *service) getCommonData(c *model.Client,
 	return
 }
 
-func (svc *service) ServeErrorPage(c *model.Client, err error) {
+func (s *service) ErrorPage(c *client, err error) {
 	var errStr string
 	if err != nil {
 		errStr = err.Error()
 	}
-
-	commonData := svc.getCommonData(nil, "error")
+	commonData := s.getCommonData(nil, "error")
 	data := &renderer.ErrorData{
 		CommonData: commonData,
 		Error:      errStr,
 	}
-
 	rCtx := getRendererContext(c)
-	svc.renderer.Render(rCtx, c.Writer, renderer.ErrorPage, data)
+	s.renderer.Render(rCtx, c, renderer.ErrorPage, data)
 }
 
-func (svc *service) ServeSigninPage(c *model.Client) (err error) {
-	commonData := svc.getCommonData(nil, "signin")
+func (s *service) SigninPage(c *client) (err error) {
+	commonData := s.getCommonData(nil, "signin")
 	data := &renderer.SigninData{
 		CommonData: commonData,
 	}
-
 	rCtx := getRendererContext(nil)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.SigninPage, data)
+	return s.renderer.Render(rCtx, c, renderer.SigninPage, data)
 }
 
-func (svc *service) ServeRootPage(c *model.Client) (err error) {
+func (s *service) RootPage(c *client) (err error) {
 	data := &renderer.RootData{
-		Title: svc.clientName,
+		Title: s.clientName,
 	}
-
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.RootPage, data)
+	return s.renderer.Render(rCtx, c, renderer.RootPage, data)
 }
 
-func (svc *service) ServeNavPage(c *model.Client) (err error) {
+func (s *service) NavPage(c *client) (err error) {
 	u, err := c.GetAccountCurrentUser(ctx)
 	if err != nil {
 		return
 	}
-
 	postContext := model.PostContext{
 		DefaultVisibility: c.Session.Settings.DefaultVisibility,
 		DefaultFormat:     c.Session.Settings.DefaultFormat,
-		Formats:           svc.postFormats,
+		Formats:           s.postFormats,
 	}
-
-	commonData := svc.getCommonData(c, "Nav")
+	commonData := s.getCommonData(c, "nav")
 	commonData.Target = "main"
 	data := &renderer.NavData{
 		User:        u,
 		CommonData:  commonData,
 		PostContext: postContext,
 	}
-
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.NavPage, data)
+	return s.renderer.Render(rCtx, c, renderer.NavPage, data)
 }
 
-func (svc *service) ServeTimelinePage(c *model.Client, tType string,
+func (s *service) TimelinePage(c *client, tType string,
 	maxID string, minID string) (err error) {
 
 	var nextLink, prevLink, title string
@@ -279,7 +220,7 @@ func (svc *service) ServeTimelinePage(c *model.Client, tType string,
 		nextLink = fmt.Sprintf("/timeline/%s?max_id=%s", tType, pg.MaxID)
 	}
 
-	commonData := svc.getCommonData(c, tType+" timeline ")
+	commonData := s.getCommonData(c, tType+" timeline ")
 	data := &renderer.TimelineData{
 		Title:      title,
 		Statuses:   statuses,
@@ -289,10 +230,10 @@ func (svc *service) ServeTimelinePage(c *model.Client, tType string,
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.TimelinePage, data)
+	return s.renderer.Render(rCtx, c, renderer.TimelinePage, data)
 }
 
-func (svc *service) ServeThreadPage(c *model.Client, id string, reply bool) (err error) {
+func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
 	var postContext model.PostContext
 
 	status, err := c.GetStatus(ctx, id)
@@ -323,14 +264,13 @@ func (svc *service) ServeThreadPage(c *model.Client, id string, reply bool) (err
 		postContext = model.PostContext{
 			DefaultVisibility: visibility,
 			DefaultFormat:     c.Session.Settings.DefaultFormat,
-			Formats:           svc.postFormats,
+			Formats:           s.postFormats,
 			ReplyContext: &model.ReplyContext{
 				InReplyToID:     id,
 				InReplyToName:   status.Account.Acct,
 				ReplyContent:    content,
 				ForceVisibility: isDirect,
 			},
-			DarkMode: c.Session.Settings.DarkMode,
 		}
 	}
 
@@ -353,7 +293,7 @@ func (svc *service) ServeThreadPage(c *model.Client, id string, reply bool) (err
 		addToReplyMap(replies, statuses[i].InReplyToID, statuses[i].ID, i+1)
 	}
 
-	commonData := svc.getCommonData(c, "post by "+status.Account.DisplayName)
+	commonData := s.getCommonData(c, "post by "+status.Account.DisplayName)
 	data := &renderer.ThreadData{
 		Statuses:    statuses,
 		PostContext: postContext,
@@ -362,42 +302,38 @@ func (svc *service) ServeThreadPage(c *model.Client, id string, reply bool) (err
 	}
 
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.ThreadPage, data)
+	return s.renderer.Render(rCtx, c, renderer.ThreadPage, data)
 }
 
-func (svc *service) ServeLikedByPage(c *model.Client, id string) (err error) {
+func (s *service) LikedByPage(c *client, id string) (err error) {
 	likers, err := c.GetFavouritedBy(ctx, id, nil)
 	if err != nil {
 		return
 	}
-
-	commonData := svc.getCommonData(c, "likes")
+	commonData := s.getCommonData(c, "likes")
 	data := &renderer.LikedByData{
 		CommonData: commonData,
 		Users:      likers,
 	}
-
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.LikedByPage, data)
+	return s.renderer.Render(rCtx, c, renderer.LikedByPage, data)
 }
 
-func (svc *service) ServeRetweetedByPage(c *model.Client, id string) (err error) {
+func (s *service) RetweetedByPage(c *client, id string) (err error) {
 	retweeters, err := c.GetRebloggedBy(ctx, id, nil)
 	if err != nil {
 		return
 	}
-
-	commonData := svc.getCommonData(c, "retweets")
+	commonData := s.getCommonData(c, "retweets")
 	data := &renderer.RetweetedByData{
 		CommonData: commonData,
 		Users:      retweeters,
 	}
-
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.RetweetedByPage, data)
+	return s.renderer.Render(rCtx, c, renderer.RetweetedByPage, data)
 }
 
-func (svc *service) ServeNotificationPage(c *model.Client, maxID string,
+func (s *service) NotificationPage(c *client, maxID string,
 	minID string) (err error) {
 
 	var nextLink string
@@ -428,12 +364,11 @@ func (svc *service) ServeNotificationPage(c *model.Client, maxID string,
 	if unreadCount > 0 {
 		readID = notifications[0].ID
 	}
-
 	if len(notifications) == 20 && len(pg.MaxID) > 0 {
 		nextLink = "/notifications?max_id=" + pg.MaxID
 	}
 
-	commonData := svc.getCommonData(c, "notifications")
+	commonData := s.getCommonData(c, "notifications")
 	commonData.RefreshInterval = c.Session.Settings.NotificationInterval
 	commonData.Target = "main"
 	commonData.Count = unreadCount
@@ -445,10 +380,10 @@ func (svc *service) ServeNotificationPage(c *model.Client, maxID string,
 		CommonData:    commonData,
 	}
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.NotificationPage, data)
+	return s.renderer.Render(rCtx, c, renderer.NotificationPage, data)
 }
 
-func (svc *service) ServeUserPage(c *model.Client, id string, pageType string,
+func (s *service) UserPage(c *client, id string, pageType string,
 	maxID string, minID string) (err error) {
 
 	var nextLink string
@@ -561,7 +496,7 @@ func (svc *service) ServeUserPage(c *model.Client, id string, pageType string,
 		}
 	}
 
-	commonData := svc.getCommonData(c, user.DisplayName)
+	commonData := s.getCommonData(c, user.DisplayName)
 	data := &renderer.UserData{
 		User:       user,
 		IsCurrent:  isCurrent,
@@ -572,10 +507,10 @@ func (svc *service) ServeUserPage(c *model.Client, id string, pageType string,
 		CommonData: commonData,
 	}
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.UserPage, data)
+	return s.renderer.Render(rCtx, c, renderer.UserPage, data)
 }
 
-func (svc *service) ServeUserSearchPage(c *model.Client,
+func (s *service) UserSearchPage(c *client,
 	id string, q string, offset int) (err error) {
 
 	var nextLink string
@@ -598,7 +533,8 @@ func (svc *service) ServeUserSearchPage(c *model.Client,
 
 	if len(results.Statuses) == 20 {
 		offset += 20
-		nextLink = fmt.Sprintf("/usersearch/%s?q=%s&offset=%d", id, url.QueryEscape(q), offset)
+		nextLink = fmt.Sprintf("/usersearch/%s?q=%s&offset=%d", id, 
+			url.QueryEscape(q), offset)
 	}
 
 	qq := template.HTMLEscapeString(q)
@@ -606,7 +542,7 @@ func (svc *service) ServeUserSearchPage(c *model.Client,
 		title += " \"" + qq + "\""
 	}
 
-	commonData := svc.getCommonData(c, title)
+	commonData := s.getCommonData(c, title)
 	data := &renderer.UserSearchData{
 		CommonData: commonData,
 		User:       user,
@@ -614,38 +550,34 @@ func (svc *service) ServeUserSearchPage(c *model.Client,
 		Statuses:   results.Statuses,
 		NextLink:   nextLink,
 	}
-
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.UserSearchPage, data)
+	return s.renderer.Render(rCtx, c, renderer.UserSearchPage, data)
 }
 
-func (svc *service) ServeAboutPage(c *model.Client) (err error) {
-	commonData := svc.getCommonData(c, "about")
+func (s *service) AboutPage(c *client) (err error) {
+	commonData := s.getCommonData(c, "about")
 	data := &renderer.AboutData{
 		CommonData: commonData,
 	}
-
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.AboutPage, data)
+	return s.renderer.Render(rCtx, c, renderer.AboutPage, data)
 }
 
-func (svc *service) ServeEmojiPage(c *model.Client) (err error) {
+func (s *service) EmojiPage(c *client) (err error) {
 	emojis, err := c.GetInstanceEmojis(ctx)
 	if err != nil {
 		return
 	}
-
-	commonData := svc.getCommonData(c, "emojis")
+	commonData := s.getCommonData(c, "emojis")
 	data := &renderer.EmojiData{
 		Emojis:     emojis,
 		CommonData: commonData,
 	}
-
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.EmojiPage, data)
+	return s.renderer.Render(rCtx, c, renderer.EmojiPage, data)
 }
 
-func (svc *service) ServeSearchPage(c *model.Client,
+func (s *service) SearchPage(c *client,
 	q string, qType string, offset int) (err error) {
 
 	var nextLink string
@@ -664,7 +596,8 @@ func (svc *service) ServeSearchPage(c *model.Client,
 	if (qType == "accounts" && len(results.Accounts) == 20) ||
 		(qType == "statuses" && len(results.Statuses) == 20) {
 		offset += 20
-		nextLink = fmt.Sprintf("/search?q=%s&type=%s&offset=%d", url.QueryEscape(q), qType, offset)
+		nextLink = fmt.Sprintf("/search?q=%s&type=%s&offset=%d", 
+			url.QueryEscape(q), qType, offset)
 	}
 
 	qq := template.HTMLEscapeString(q)
@@ -672,7 +605,7 @@ func (svc *service) ServeSearchPage(c *model.Client,
 		title += " \"" + qq + "\""
 	}
 
-	commonData := svc.getCommonData(c, title)
+	commonData := s.getCommonData(c, title)
 	data := &renderer.SearchData{
 		CommonData: commonData,
 		Q:          qq,
@@ -681,34 +614,30 @@ func (svc *service) ServeSearchPage(c *model.Client,
 		Statuses:   results.Statuses,
 		NextLink:   nextLink,
 	}
-
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.SearchPage, data)
+	return s.renderer.Render(rCtx, c, renderer.SearchPage, data)
 }
 
-func (svc *service) ServeSettingsPage(c *model.Client) (err error) {
-	commonData := svc.getCommonData(c, "settings")
+func (s *service) SettingsPage(c *client) (err error) {
+	commonData := s.getCommonData(c, "settings")
 	data := &renderer.SettingsData{
 		CommonData:  commonData,
 		Settings:    &c.Session.Settings,
-		PostFormats: svc.postFormats,
+		PostFormats: s.postFormats,
 	}
-
 	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c.Writer, renderer.SettingsPage, data)
+	return s.renderer.Render(rCtx, c, renderer.SettingsPage, data)
 }
 
-func (svc *service) SingleInstance() (instance string, ok bool) {
-	if len(svc.singleInstance) > 0 {
-		instance = svc.singleInstance
+func (s *service) SingleInstance() (instance string, ok bool) {
+	if len(s.singleInstance) > 0 {
+		instance = s.singleInstance
 		ok = true
 	}
 	return
 }
 
-func (svc *service) NewSession(instance string) (
-	redirectUrl string, sessionID string, err error) {
-
+func (s *service) NewSession(instance string) (rurl string, sid string, err error) {
 	var instanceURL string
 	if strings.HasPrefix(instance, "https://") {
 		instanceURL = instance
@@ -717,53 +646,48 @@ func (svc *service) NewSession(instance string) (
 		instanceURL = "https://" + instance
 	}
 
-	sessionID, err = util.NewSessionID()
+	sid, err = util.NewSessionID()
 	if err != nil {
 		return
 	}
-
 	csrfToken, err := util.NewCSRFToken()
 	if err != nil {
 		return
 	}
 
 	session := model.Session{
-		ID:             sessionID,
+		ID:             sid,
 		InstanceDomain: instance,
 		CSRFToken:      csrfToken,
 		Settings:       *model.NewSettings(),
 	}
-
-	err = svc.sessionRepo.Add(session)
+	err = s.sessionRepo.Add(session)
 	if err != nil {
 		return
 	}
 
-	app, err := svc.appRepo.Get(instance)
+	app, err := s.appRepo.Get(instance)
 	if err != nil {
 		if err != model.ErrAppNotFound {
 			return
 		}
-
 		mastoApp, err := mastodon.RegisterApp(ctx, &mastodon.AppConfig{
 			Server:       instanceURL,
-			ClientName:   svc.clientName,
-			Scopes:       svc.clientScope,
-			Website:      svc.clientWebsite,
-			RedirectURIs: svc.clientWebsite + "/oauth_callback",
+			ClientName:   s.clientName,
+			Scopes:       s.clientScope,
+			Website:      s.clientWebsite,
+			RedirectURIs: s.clientWebsite + "/oauth_callback",
 		})
 		if err != nil {
 			return "", "", err
 		}
-
 		app = model.App{
 			InstanceDomain: instance,
 			InstanceURL:    instanceURL,
 			ClientID:       mastoApp.ClientID,
 			ClientSecret:   mastoApp.ClientSecret,
 		}
-
-		err = svc.appRepo.Add(app)
+		err = s.appRepo.Add(app)
 		if err != nil {
 			return "", "", err
 		}
@@ -778,23 +702,21 @@ func (svc *service) NewSession(instance string) (
 	q.Set("scope", "read write follow")
 	q.Set("client_id", app.ClientID)
 	q.Set("response_type", "code")
-	q.Set("redirect_uri", svc.clientWebsite+"/oauth_callback")
+	q.Set("redirect_uri", s.clientWebsite+"/oauth_callback")
 	u.RawQuery = q.Encode()
 
-	redirectUrl = instanceURL + u.String()
-
+	rurl = instanceURL + u.String()
 	return
 }
 
-func (svc *service) Signin(c *model.Client, sessionID string,
-	code string) (token string, userID string, err error) {
+func (s *service) Signin(c *client, code string) (token string, 
+	userID string, err error) {
 
 	if len(code) < 1 {
 		err = errInvalidArgument
 		return
 	}
-
-	err = c.AuthenticateToken(ctx, code, svc.clientWebsite+"/oauth_callback")
+	err = c.AuthenticateToken(ctx, code, s.clientWebsite+"/oauth_callback")
 	if err != nil {
 		return
 	}
@@ -805,17 +727,16 @@ func (svc *service) Signin(c *model.Client, sessionID string,
 		return
 	}
 	userID = u.ID
-
 	return
 }
 
-func (svc *service) Signout(c *model.Client) (err error) {
-	svc.sessionRepo.Remove(c.Session.ID)
+func (s *service) Signout(c *client) (err error) {
+	s.sessionRepo.Remove(c.Session.ID)
 	return
 }
 
-func (svc *service) Post(c *model.Client, content string,
-	replyToID string, format string, visibility string, isNSFW bool,
+func (s *service) Post(c *client, content string, replyToID string, 
+	format string, visibility string, isNSFW bool,
 	files []*multipart.FileHeader) (id string, err error) {
 
 	var mediaIDs []string
@@ -835,141 +756,135 @@ func (svc *service) Post(c *model.Client, content string,
 		Visibility:  visibility,
 		Sensitive:   isNSFW,
 	}
-
-	s, err := c.PostStatus(ctx, tweet)
+	st, err := c.PostStatus(ctx, tweet)
 	if err != nil {
 		return
 	}
-
-	return s.ID, nil
+	return st.ID, nil
 }
 
-func (svc *service) Like(c *model.Client, id string) (count int64, err error) {
-	s, err := c.Favourite(ctx, id)
+func (s *service) Like(c *client, id string) (count int64, err error) {
+	st, err := c.Favourite(ctx, id)
 	if err != nil {
 		return
 	}
-	count = s.FavouritesCount
+	count = st.FavouritesCount
 	return
 }
 
-func (svc *service) UnLike(c *model.Client, id string) (count int64, err error) {
-	s, err := c.Unfavourite(ctx, id)
+func (s *service) UnLike(c *client, id string) (count int64, err error) {
+	st, err := c.Unfavourite(ctx, id)
 	if err != nil {
 		return
 	}
-	count = s.FavouritesCount
+	count = st.FavouritesCount
 	return
 }
 
-func (svc *service) Retweet(c *model.Client, id string) (count int64, err error) {
-	s, err := c.Reblog(ctx, id)
+func (s *service) Retweet(c *client, id string) (count int64, err error) {
+	st, err := c.Reblog(ctx, id)
 	if err != nil {
 		return
 	}
-	if s.Reblog != nil {
-		count = s.Reblog.ReblogsCount
+	if st.Reblog != nil {
+		count = st.Reblog.ReblogsCount
 	}
 	return
 }
 
-func (svc *service) UnRetweet(c *model.Client, id string) (
+func (s *service) UnRetweet(c *client, id string) (
 	count int64, err error) {
-	s, err := c.Unreblog(ctx, id)
+	st, err := c.Unreblog(ctx, id)
 	if err != nil {
 		return
 	}
-	count = s.ReblogsCount
+	count = st.ReblogsCount
 	return
 }
 
-func (svc *service) Vote(c *model.Client, id string, choices []string) (err error) {
+func (s *service) Vote(c *client, id string, choices []string) (err error) {
 	_, err = c.Vote(ctx, id, choices)
-	if err != nil {
-		return
-	}
 	return
 }
 
-func (svc *service) Follow(c *model.Client, id string, reblogs *bool) (err error) {
+func (s *service) Follow(c *client, id string, reblogs *bool) (err error) {
 	_, err = c.AccountFollow(ctx, id, reblogs)
 	return
 }
 
-func (svc *service) UnFollow(c *model.Client, id string) (err error) {
+func (s *service) UnFollow(c *client, id string) (err error) {
 	_, err = c.AccountUnfollow(ctx, id)
 	return
 }
 
-func (svc *service) Mute(c *model.Client, id string) (err error) {
+func (s *service) Mute(c *client, id string) (err error) {
 	_, err = c.AccountMute(ctx, id)
 	return
 }
 
-func (svc *service) UnMute(c *model.Client, id string) (err error) {
+func (s *service) UnMute(c *client, id string) (err error) {
 	_, err = c.AccountUnmute(ctx, id)
 	return
 }
 
-func (svc *service) Block(c *model.Client, id string) (err error) {
+func (s *service) Block(c *client, id string) (err error) {
 	_, err = c.AccountBlock(ctx, id)
 	return
 }
 
-func (svc *service) UnBlock(c *model.Client, id string) (err error) {
+func (s *service) UnBlock(c *client, id string) (err error) {
 	_, err = c.AccountUnblock(ctx, id)
 	return
 }
 
-func (svc *service) Subscribe(c *model.Client, id string) (err error) {
+func (s *service) Subscribe(c *client, id string) (err error) {
 	_, err = c.Subscribe(ctx, id)
 	return
 }
 
-func (svc *service) UnSubscribe(c *model.Client, id string) (err error) {
+func (s *service) UnSubscribe(c *client, id string) (err error) {
 	_, err = c.UnSubscribe(ctx, id)
 	return
 }
 
-func (svc *service) SaveSettings(c *model.Client, s *model.Settings) (err error) {
-	switch s.NotificationInterval {
+func (s *service) SaveSettings(c *client, settings *model.Settings) (err error) {
+	switch settings.NotificationInterval {
 	case 0, 30, 60, 120, 300, 600:
 	default:
 		return errInvalidArgument
 	}
-	session, err := svc.sessionRepo.Get(c.Session.ID)
+	session, err := s.sessionRepo.Get(c.Session.ID)
 	if err != nil {
 		return
 	}
-
-	session.Settings = *s
-	return svc.sessionRepo.Add(session)
+	session.Settings = *settings
+	return s.sessionRepo.Add(session)
 }
 
-func (svc *service) MuteConversation(c *model.Client, id string) (err error) {
+func (s *service) MuteConversation(c *client, id string) (err error) {
 	_, err = c.MuteConversation(ctx, id)
 	return
 }
 
-func (svc *service) UnMuteConversation(c *model.Client, id string) (err error) {
+func (s *service) UnMuteConversation(c *client, id string) (err error) {
 	_, err = c.UnmuteConversation(ctx, id)
 	return
 }
 
-func (svc *service) Delete(c *model.Client, id string) (err error) {
+func (s *service) Delete(c *client, id string) (err error) {
 	return c.DeleteStatus(ctx, id)
 }
 
-func (svc *service) ReadNotifications(c *model.Client, maxID string) (err error) {
+func (s *service) ReadNotifications(c *client, maxID string) (err error) {
 	return c.ReadNotifications(ctx, maxID)
 }
 
-func (svc *service) Bookmark(c *model.Client, id string) (err error) {
+func (s *service) Bookmark(c *client, id string) (err error) {
 	_, err = c.Bookmark(ctx, id)
 	return
 }
 
-func (svc *service) UnBookmark(c *model.Client, id string) (err error) {
+func (s *service) UnBookmark(c *client, id string) (err error) {
 	_, err = c.Unbookmark(ctx, id)
 	return
 }

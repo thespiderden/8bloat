@@ -101,7 +101,7 @@ func Parse(r io.Reader) (c *config, err error) {
 		case "log_file":
 			c.LogFile = val
 		default:
-			return nil, errors.New("invliad config key " + key)
+			return nil, errors.New("invalid config key " + key)
 		}
 	}
 

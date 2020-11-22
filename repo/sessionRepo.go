@@ -3,15 +3,15 @@ package repo
 import (
 	"encoding/json"
 
-	"bloat/kv"
+	"bloat/util"
 	"bloat/model"
 )
 
 type sessionRepo struct {
-	db *kv.Database
+	db *util.Database
 }
 
-func NewSessionRepo(db *kv.Database) *sessionRepo {
+func NewSessionRepo(db *util.Database) *sessionRepo {
 	return &sessionRepo{
 		db: db,
 	}

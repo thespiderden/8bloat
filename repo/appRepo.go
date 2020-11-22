@@ -3,15 +3,15 @@ package repo
 import (
 	"encoding/json"
 
-	"bloat/kv"
+	"bloat/util"
 	"bloat/model"
 )
 
 type appRepo struct {
-	db *kv.Database
+	db *util.Database
 }
 
-func NewAppRepo(db *kv.Database) *appRepo {
+func NewAppRepo(db *util.Database) *appRepo {
 	return &appRepo{
 		db: db,
 	}

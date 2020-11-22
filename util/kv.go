@@ -1,4 +1,4 @@
-package kv
+package util
 
 import (
 	"errors"
