@@ -7,7 +7,6 @@ SHAREPATH=$(PREFIX)/share/bloat
 TMPL=templates/*.tmpl
 SRC=main.go		\
 	config/*.go 	\
-	kv/*.go 	\
 	mastodon/*.go	\
 	model/*.go	\
 	renderer/*.go 	\
