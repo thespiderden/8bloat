@@ -27,7 +27,7 @@
 		</div>
 		<div class="notification-follow">
 			<div class="notification-info-text">
-				<span class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </span>  
+				<bdi class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </bdi>  
 				<span class="notification-text"> followed you - 
 					<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 				</span>
