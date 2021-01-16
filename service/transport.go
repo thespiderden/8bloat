@@ -403,6 +403,26 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		return nil
 	}, CSRF, HTML)
 
+	accept := handle(func(c *client) error {
+		id, _ := mux.Vars(c.Req)["id"]
+		err := s.Accept(c, id)
+		if err != nil {
+			return err
+		}
+		redirect(c, c.Req.Header.Get("Referer"))
+		return nil
+	}, CSRF, HTML)
+
+	reject := handle(func(c *client) error {
+		id, _ := mux.Vars(c.Req)["id"]
+		err := s.Reject(c, id)
+		if err != nil {
+			return err
+		}
+		redirect(c, c.Req.Header.Get("Referer"))
+		return nil
+	}, CSRF, HTML)
+
 	mute := handle(func(c *client) error {
 		id, _ := mux.Vars(c.Req)["id"]
 		err := s.Mute(c, id)
@@ -634,6 +654,8 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	r.HandleFunc("/vote/{id}", vote).Methods(http.MethodPost)
 	r.HandleFunc("/follow/{id}", follow).Methods(http.MethodPost)
 	r.HandleFunc("/unfollow/{id}", unfollow).Methods(http.MethodPost)
+	r.HandleFunc("/accept/{id}", accept).Methods(http.MethodPost)
+	r.HandleFunc("/reject/{id}", reject).Methods(http.MethodPost)
 	r.HandleFunc("/mute/{id}", mute).Methods(http.MethodPost)
 	r.HandleFunc("/unmute/{id}", unMute).Methods(http.MethodPost)
 	r.HandleFunc("/block/{id}", block).Methods(http.MethodPost)

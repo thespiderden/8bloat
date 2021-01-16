@@ -486,6 +486,18 @@ func (s *service) UserPage(c *client, id string, pageType string,
 			nextLink = fmt.Sprintf("/user/%s/likes?max_id=%s",
 				id, pg.MaxID)
 		}
+	case "requests":
+		if !isCurrent {
+			return errInvalidArgument
+		}
+		users, err = c.GetFollowRequests(ctx, &pg)
+		if err != nil {
+			return
+		}
+		if len(users) == 20 && len(pg.MaxID) > 0 {
+			nextLink = fmt.Sprintf("/user/%s/requests?max_id=%s",
+				id, pg.MaxID)
+		}
 	default:
 		return errInvalidArgument
 	}
@@ -815,6 +827,14 @@ func (s *service) Follow(c *client, id string, reblogs *bool) (err error) {
 func (s *service) UnFollow(c *client, id string) (err error) {
 	_, err = c.AccountUnfollow(ctx, id)
 	return
+}
+
+func (s *service) Accept(c *client, id string) (err error) {
+	return c.FollowRequestAuthorize(ctx, id)
+}
+
+func (s *service) Reject(c *client, id string) (err error) {
+	return c.FollowRequestReject(ctx, id)
 }
 
 func (s *service) Mute(c *client, id string) (err error) {

@@ -38,6 +38,35 @@
 		</div>
 	</div>
 
+	{{else if eq .Type "follow_request"}}
+	<div class="notification-follow-container">
+		<div class="status-profile-img-container">
+			<a class="img-link" href="/user/{{.Account.ID}}">
+				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="profile-avatar" height="48" />
+			</a>
+		</div>
+		<div class="notification-follow">
+			<div class="notification-info-text">
+				<bdi class="status-dname"> {{EmojiFilter .Account.DisplayName .Account.Emojis}} </bdi>  
+				<span class="notification-text"> wants to follow you - 
+					<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
+				</span>
+			</div>
+			<div>
+				<a href="/user/{{.Account.ID}}"> <span class="status-uname"> @{{.Account.Acct}} </span> </a>
+			</div>
+			<form class="d-inline" action="/accept/{{.Account.ID}}" method="post" target="_self">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="submit" value="accept" class="btn-link">
+			</form>
+			-
+			<form class="d-inline" action="/reject/{{.Account.ID}}" method="post" target="_self">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="submit" value="reject" class="btn-link">
+			</form>
+		</div>
+	</div>
+
 	{{else if eq .Type "mention"}}
 	{{template "status" (WithContext .Status $.Ctx)}}
 
