@@ -60,7 +60,7 @@ func (c *Client) GetAccount(ctx context.Context, id string) (*Account, error) {
 	if err != nil {
 		return nil, err
 	}
-	if account.Pleroma == nil {
+	if account.Pleroma == nil || len(account.Pleroma.Relationship.ID) < 1 {
 		rs, err := c.GetAccountRelationships(ctx, []string{id})
 		if err != nil {
 			return nil, err
