@@ -139,12 +139,12 @@
 				{{range $i, $o := .Poll.Options}}
 				<div class="poll-option">
 					{{if (or $s.Poll.Expired $s.Poll.Voted)}}
-					<div> {{$o.Title}} - {{$o.VotesCount}} votes </div>
+					<div> {{EmojiFilter $o.Title $s.Emojis}} - {{$o.VotesCount}} votes </div>
 					{{else}}
 					<input type="{{if $s.Poll.Multiple}}checkbox{{else}}radio{{end}}" name="choices" 
 						id="poll-{{$s.ID}}-{{$i}}" value="{{$i}}">
 					<label for="poll-{{$s.ID}}-{{$i}}"> 
-						{{$o.Title}} 
+						{{EmojiFilter $o.Title $s.Emojis}} 
 					</label>
 					{{end}}
 				</div>
