@@ -97,6 +97,20 @@
 		</span>
 	</div>
 	{{template "status" (WithContext .Status $.Ctx)}}
+
+	{{else}}
+	<div class="retweet-info">
+		<a class="img-link" href="/user/{{.Account.ID}}">
+			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
+		</a>
+		<a href="/user/{{.Account.ID}}">
+			<span class="status-uname"> @{{.Account.Acct}} </span>
+		</a>
+		<span class="notification-text"> {{.Type}} - 
+			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
+		</span>
+	</div>
+	{{if .Status}}{{template "status" (WithContext .Status $.Ctx)}}{{end}}
 	{{end}}
 </div>
 {{end}}
