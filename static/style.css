@@ -173,6 +173,17 @@
 	font-size: 13pt;
 }
 
+.notification-container {
+	margin: 0 -4px 12px -4px;
+	padding: 4px;
+	border-left: 4px solid transparent;
+}
+
+.notification-container.favourite .status-container,
+.notification-container.reblog .status-container {
+	opacity: 0.6;
+}
+
 .notification-info-text span {
 	vertical-align: middle;
 }

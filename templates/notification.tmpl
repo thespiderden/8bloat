@@ -17,7 +17,7 @@
 </div>
 
 {{range .Notifications}}
-<div class="status-container-container {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
+<div class="notification-container {{.Type}} {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
 	{{if eq .Type "follow"}}
 	<div class="notification-follow-container">
 		<div class="status-profile-img-container">
