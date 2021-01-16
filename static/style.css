@@ -4,8 +4,7 @@
 	border-left: 4px solid transparent;
 }
 
-.status-container-container:target,
-.status-container-container.unread {
+.status-container-container:target {
 	border-color: #777777;
 }
 
@@ -177,6 +176,10 @@
 	margin: 0 -4px 12px -4px;
 	padding: 4px;
 	border-left: 4px solid transparent;
+}
+
+.notification-container.unread {
+	border-color: #777777;
 }
 
 .notification-container.favourite .status-container,
