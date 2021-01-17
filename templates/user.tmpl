@@ -23,11 +23,13 @@
 			{{if .User.Pleroma.Relationship.Following}} 
 			<form class="d-inline" action="/unfollow/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="unfollow" class="btn-link">
 			</form>
 			{{else}}
 			<form class="d-inline" action="/follow/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="{{if .User.Pleroma.Relationship.Requested}}resend request{{else}}follow{{end}}" class="btn-link">
 			</form>
 			{{end}}
@@ -35,6 +37,7 @@
 			-
 			<form class="d-inline" action="/unfollow/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="cancel request" class="btn-link">
 			</form>
 			{{end}}
@@ -42,11 +45,13 @@
 			{{if .User.Pleroma.Relationship.Subscribing}}
 			<form class="d-inline" action="/unsubscribe/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="unsubscribe" class="btn-link">
 			</form>
 			{{else}}
 			<form class="d-inline" action="/subscribe/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="subscribe" class="btn-link">
 			</form>
 			{{end}}
@@ -55,11 +60,13 @@
 			{{if .User.Pleroma.Relationship.Blocking}}
 			<form class="d-inline" action="/unblock/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="unblock" class="btn-link">
 			</form>
 			{{else}}
 			<form class="d-inline" action="/block/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="block" class="btn-link">
 			</form>
 			{{end}}
@@ -67,11 +74,13 @@
 			{{if .User.Pleroma.Relationship.Muting}}
 			<form class="d-inline" action="/unmute/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="unmute" class="btn-link">
 			</form>
 			{{else}}
 			<form class="d-inline" action="/mute/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="mute" class="btn-link">
 			</form>
 			{{end}}
@@ -80,11 +89,13 @@
 			{{if .User.Pleroma.Relationship.ShowingReblogs}}
 			<form class="d-inline" action="/follow/{{.User.ID}}?reblogs=false" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="hide retweets" class="btn-link">
 			</form>
 			{{else}}
 			<form class="d-inline" action="/follow/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="show retweets" class="btn-link">
 			</form>
 			{{end}}

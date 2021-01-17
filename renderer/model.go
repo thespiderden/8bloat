@@ -14,6 +14,7 @@ type Context struct {
 	CSRFToken        string
 	UserID           string
 	AntiDopamineMode bool
+	Referrer         string
 }
 
 type NavData struct {

@@ -38,23 +38,27 @@
 						{{if .Muted}}
 						<form action="/unmuteconv/{{.ID}}" method="post" target="_self">
 							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+							<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 							<input type="submit" value="unmute" class="btn-link more-link">
 						</form>
 						{{else}}
 						<form action="/muteconv/{{.ID}}" method="post" target="_self">
 							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+							<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 							<input type="submit" value="mute" class="btn-link more-link">
 						</form>
 						{{end}}
 						{{if .Bookmarked}}
 						<form action="/unbookmark/{{.ID}}" method="post" target="_self">
 							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+							<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 							<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
 							<input type="submit" value="unbookmark" class="btn-link more-link">
 						</form>
 						{{else}}
 						<form action="/bookmark/{{.ID}}" method="post" target="_self">
 							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+							<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 							<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
 							<input type="submit" value="bookmark" class="btn-link more-link">
 						</form>
@@ -62,6 +66,7 @@
 						{{if eq $.Ctx.UserID .Account.ID}}
 						<form action="/delete/{{.ID}}" method="post" target="_self">
 							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+							<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 							<input type="submit" value="delete" class="btn-link more-link">
 						</form>
 						{{end}}
@@ -143,6 +148,7 @@
 			{{if .Poll}}
 			<form class="poll-form" action="/vote/{{.Poll.ID}}" method="POST" target="_self">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="hidden" name="status_id" value="{{$s.ID}}">
 				{{range $i, $o := .Poll.Options}}
 				<div class="poll-option">
@@ -195,6 +201,7 @@
 					{{$rt := "retweet"}} {{if .Reblogged}} {{$rt = "unretweet"}} {{end}}
 					<form class="status-retweet" data-action="{{$rt}}" action="/{{$rt}}/{{.ID}}" method="post" target="_self">
 						<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+						<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
 						<input type="submit" value="{{$rt}}" class="btn-link">
 						<a class="status-retweet-count" href="/retweetedby/{{.ID}}" title="click to see the the list"> 
@@ -209,6 +216,7 @@
 					{{$like := "like"}} {{if .Favourited}} {{$like = "unlike"}} {{end}}
 					<form class="status-like" data-action="{{$like}}" action="/{{$like}}/{{.ID}}" method="post" target="_self">
 						<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+						<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
 						<input type="submit" value="{{$like}}" class="btn-link">
 						<a class="status-like-count" href="/likedby/{{.ID}}" title="click to see the the list"> 

@@ -11,6 +11,7 @@
 	{{if .ReadID}}
 	<form class="notification-read" action="/notifications/read?max_id={{.ReadID}}" method="post" target="_self">
 		<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+		<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 		<input type="submit" value="read" class="btn-link" accesskey="C" title="Clear unread notifications (C)">
 	</form>
 	{{end}}
@@ -57,11 +58,13 @@
 			</div>
 			<form class="d-inline" action="/accept/{{.Account.ID}}" method="post" target="_self">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="accept" class="btn-link">
 			</form>
 			-
 			<form class="d-inline" action="/reject/{{.Account.ID}}" method="post" target="_self">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="reject" class="btn-link">
 			</form>
 		</div>

@@ -46,6 +46,10 @@ type client struct {
 	Session   model.Session
 }
 
+func (c *client) url() string {
+	return c.Req.URL.RequestURI()
+}
+
 func setSessionCookie(w http.ResponseWriter, sid string, exp time.Duration) {
 	http.SetCookie(w, &http.Cookie{
 		Name:    "session_id",
@@ -301,7 +305,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 			return err
 		}
 
-		location := c.Req.Header.Get("Referer")
+		location := c.Req.FormValue("referrer")
 		if len(replyToID) > 0 {
 			location = "/thread/" + replyToID + "#status-" + id
 		}
@@ -319,7 +323,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.Req.Header.Get("Referer")+"#status-"+id)
+		redirect(c, c.Req.FormValue("referrer")+"#status-"+id)
 		return nil
 	}, CSRF, HTML)
 
@@ -333,7 +337,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.Req.Header.Get("Referer")+"#status-"+id)
+		redirect(c, c.Req.FormValue("referrer")+"#status-"+id)
 		return nil
 	}, CSRF, HTML)
 
@@ -347,7 +351,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.Req.Header.Get("Referer")+"#status-"+id)
+		redirect(c, c.Req.FormValue("referrer")+"#status-"+id)
 		return nil
 	}, CSRF, HTML)
 
@@ -361,7 +365,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.Req.Header.Get("Referer")+"#status-"+id)
+		redirect(c, c.Req.FormValue("referrer")+"#status-"+id)
 		return nil
 	}, CSRF, HTML)
 
@@ -373,7 +377,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer")+"#status-"+statusID)
+		redirect(c, c.Req.FormValue("referrer")+"#status-"+statusID)
 		return nil
 	}, CSRF, HTML)
 
@@ -389,7 +393,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -399,7 +403,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -409,7 +413,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -419,7 +423,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -429,7 +433,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -439,7 +443,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -449,7 +453,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -459,7 +463,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -469,7 +473,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -479,7 +483,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -522,7 +526,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -532,7 +536,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -542,7 +546,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -553,7 +557,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.Req.Header.Get("Referer"))
+		redirect(c, c.Req.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -567,7 +571,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.Req.Header.Get("Referer")+"#status-"+id)
+		redirect(c, c.Req.FormValue("referrer")+"#status-"+id)
 		return nil
 	}, CSRF, HTML)
 
@@ -581,7 +585,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.Req.Header.Get("Referer")+"#status-"+id)
+		redirect(c, c.Req.FormValue("referrer")+"#status-"+id)
 		return nil
 	}, CSRF, HTML)
 

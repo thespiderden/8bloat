@@ -25,6 +25,7 @@
 			<a class="nav-link" href="/settings" target="_top" accesskey="7" title="Settings (7)">settings</a>
 			<form class="signout" action="/signout" method="post" target="_top">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="signout" class="btn-link nav-link" accesskey="8" title="Signout (8)">
 			</form>
 		</div>

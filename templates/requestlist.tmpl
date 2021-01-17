@@ -16,11 +16,13 @@
 			</div>
 			<form class="d-inline" action="/accept/{{.ID}}" method="post" target="_self">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="accept" class="btn-link">
 			</form>
 			-
 			<form class="d-inline" action="/reject/{{.ID}}" method="post" target="_self">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="reject" class="btn-link">
 			</form>
 		</div>

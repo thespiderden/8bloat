@@ -58,9 +58,11 @@ func NewService(clientName string,
 func getRendererContext(c *client) *renderer.Context {
 	var settings model.Settings
 	var session model.Session
+	var referrer string
 	if c != nil {
 		settings = c.Session.Settings
 		session = c.Session
+		referrer = c.url()
 	} else {
 		settings = *model.NewSettings()
 	}
@@ -73,6 +75,7 @@ func getRendererContext(c *client) *renderer.Context {
 		CSRFToken:        session.CSRFToken,
 		UserID:           session.UserID,
 		AntiDopamineMode: settings.AntiDopamineMode,
+		Referrer:         referrer,
 	}
 }
 
@@ -545,7 +548,7 @@ func (s *service) UserSearchPage(c *client,
 
 	if len(results.Statuses) == 20 {
 		offset += 20
-		nextLink = fmt.Sprintf("/usersearch/%s?q=%s&offset=%d", id, 
+		nextLink = fmt.Sprintf("/usersearch/%s?q=%s&offset=%d", id,
 			url.QueryEscape(q), offset)
 	}
 
@@ -608,7 +611,7 @@ func (s *service) SearchPage(c *client,
 	if (qType == "accounts" && len(results.Accounts) == 20) ||
 		(qType == "statuses" && len(results.Statuses) == 20) {
 		offset += 20
-		nextLink = fmt.Sprintf("/search?q=%s&type=%s&offset=%d", 
+		nextLink = fmt.Sprintf("/search?q=%s&type=%s&offset=%d",
 			url.QueryEscape(q), qType, offset)
 	}
 
@@ -721,7 +724,7 @@ func (s *service) NewSession(instance string) (rurl string, sid string, err erro
 	return
 }
 
-func (s *service) Signin(c *client, code string) (token string, 
+func (s *service) Signin(c *client, code string) (token string,
 	userID string, err error) {
 
 	if len(code) < 1 {
@@ -747,7 +750,7 @@ func (s *service) Signout(c *client) (err error) {
 	return
 }
 
-func (s *service) Post(c *client, content string, replyToID string, 
+func (s *service) Post(c *client, content string, replyToID string,
 	format string, visibility string, isNSFW bool,
 	files []*multipart.FileHeader) (id string, err error) {
 
