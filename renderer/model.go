@@ -52,6 +52,8 @@ type RootData struct {
 type TimelineData struct {
 	*CommonData
 	Title    string
+	Type     string
+	Instance string
 	Statuses []*mastodon.Status
 	NextLink string
 	PrevLink string

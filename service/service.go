@@ -158,7 +158,7 @@ func (s *service) NavPage(c *client) (err error) {
 	return s.renderer.Render(rCtx, c, renderer.NavPage, data)
 }
 
-func (s *service) TimelinePage(c *client, tType string,
+func (s *service) TimelinePage(c *client, tType string, instance string,
 	maxID string, minID string) (err error) {
 
 	var nextLink, prevLink, title string
@@ -179,10 +179,15 @@ func (s *service) TimelinePage(c *client, tType string,
 		statuses, err = c.GetTimelineDirect(ctx, &pg)
 		title = "Direct Timeline"
 	case "local":
-		statuses, err = c.GetTimelinePublic(ctx, true, &pg)
+		statuses, err = c.GetTimelinePublic(ctx, true, "", &pg)
 		title = "Local Timeline"
+	case "remote":
+		if len(instance) > 0 {
+			statuses, err = c.GetTimelinePublic(ctx, false, instance, &pg)
+		}
+		title = "Remote Timeline"
 	case "twkn":
-		statuses, err = c.GetTimelinePublic(ctx, false, &pg)
+		statuses, err = c.GetTimelinePublic(ctx, false, "", &pg)
 		title = "The Whole Known Network"
 	}
 	if err != nil {
@@ -196,17 +201,28 @@ func (s *service) TimelinePage(c *client, tType string,
 	}
 
 	if (len(maxID) > 0 || len(minID) > 0) && len(statuses) > 0 {
-		prevLink = fmt.Sprintf("/timeline/%s?min_id=%s", tType,
-			statuses[0].ID)
+		v := make(url.Values)
+		v.Set("min_id", statuses[0].ID)
+		if len(instance) > 0 {
+			v.Set("instance", instance)
+		}
+		prevLink = "/timeline/" + tType + "?" + v.Encode()
 	}
 
 	if len(minID) > 0 || (len(pg.MaxID) > 0 && len(statuses) == 20) {
-		nextLink = fmt.Sprintf("/timeline/%s?max_id=%s", tType, pg.MaxID)
+		v := make(url.Values)
+		v.Set("max_id", pg.MaxID)
+		if len(instance) > 0 {
+			v.Set("instance", instance)
+		}
+		nextLink = "/timeline/" + tType + "?" + v.Encode()
 	}
 
 	commonData := s.getCommonData(c, tType+" timeline ")
 	data := &renderer.TimelineData{
 		Title:      title,
+		Type:       tType,
+		Instance:   instance,
 		Statuses:   statuses,
 		NextLink:   nextLink,
 		PrevLink:   prevLink,

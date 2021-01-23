@@ -2,6 +2,16 @@
 {{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
 <div class="page-title"> {{.Title}} </div>
 
+{{if eq .Type "remote"}}
+<form class="search-form" action="/timeline/remote" method="GET">
+	<span class="post-form-field">
+		<label for="instance"> Instance </label>
+		<input id="instance" name="instance" value="{{.Instance}}">
+	</span>
+	<button type="submit"> Submit </button>
+</form>
+{{end}}
+
 {{range .Statuses}}
 {{template "status.tmpl" (WithContext . $.Ctx)}}
 {{end}}

@@ -190,10 +190,10 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	timelinePage := handle(func(c *client) error {
 		tType, _ := mux.Vars(c.Req)["type"]
 		q := c.Req.URL.Query()
+		instance := q.Get("instance")
 		maxID := q.Get("max_id")
 		minID := q.Get("min_id")
-		return s.TimelinePage(c, tType, maxID, minID)
-		return nil
+		return s.TimelinePage(c, tType, instance, maxID, minID)
 	}, SESSION, HTML)
 
 	defaultTimelinePage := handle(func(c *client) error {
