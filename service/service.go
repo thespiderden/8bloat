@@ -195,31 +195,12 @@ func (s *service) TimelinePage(c *client, tType string,
 		}
 	}
 
-	if len(maxID) > 0 && len(statuses) > 0 {
+	if (len(maxID) > 0 || len(minID) > 0) && len(statuses) > 0 {
 		prevLink = fmt.Sprintf("/timeline/%s?min_id=%s", tType,
 			statuses[0].ID)
 	}
 
-	if len(minID) > 0 && len(pg.MinID) > 0 {
-		newPg := &mastodon.Pagination{MinID: pg.MinID, Limit: 20}
-		newStatuses, err := c.GetTimelineHome(ctx, newPg)
-		if err != nil {
-			return err
-		}
-		newLen := len(newStatuses)
-		if newLen == 20 {
-			prevLink = fmt.Sprintf("/timeline/%s?min_id=%s",
-				tType, pg.MinID)
-		} else {
-			i := 20 - newLen - 1
-			if len(statuses) > i {
-				prevLink = fmt.Sprintf("/timeline/%s?min_id=%s",
-					tType, statuses[i].ID)
-			}
-		}
-	}
-
-	if len(pg.MaxID) > 0 && len(statuses) == 20 {
+	if len(minID) > 0 || (len(pg.MaxID) > 0 && len(statuses) == 20) {
 		nextLink = fmt.Sprintf("/timeline/%s?max_id=%s", tType, pg.MaxID)
 	}
 
