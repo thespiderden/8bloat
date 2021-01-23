@@ -91,7 +91,12 @@ func (c *Client) doAPI(ctx context.Context, method string, uri string, params in
 
 		var buf bytes.Buffer
 		mw := multipart.NewWriter(&buf)
-		part, err := mw.CreateFormFile("file", filepath.Base(file.Filename))
+		fname := filepath.Base(file.Filename)
+		err = mw.WriteField("description", fname)
+		if err != nil {
+			return err
+		}
+		part, err := mw.CreateFormFile("file", fname)
 		if err != nil {
 			return err
 		}
