@@ -127,3 +127,8 @@ type SettingsData struct {
 	Settings    *model.Settings
 	PostFormats []model.PostFormat
 }
+
+type FiltersData struct {
+	*CommonData
+	Filters []*mastodon.Filter
+}

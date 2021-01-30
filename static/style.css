@@ -552,6 +552,14 @@ kbd {
 	font-size: 10pt;
 }
 
+.filters {
+	margin: 10px 0;
+}
+
+.filters td {
+	padding: 2px 4px;
+}
+
 .dark {
 	background-color: #222222;
 	background-image: none;

@@ -1,0 +1,40 @@
+{{with .Data}}
+{{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
+<div class="page-title"> Filters </div>
+
+{{if .Filters}}
+<table class="filters">
+	{{range .Filters}}
+	<tr>
+		<td> {{.Phrase}}{{if not .WholeWord}}*{{end}} </td>
+		<td> 
+			<form action="/unfilter/{{.ID}}" method="POST">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+				<button type="submit"> Delete </button>
+			</form>
+		</td>
+	</tr>
+	{{end}}
+</table>
+{{else}}
+	<div class="filters"> No filters added </div>
+{{end}}
+
+<div class="page-title"> Add filter </div>
+<form action="/filter" method="POST">
+	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+	<span class="settings-form-field">
+		<label for="phrase"> Phrase </label>
+		<input id="phrase" name="phrase" required>
+	</span>
+	<span class="settings-form-field">
+		<input id="whole-word" name="whole_word" type="checkbox" value="true" checked>
+		<label for="whole-word"> Whole word </label>
+	</span>
+	<button type="submit"> Add </button>
+</form>
+
+{{template "footer.tmpl"}}
+{{end}}

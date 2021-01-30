@@ -262,6 +262,10 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		return s.SettingsPage(c)
 	}, SESSION, HTML)
 
+	filtersPage := handle(func(c *client) error {
+		return s.FiltersPage(c)
+	}, SESSION, HTML)
+
 	signin := handle(func(c *client) error {
 		instance := c.Req.FormValue("instance")
 		url, sid, err := s.NewSession(instance)
@@ -589,6 +593,27 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		return nil
 	}, CSRF, HTML)
 
+	filter := handle(func(c *client) error {
+		phrase := c.Req.FormValue("phrase")
+		wholeWord := c.Req.FormValue("whole_word") == "true"
+		err := s.Filter(c, phrase, wholeWord)
+		if err != nil {
+			return err
+		}
+		redirect(c, c.Req.FormValue("referrer"))
+		return nil
+	}, CSRF, HTML)
+
+	unFilter := handle(func(c *client) error {
+		id, _ := mux.Vars(c.Req)["id"]
+		err := s.UnFilter(c, id)
+		if err != nil {
+			return err
+		}
+		redirect(c, c.Req.FormValue("referrer"))
+		return nil
+	}, CSRF, HTML)
+
 	signout := handle(func(c *client) error {
 		s.Signout(c)
 		setSessionCookie(c, "", 0)
@@ -648,6 +673,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	r.HandleFunc("/emojis", emojisPage).Methods(http.MethodGet)
 	r.HandleFunc("/search", searchPage).Methods(http.MethodGet)
 	r.HandleFunc("/settings", settingsPage).Methods(http.MethodGet)
+	r.HandleFunc("/filters", filtersPage).Methods(http.MethodGet)
 	r.HandleFunc("/signin", signin).Methods(http.MethodPost)
 	r.HandleFunc("/oauth_callback", oauthCallback).Methods(http.MethodGet)
 	r.HandleFunc("/post", post).Methods(http.MethodPost)
@@ -673,6 +699,8 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	r.HandleFunc("/notifications/read", readNotifications).Methods(http.MethodPost)
 	r.HandleFunc("/bookmark/{id}", bookmark).Methods(http.MethodPost)
 	r.HandleFunc("/unbookmark/{id}", unBookmark).Methods(http.MethodPost)
+	r.HandleFunc("/filter", filter).Methods(http.MethodPost)
+	r.HandleFunc("/unfilter/{id}", unFilter).Methods(http.MethodPost)
 	r.HandleFunc("/signout", signout).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/like/{id}", fLike).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/unlike/{id}", fUnlike).Methods(http.MethodPost)

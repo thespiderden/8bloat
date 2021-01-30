@@ -29,6 +29,7 @@ const (
 	RetweetedByPage  = "retweetedby.tmpl"
 	SearchPage       = "search.tmpl"
 	SettingsPage     = "settings.tmpl"
+	FiltersPage      = "filters.tmpl"
 )
 
 type TemplateData struct {

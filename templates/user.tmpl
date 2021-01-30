@@ -119,6 +119,7 @@
 		{{end}}
 		<div>
 			<a href="/usersearch/{{.User.ID}}"> search statuses </a>
+			{{if .IsCurrent}} - <a href="/filters"> filters </a> {{end}}
 		</div>
 	</div>
 	<div class="user-profile-decription">

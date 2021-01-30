@@ -641,6 +641,22 @@ func (s *service) SettingsPage(c *client) (err error) {
 	return s.renderer.Render(rCtx, c, renderer.SettingsPage, data)
 }
 
+func (svc *service) FiltersPage(c *client) (err error) {
+	filters, err := c.GetFilters(ctx)
+	if err != nil {
+		return
+	}
+
+	commonData := svc.getCommonData(c, "filters")
+	data := &renderer.FiltersData{
+		CommonData: commonData,
+		Filters:    filters,
+	}
+
+	rCtx := getRendererContext(c)
+	return svc.renderer.Render(rCtx, c, renderer.FiltersPage, data)
+}
+
 func (s *service) SingleInstance() (instance string, ok bool) {
 	if len(s.singleInstance) > 0 {
 		instance = s.singleInstance
@@ -907,4 +923,13 @@ func (s *service) Bookmark(c *client, id string) (err error) {
 func (s *service) UnBookmark(c *client, id string) (err error) {
 	_, err = c.Unbookmark(ctx, id)
 	return
+}
+
+func (svc *service) Filter(c *client, phrase string, wholeWord bool) (err error) {
+	fctx := []string{"home", "notifications", "public", "thread"}
+	return c.AddFilter(ctx, phrase, fctx, true, wholeWord, nil)
+}
+
+func (svc *service) UnFilter(c *client, id string) (err error) {
+	return c.RemoveFilter(ctx, id)
 }
