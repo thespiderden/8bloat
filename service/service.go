@@ -508,7 +508,7 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		}
 	}
 
-	commonData := s.getCommonData(c, user.DisplayName)
+	commonData := s.getCommonData(c, user.DisplayName+" @"+user.Acct)
 	data := &renderer.UserData{
 		User:       user,
 		IsCurrent:  isCurrent,
