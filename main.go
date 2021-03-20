@@ -4,12 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"bloat/config"
 	"bloat/renderer"
@@ -25,20 +23,6 @@ var (
 func errExit(err error) {
 	fmt.Fprintln(os.Stderr, err.Error())
 	os.Exit(1)
-}
-
-func setupHttp() {
-	tr := http.DefaultTransport.(*http.Transport)
-	tr.MaxIdleConnsPerHost = 30
-	tr.MaxIdleConns = 300
-	tr.ForceAttemptHTTP2 = false
-	tr.DialContext = (&net.Dialer{
-		Timeout:   30 * time.Second,
-		KeepAlive: 3 * time.Minute,
-		DualStack: true,
-	}).DialContext
-	client := http.DefaultClient
-	client.Transport = tr
 }
 
 func main() {
@@ -108,11 +92,9 @@ func main() {
 		logger = log.New(lf, "", log.LstdFlags)
 	}
 
-	setupHttp()
-
 	s := service.NewService(config.ClientName, config.ClientScope,
-		config.ClientWebsite, customCSS, config.PostFormats, renderer,
-		sessionRepo, appRepo, config.SingleInstance)
+		config.ClientWebsite, customCSS, config.SingleInstance,
+		config.PostFormats, renderer, sessionRepo, appRepo)
 	handler := service.NewHandler(s, logger, config.StaticDirectory)
 
 	logger.Println("listening on", config.ListenAddress)

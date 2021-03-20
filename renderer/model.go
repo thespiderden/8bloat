@@ -17,12 +17,6 @@ type Context struct {
 	Referrer         string
 }
 
-type NavData struct {
-	CommonData  *CommonData
-	User        *mastodon.Account
-	PostContext model.PostContext
-}
-
 type CommonData struct {
 	Title           string
 	CustomCSS       string
@@ -30,6 +24,12 @@ type CommonData struct {
 	Count           int
 	RefreshInterval int
 	Target          string
+}
+
+type NavData struct {
+	CommonData  *CommonData
+	User        *mastodon.Account
+	PostContext model.PostContext
 }
 
 type ErrorData struct {

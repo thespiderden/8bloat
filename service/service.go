@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -16,146 +15,145 @@ import (
 )
 
 var (
-	ctx                = context.Background()
-	errInvalidArgument = errors.New("invalid argument")
+	errInvalidArgument  = errors.New("invalid argument")
+	errInvalidSession   = errors.New("invalid session")
+	errInvalidCSRFToken = errors.New("invalid csrf token")
 )
 
 type service struct {
-	clientName     string
-	clientScope    string
-	clientWebsite  string
-	customCSS      string
-	postFormats    []model.PostFormat
-	renderer       renderer.Renderer
-	sessionRepo    model.SessionRepo
-	appRepo        model.AppRepo
-	singleInstance string
+	cname       string
+	cscope      string
+	cwebsite    string
+	css         string
+	instance    string
+	postFormats []model.PostFormat
+	renderer    renderer.Renderer
+	sessionRepo model.SessionRepo
+	appRepo     model.AppRepo
 }
 
-func NewService(clientName string,
-	clientScope string,
-	clientWebsite string,
-	customCSS string,
-	postFormats []model.PostFormat,
-	renderer renderer.Renderer,
-	sessionRepo model.SessionRepo,
-	appRepo model.AppRepo,
-	singleInstance string,
-) *service {
+func NewService(cname string, cscope string, cwebsite string,
+	css string, instance string, postFormats []model.PostFormat,
+	renderer renderer.Renderer, sessionRepo model.SessionRepo,
+	appRepo model.AppRepo) *service {
 	return &service{
-		clientName:     clientName,
-		clientScope:    clientScope,
-		clientWebsite:  clientWebsite,
-		customCSS:      customCSS,
-		postFormats:    postFormats,
-		renderer:       renderer,
-		sessionRepo:    sessionRepo,
-		appRepo:        appRepo,
-		singleInstance: singleInstance,
+		cname:       cname,
+		cscope:      cscope,
+		cwebsite:    cwebsite,
+		css:         css,
+		instance:    instance,
+		postFormats: postFormats,
+		renderer:    renderer,
+		sessionRepo: sessionRepo,
+		appRepo:     appRepo,
 	}
 }
 
-func getRendererContext(c *client) *renderer.Context {
-	var settings model.Settings
-	var session model.Session
-	var referrer string
-	if c != nil {
-		settings = c.Session.Settings
-		session = c.Session
-		referrer = c.url()
-	} else {
-		settings = *model.NewSettings()
-	}
-	return &renderer.Context{
-		HideAttachments:  settings.HideAttachments,
-		MaskNSFW:         settings.MaskNSFW,
-		ThreadInNewTab:   settings.ThreadInNewTab,
-		FluorideMode:     settings.FluorideMode,
-		DarkMode:         settings.DarkMode,
-		CSRFToken:        session.CSRFToken,
-		UserID:           session.UserID,
-		AntiDopamineMode: settings.AntiDopamineMode,
-		Referrer:         referrer,
-	}
-}
-
-func addToReplyMap(m map[string][]mastodon.ReplyInfo, key interface{},
-	val string, number int) {
-	if key == nil {
+func (s *service) authenticate(c *client, sid string, csrf string, ref string, t int) (err error) {
+	var sett *model.Settings
+	defer func() {
+		if sett == nil {
+			sett = model.NewSettings()
+		}
+		c.rctx = &renderer.Context{
+			HideAttachments:  sett.HideAttachments,
+			MaskNSFW:         sett.MaskNSFW,
+			ThreadInNewTab:   sett.ThreadInNewTab,
+			FluorideMode:     sett.FluorideMode,
+			DarkMode:         sett.DarkMode,
+			CSRFToken:        c.s.CSRFToken,
+			UserID:           c.s.UserID,
+			AntiDopamineMode: sett.AntiDopamineMode,
+			Referrer:         ref,
+		}
+	}()
+	if t < SESSION {
 		return
 	}
-	keyStr, ok := key.(string)
-	if !ok {
-		return
+	if len(sid) < 1 {
+		return errInvalidSession
 	}
-	_, ok = m[keyStr]
-	if !ok {
-		m[keyStr] = []mastodon.ReplyInfo{}
+	c.s, err = s.sessionRepo.Get(sid)
+	if err != nil {
+		return errInvalidSession
 	}
-	m[keyStr] = append(m[keyStr], mastodon.ReplyInfo{val, number})
-}
-
-func (s *service) getCommonData(c *client, title string) (data *renderer.CommonData) {
-	data = &renderer.CommonData{
-		Title:     title + " - " + s.clientName,
-		CustomCSS: s.customCSS,
+	sett = &c.s.Settings
+	app, err := s.appRepo.Get(c.s.InstanceDomain)
+	if err != nil {
+		return err
 	}
-	if c != nil && c.Session.IsLoggedIn() {
-		data.CSRFToken = c.Session.CSRFToken
+	c.Client = mastodon.NewClient(&mastodon.Config{
+		Server:       app.InstanceURL,
+		ClientID:     app.ClientID,
+		ClientSecret: app.ClientSecret,
+		AccessToken:  c.s.AccessToken,
+	})
+	if t >= CSRF && (len(csrf) < 1 || csrf != c.s.CSRFToken) {
+		return errInvalidCSRFToken
 	}
 	return
 }
 
-func (s *service) ErrorPage(c *client, err error) {
+func (s *service) cdata(c *client, title string, count int, rinterval int,
+	target string) (data *renderer.CommonData) {
+	data = &renderer.CommonData{
+		Title:           title + " - " + s.cname,
+		CustomCSS:       s.css,
+		Count:           count,
+		RefreshInterval: rinterval,
+		Target:          target,
+	}
+	if c != nil && c.s.IsLoggedIn() {
+		data.CSRFToken = c.s.CSRFToken
+	}
+	return
+}
+
+func (s *service) ErrorPage(c *client, err error) error {
 	var errStr string
 	if err != nil {
 		errStr = err.Error()
 	}
-	commonData := s.getCommonData(nil, "error")
+	cdata := s.cdata(nil, "error", 0, 0, "")
 	data := &renderer.ErrorData{
-		CommonData: commonData,
+		CommonData: cdata,
 		Error:      errStr,
 	}
-	rCtx := getRendererContext(c)
-	s.renderer.Render(rCtx, c, renderer.ErrorPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.ErrorPage, data)
 }
 
 func (s *service) SigninPage(c *client) (err error) {
-	commonData := s.getCommonData(nil, "signin")
+	cdata := s.cdata(nil, "signin", 0, 0, "")
 	data := &renderer.SigninData{
-		CommonData: commonData,
+		CommonData: cdata,
 	}
-	rCtx := getRendererContext(nil)
-	return s.renderer.Render(rCtx, c, renderer.SigninPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.SigninPage, data)
 }
 
 func (s *service) RootPage(c *client) (err error) {
 	data := &renderer.RootData{
-		Title: s.clientName,
+		Title: s.cname,
 	}
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.RootPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.RootPage, data)
 }
 
 func (s *service) NavPage(c *client) (err error) {
-	u, err := c.GetAccountCurrentUser(ctx)
+	u, err := c.GetAccountCurrentUser(c.ctx)
 	if err != nil {
 		return
 	}
-	postContext := model.PostContext{
-		DefaultVisibility: c.Session.Settings.DefaultVisibility,
-		DefaultFormat:     c.Session.Settings.DefaultFormat,
+	pctx := model.PostContext{
+		DefaultVisibility: c.s.Settings.DefaultVisibility,
+		DefaultFormat:     c.s.Settings.DefaultFormat,
 		Formats:           s.postFormats,
 	}
-	commonData := s.getCommonData(c, "nav")
-	commonData.Target = "main"
+	cdata := s.cdata(c, "nav", 0, 0, "main")
 	data := &renderer.NavData{
 		User:        u,
-		CommonData:  commonData,
-		PostContext: postContext,
+		CommonData:  cdata,
+		PostContext: pctx,
 	}
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.NavPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.NavPage, data)
 }
 
 func (s *service) TimelinePage(c *client, tType string, instance string,
@@ -173,21 +171,21 @@ func (s *service) TimelinePage(c *client, tType string, instance string,
 	default:
 		return errInvalidArgument
 	case "home":
-		statuses, err = c.GetTimelineHome(ctx, &pg)
+		statuses, err = c.GetTimelineHome(c.ctx, &pg)
 		title = "Timeline"
 	case "direct":
-		statuses, err = c.GetTimelineDirect(ctx, &pg)
+		statuses, err = c.GetTimelineDirect(c.ctx, &pg)
 		title = "Direct Timeline"
 	case "local":
-		statuses, err = c.GetTimelinePublic(ctx, true, "", &pg)
+		statuses, err = c.GetTimelinePublic(c.ctx, true, "", &pg)
 		title = "Local Timeline"
 	case "remote":
 		if len(instance) > 0 {
-			statuses, err = c.GetTimelinePublic(ctx, false, instance, &pg)
+			statuses, err = c.GetTimelinePublic(c.ctx, false, instance, &pg)
 		}
 		title = "Remote Timeline"
 	case "twkn":
-		statuses, err = c.GetTimelinePublic(ctx, false, "", &pg)
+		statuses, err = c.GetTimelinePublic(c.ctx, false, "", &pg)
 		title = "The Whole Known Network"
 	}
 	if err != nil {
@@ -218,7 +216,7 @@ func (s *service) TimelinePage(c *client, tType string, instance string,
 		nextLink = "/timeline/" + tType + "?" + v.Encode()
 	}
 
-	commonData := s.getCommonData(c, tType+" timeline ")
+	cdata := s.cdata(c, tType+" timeline ", 0, 0, "")
 	data := &renderer.TimelineData{
 		Title:      title,
 		Type:       tType,
@@ -226,17 +224,31 @@ func (s *service) TimelinePage(c *client, tType string, instance string,
 		Statuses:   statuses,
 		NextLink:   nextLink,
 		PrevLink:   prevLink,
-		CommonData: commonData,
+		CommonData: cdata,
 	}
+	return s.renderer.Render(c.rctx, c.w, renderer.TimelinePage, data)
+}
 
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.TimelinePage, data)
+func addToReplyMap(m map[string][]mastodon.ReplyInfo, key interface{},
+	val string, number int) {
+	if key == nil {
+		return
+	}
+	keyStr, ok := key.(string)
+	if !ok {
+		return
+	}
+	_, ok = m[keyStr]
+	if !ok {
+		m[keyStr] = []mastodon.ReplyInfo{}
+	}
+	m[keyStr] = append(m[keyStr], mastodon.ReplyInfo{val, number})
 }
 
 func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
-	var postContext model.PostContext
+	var pctx model.PostContext
 
-	status, err := c.GetStatus(ctx, id)
+	status, err := c.GetStatus(c.ctx, id)
 	if err != nil {
 		return
 	}
@@ -244,26 +256,26 @@ func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
 	if reply {
 		var content string
 		var visibility string
-		if c.Session.UserID != status.Account.ID {
+		if c.s.UserID != status.Account.ID {
 			content += "@" + status.Account.Acct + " "
 		}
 		for i := range status.Mentions {
-			if status.Mentions[i].ID != c.Session.UserID &&
+			if status.Mentions[i].ID != c.s.UserID &&
 				status.Mentions[i].ID != status.Account.ID {
 				content += "@" + status.Mentions[i].Acct + " "
 			}
 		}
 
 		isDirect := status.Visibility == "direct"
-		if isDirect || c.Session.Settings.CopyScope {
+		if isDirect || c.s.Settings.CopyScope {
 			visibility = status.Visibility
 		} else {
-			visibility = c.Session.Settings.DefaultVisibility
+			visibility = c.s.Settings.DefaultVisibility
 		}
 
-		postContext = model.PostContext{
+		pctx = model.PostContext{
 			DefaultVisibility: visibility,
-			DefaultFormat:     c.Session.Settings.DefaultFormat,
+			DefaultFormat:     c.s.Settings.DefaultFormat,
 			Formats:           s.postFormats,
 			ReplyContext: &model.ReplyContext{
 				InReplyToID:     id,
@@ -274,7 +286,7 @@ func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
 		}
 	}
 
-	context, err := c.GetStatusContext(ctx, id)
+	context, err := c.GetStatusContext(c.ctx, id)
 	if err != nil {
 		return
 	}
@@ -293,44 +305,40 @@ func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
 		addToReplyMap(replies, statuses[i].InReplyToID, statuses[i].ID, i+1)
 	}
 
-	commonData := s.getCommonData(c, "post by "+status.Account.DisplayName)
+	cdata := s.cdata(c, "post by "+status.Account.DisplayName, 0, 0, "")
 	data := &renderer.ThreadData{
 		Statuses:    statuses,
-		PostContext: postContext,
+		PostContext: pctx,
 		ReplyMap:    replies,
-		CommonData:  commonData,
+		CommonData:  cdata,
 	}
-
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.ThreadPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.ThreadPage, data)
 }
 
 func (s *service) LikedByPage(c *client, id string) (err error) {
-	likers, err := c.GetFavouritedBy(ctx, id, nil)
+	likers, err := c.GetFavouritedBy(c.ctx, id, nil)
 	if err != nil {
 		return
 	}
-	commonData := s.getCommonData(c, "likes")
+	cdata := s.cdata(c, "likes", 0, 0, "")
 	data := &renderer.LikedByData{
-		CommonData: commonData,
+		CommonData: cdata,
 		Users:      likers,
 	}
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.LikedByPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.LikedByPage, data)
 }
 
 func (s *service) RetweetedByPage(c *client, id string) (err error) {
-	retweeters, err := c.GetRebloggedBy(ctx, id, nil)
+	retweeters, err := c.GetRebloggedBy(c.ctx, id, nil)
 	if err != nil {
 		return
 	}
-	commonData := s.getCommonData(c, "retweets")
+	cdata := s.cdata(c, "retweets", 0, 0, "")
 	data := &renderer.RetweetedByData{
-		CommonData: commonData,
+		CommonData: cdata,
 		Users:      retweeters,
 	}
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.RetweetedByPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.RetweetedByPage, data)
 }
 
 func (s *service) NotificationPage(c *client, maxID string,
@@ -346,11 +354,11 @@ func (s *service) NotificationPage(c *client, maxID string,
 		Limit: 20,
 	}
 
-	if c.Session.Settings.AntiDopamineMode {
+	if c.s.Settings.AntiDopamineMode {
 		excludes = []string{"follow", "favourite", "reblog"}
 	}
 
-	notifications, err := c.GetNotifications(ctx, &pg, excludes)
+	notifications, err := c.GetNotifications(c.ctx, &pg, excludes)
 	if err != nil {
 		return
 	}
@@ -368,19 +376,16 @@ func (s *service) NotificationPage(c *client, maxID string,
 		nextLink = "/notifications?max_id=" + pg.MaxID
 	}
 
-	commonData := s.getCommonData(c, "notifications")
-	commonData.RefreshInterval = c.Session.Settings.NotificationInterval
-	commonData.Target = "main"
-	commonData.Count = unreadCount
+	cdata := s.cdata(c, "notifications", unreadCount,
+		c.s.Settings.NotificationInterval, "main")
 	data := &renderer.NotificationData{
 		Notifications: notifications,
 		UnreadCount:   unreadCount,
 		ReadID:        readID,
 		NextLink:      nextLink,
-		CommonData:    commonData,
+		CommonData:    cdata,
 	}
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.NotificationPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.NotificationPage, data)
 }
 
 func (s *service) UserPage(c *client, id string, pageType string,
@@ -395,15 +400,15 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		Limit: 20,
 	}
 
-	user, err := c.GetAccount(ctx, id)
+	user, err := c.GetAccount(c.ctx, id)
 	if err != nil {
 		return
 	}
-	isCurrent := c.Session.UserID == user.ID
+	isCurrent := c.s.UserID == user.ID
 
 	switch pageType {
 	case "":
-		statuses, err = c.GetAccountStatuses(ctx, id, false, &pg)
+		statuses, err = c.GetAccountStatuses(c.ctx, id, false, &pg)
 		if err != nil {
 			return
 		}
@@ -412,7 +417,7 @@ func (s *service) UserPage(c *client, id string, pageType string,
 				pg.MaxID)
 		}
 	case "following":
-		users, err = c.GetAccountFollowing(ctx, id, &pg)
+		users, err = c.GetAccountFollowing(c.ctx, id, &pg)
 		if err != nil {
 			return
 		}
@@ -421,7 +426,7 @@ func (s *service) UserPage(c *client, id string, pageType string,
 				id, pg.MaxID)
 		}
 	case "followers":
-		users, err = c.GetAccountFollowers(ctx, id, &pg)
+		users, err = c.GetAccountFollowers(c.ctx, id, &pg)
 		if err != nil {
 			return
 		}
@@ -430,7 +435,7 @@ func (s *service) UserPage(c *client, id string, pageType string,
 				id, pg.MaxID)
 		}
 	case "media":
-		statuses, err = c.GetAccountStatuses(ctx, id, true, &pg)
+		statuses, err = c.GetAccountStatuses(c.ctx, id, true, &pg)
 		if err != nil {
 			return
 		}
@@ -442,7 +447,7 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		if !isCurrent {
 			return errInvalidArgument
 		}
-		statuses, err = c.GetBookmarks(ctx, &pg)
+		statuses, err = c.GetBookmarks(c.ctx, &pg)
 		if err != nil {
 			return
 		}
@@ -454,7 +459,7 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		if !isCurrent {
 			return errInvalidArgument
 		}
-		users, err = c.GetMutes(ctx, &pg)
+		users, err = c.GetMutes(c.ctx, &pg)
 		if err != nil {
 			return
 		}
@@ -466,7 +471,7 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		if !isCurrent {
 			return errInvalidArgument
 		}
-		users, err = c.GetBlocks(ctx, &pg)
+		users, err = c.GetBlocks(c.ctx, &pg)
 		if err != nil {
 			return
 		}
@@ -478,7 +483,7 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		if !isCurrent {
 			return errInvalidArgument
 		}
-		statuses, err = c.GetFavourites(ctx, &pg)
+		statuses, err = c.GetFavourites(c.ctx, &pg)
 		if err != nil {
 			return
 		}
@@ -490,7 +495,7 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		if !isCurrent {
 			return errInvalidArgument
 		}
-		users, err = c.GetFollowRequests(ctx, &pg)
+		users, err = c.GetFollowRequests(c.ctx, &pg)
 		if err != nil {
 			return
 		}
@@ -508,7 +513,7 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		}
 	}
 
-	commonData := s.getCommonData(c, user.DisplayName+" @"+user.Acct)
+	cdata := s.cdata(c, user.DisplayName+" @"+user.Acct, 0, 0, "")
 	data := &renderer.UserData{
 		User:       user,
 		IsCurrent:  isCurrent,
@@ -516,10 +521,9 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		Users:      users,
 		Statuses:   statuses,
 		NextLink:   nextLink,
-		CommonData: commonData,
+		CommonData: cdata,
 	}
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.UserPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.UserPage, data)
 }
 
 func (s *service) UserSearchPage(c *client,
@@ -528,14 +532,14 @@ func (s *service) UserSearchPage(c *client,
 	var nextLink string
 	var title = "search"
 
-	user, err := c.GetAccount(ctx, id)
+	user, err := c.GetAccount(c.ctx, id)
 	if err != nil {
 		return
 	}
 
 	var results *mastodon.Results
 	if len(q) > 0 {
-		results, err = c.Search(ctx, q, "statuses", 20, true, offset, id)
+		results, err = c.Search(c.ctx, q, "statuses", 20, true, offset, id)
 		if err != nil {
 			return err
 		}
@@ -554,39 +558,36 @@ func (s *service) UserSearchPage(c *client,
 		title += " \"" + qq + "\""
 	}
 
-	commonData := s.getCommonData(c, title)
+	cdata := s.cdata(c, title, 0, 0, "")
 	data := &renderer.UserSearchData{
-		CommonData: commonData,
+		CommonData: cdata,
 		User:       user,
 		Q:          qq,
 		Statuses:   results.Statuses,
 		NextLink:   nextLink,
 	}
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.UserSearchPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.UserSearchPage, data)
 }
 
 func (s *service) AboutPage(c *client) (err error) {
-	commonData := s.getCommonData(c, "about")
+	cdata := s.cdata(c, "about", 0, 0, "")
 	data := &renderer.AboutData{
-		CommonData: commonData,
+		CommonData: cdata,
 	}
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.AboutPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.AboutPage, data)
 }
 
 func (s *service) EmojiPage(c *client) (err error) {
-	emojis, err := c.GetInstanceEmojis(ctx)
+	emojis, err := c.GetInstanceEmojis(c.ctx)
 	if err != nil {
 		return
 	}
-	commonData := s.getCommonData(c, "emojis")
+	cdata := s.cdata(c, "emojis", 0, 0, "")
 	data := &renderer.EmojiData{
 		Emojis:     emojis,
-		CommonData: commonData,
+		CommonData: cdata,
 	}
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.EmojiPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.EmojiPage, data)
 }
 
 func (s *service) SearchPage(c *client,
@@ -597,7 +598,7 @@ func (s *service) SearchPage(c *client,
 
 	var results *mastodon.Results
 	if len(q) > 0 {
-		results, err = c.Search(ctx, q, qType, 20, true, offset, "")
+		results, err = c.Search(c.ctx, q, qType, 20, true, offset, "")
 		if err != nil {
 			return err
 		}
@@ -617,55 +618,50 @@ func (s *service) SearchPage(c *client,
 		title += " \"" + qq + "\""
 	}
 
-	commonData := s.getCommonData(c, title)
+	cdata := s.cdata(c, title, 0, 0, "")
 	data := &renderer.SearchData{
-		CommonData: commonData,
+		CommonData: cdata,
 		Q:          qq,
 		Type:       qType,
 		Users:      results.Accounts,
 		Statuses:   results.Statuses,
 		NextLink:   nextLink,
 	}
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.SearchPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.SearchPage, data)
 }
 
 func (s *service) SettingsPage(c *client) (err error) {
-	commonData := s.getCommonData(c, "settings")
+	cdata := s.cdata(c, "settings", 0, 0, "")
 	data := &renderer.SettingsData{
-		CommonData:  commonData,
-		Settings:    &c.Session.Settings,
+		CommonData:  cdata,
+		Settings:    &c.s.Settings,
 		PostFormats: s.postFormats,
 	}
-	rCtx := getRendererContext(c)
-	return s.renderer.Render(rCtx, c, renderer.SettingsPage, data)
+	return s.renderer.Render(c.rctx, c.w, renderer.SettingsPage, data)
 }
 
 func (svc *service) FiltersPage(c *client) (err error) {
-	filters, err := c.GetFilters(ctx)
+	filters, err := c.GetFilters(c.ctx)
 	if err != nil {
 		return
 	}
-
-	commonData := svc.getCommonData(c, "filters")
+	cdata := svc.cdata(c, "filters", 0, 0, "")
 	data := &renderer.FiltersData{
-		CommonData: commonData,
+		CommonData: cdata,
 		Filters:    filters,
 	}
-
-	rCtx := getRendererContext(c)
-	return svc.renderer.Render(rCtx, c, renderer.FiltersPage, data)
+	return svc.renderer.Render(c.rctx, c.w, renderer.FiltersPage, data)
 }
 
 func (s *service) SingleInstance() (instance string, ok bool) {
-	if len(s.singleInstance) > 0 {
-		instance = s.singleInstance
+	if len(s.instance) > 0 {
+		instance = s.instance
 		ok = true
 	}
 	return
 }
 
-func (s *service) NewSession(instance string) (rurl string, sid string, err error) {
+func (s *service) NewSession(c *client, instance string) (rurl string, sid string, err error) {
 	var instanceURL string
 	if strings.HasPrefix(instance, "https://") {
 		instanceURL = instance
@@ -678,18 +674,18 @@ func (s *service) NewSession(instance string) (rurl string, sid string, err erro
 	if err != nil {
 		return
 	}
-	csrfToken, err := util.NewCSRFToken()
+	csrf, err := util.NewCSRFToken()
 	if err != nil {
 		return
 	}
 
-	session := model.Session{
+	sess := model.Session{
 		ID:             sid,
 		InstanceDomain: instance,
-		CSRFToken:      csrfToken,
+		CSRFToken:      csrf,
 		Settings:       *model.NewSettings(),
 	}
-	err = s.sessionRepo.Add(session)
+	err = s.sessionRepo.Add(sess)
 	if err != nil {
 		return
 	}
@@ -699,12 +695,12 @@ func (s *service) NewSession(instance string) (rurl string, sid string, err erro
 		if err != model.ErrAppNotFound {
 			return
 		}
-		mastoApp, err := mastodon.RegisterApp(ctx, &mastodon.AppConfig{
+		mastoApp, err := mastodon.RegisterApp(c.ctx, &mastodon.AppConfig{
 			Server:       instanceURL,
-			ClientName:   s.clientName,
-			Scopes:       s.clientScope,
-			Website:      s.clientWebsite,
-			RedirectURIs: s.clientWebsite + "/oauth_callback",
+			ClientName:   s.cname,
+			Scopes:       s.cscope,
+			Website:      s.cwebsite,
+			RedirectURIs: s.cwebsite + "/oauth_callback",
 		})
 		if err != nil {
 			return "", "", err
@@ -730,36 +726,33 @@ func (s *service) NewSession(instance string) (rurl string, sid string, err erro
 	q.Set("scope", "read write follow")
 	q.Set("client_id", app.ClientID)
 	q.Set("response_type", "code")
-	q.Set("redirect_uri", s.clientWebsite+"/oauth_callback")
+	q.Set("redirect_uri", s.cwebsite+"/oauth_callback")
 	u.RawQuery = q.Encode()
 
 	rurl = instanceURL + u.String()
 	return
 }
 
-func (s *service) Signin(c *client, code string) (token string,
-	userID string, err error) {
-
+func (s *service) Signin(c *client, code string) (err error) {
 	if len(code) < 1 {
 		err = errInvalidArgument
 		return
 	}
-	err = c.AuthenticateToken(ctx, code, s.clientWebsite+"/oauth_callback")
+	err = c.AuthenticateToken(c.ctx, code, s.cwebsite+"/oauth_callback")
 	if err != nil {
 		return
 	}
-	token = c.GetAccessToken(ctx)
-
-	u, err := c.GetAccountCurrentUser(ctx)
+	u, err := c.GetAccountCurrentUser(c.ctx)
 	if err != nil {
 		return
 	}
-	userID = u.ID
-	return
+	c.s.AccessToken = c.GetAccessToken(c.ctx)
+	c.s.UserID = u.ID
+	return s.sessionRepo.Add(c.s)
 }
 
 func (s *service) Signout(c *client) (err error) {
-	s.sessionRepo.Remove(c.Session.ID)
+	s.sessionRepo.Remove(c.s.ID)
 	return
 }
 
@@ -769,7 +762,7 @@ func (s *service) Post(c *client, content string, replyToID string,
 
 	var mediaIDs []string
 	for _, f := range files {
-		a, err := c.UploadMediaFromMultipartFileHeader(ctx, f)
+		a, err := c.UploadMediaFromMultipartFileHeader(c.ctx, f)
 		if err != nil {
 			return "", err
 		}
@@ -784,7 +777,7 @@ func (s *service) Post(c *client, content string, replyToID string,
 		Visibility:  visibility,
 		Sensitive:   isNSFW,
 	}
-	st, err := c.PostStatus(ctx, tweet)
+	st, err := c.PostStatus(c.ctx, tweet)
 	if err != nil {
 		return
 	}
@@ -792,7 +785,7 @@ func (s *service) Post(c *client, content string, replyToID string,
 }
 
 func (s *service) Like(c *client, id string) (count int64, err error) {
-	st, err := c.Favourite(ctx, id)
+	st, err := c.Favourite(c.ctx, id)
 	if err != nil {
 		return
 	}
@@ -801,7 +794,7 @@ func (s *service) Like(c *client, id string) (count int64, err error) {
 }
 
 func (s *service) UnLike(c *client, id string) (count int64, err error) {
-	st, err := c.Unfavourite(ctx, id)
+	st, err := c.Unfavourite(c.ctx, id)
 	if err != nil {
 		return
 	}
@@ -810,7 +803,7 @@ func (s *service) UnLike(c *client, id string) (count int64, err error) {
 }
 
 func (s *service) Retweet(c *client, id string) (count int64, err error) {
-	st, err := c.Reblog(ctx, id)
+	st, err := c.Reblog(c.ctx, id)
 	if err != nil {
 		return
 	}
@@ -822,7 +815,7 @@ func (s *service) Retweet(c *client, id string) (count int64, err error) {
 
 func (s *service) UnRetweet(c *client, id string) (
 	count int64, err error) {
-	st, err := c.Unreblog(ctx, id)
+	st, err := c.Unreblog(c.ctx, id)
 	if err != nil {
 		return
 	}
@@ -831,55 +824,55 @@ func (s *service) UnRetweet(c *client, id string) (
 }
 
 func (s *service) Vote(c *client, id string, choices []string) (err error) {
-	_, err = c.Vote(ctx, id, choices)
+	_, err = c.Vote(c.ctx, id, choices)
 	return
 }
 
 func (s *service) Follow(c *client, id string, reblogs *bool) (err error) {
-	_, err = c.AccountFollow(ctx, id, reblogs)
+	_, err = c.AccountFollow(c.ctx, id, reblogs)
 	return
 }
 
 func (s *service) UnFollow(c *client, id string) (err error) {
-	_, err = c.AccountUnfollow(ctx, id)
+	_, err = c.AccountUnfollow(c.ctx, id)
 	return
 }
 
 func (s *service) Accept(c *client, id string) (err error) {
-	return c.FollowRequestAuthorize(ctx, id)
+	return c.FollowRequestAuthorize(c.ctx, id)
 }
 
 func (s *service) Reject(c *client, id string) (err error) {
-	return c.FollowRequestReject(ctx, id)
+	return c.FollowRequestReject(c.ctx, id)
 }
 
 func (s *service) Mute(c *client, id string) (err error) {
-	_, err = c.AccountMute(ctx, id)
+	_, err = c.AccountMute(c.ctx, id)
 	return
 }
 
 func (s *service) UnMute(c *client, id string) (err error) {
-	_, err = c.AccountUnmute(ctx, id)
+	_, err = c.AccountUnmute(c.ctx, id)
 	return
 }
 
 func (s *service) Block(c *client, id string) (err error) {
-	_, err = c.AccountBlock(ctx, id)
+	_, err = c.AccountBlock(c.ctx, id)
 	return
 }
 
 func (s *service) UnBlock(c *client, id string) (err error) {
-	_, err = c.AccountUnblock(ctx, id)
+	_, err = c.AccountUnblock(c.ctx, id)
 	return
 }
 
 func (s *service) Subscribe(c *client, id string) (err error) {
-	_, err = c.Subscribe(ctx, id)
+	_, err = c.Subscribe(c.ctx, id)
 	return
 }
 
 func (s *service) UnSubscribe(c *client, id string) (err error) {
-	_, err = c.UnSubscribe(ctx, id)
+	_, err = c.UnSubscribe(c.ctx, id)
 	return
 }
 
@@ -889,47 +882,47 @@ func (s *service) SaveSettings(c *client, settings *model.Settings) (err error) 
 	default:
 		return errInvalidArgument
 	}
-	session, err := s.sessionRepo.Get(c.Session.ID)
+	sess, err := s.sessionRepo.Get(c.s.ID)
 	if err != nil {
 		return
 	}
-	session.Settings = *settings
-	return s.sessionRepo.Add(session)
+	sess.Settings = *settings
+	return s.sessionRepo.Add(sess)
 }
 
 func (s *service) MuteConversation(c *client, id string) (err error) {
-	_, err = c.MuteConversation(ctx, id)
+	_, err = c.MuteConversation(c.ctx, id)
 	return
 }
 
 func (s *service) UnMuteConversation(c *client, id string) (err error) {
-	_, err = c.UnmuteConversation(ctx, id)
+	_, err = c.UnmuteConversation(c.ctx, id)
 	return
 }
 
 func (s *service) Delete(c *client, id string) (err error) {
-	return c.DeleteStatus(ctx, id)
+	return c.DeleteStatus(c.ctx, id)
 }
 
 func (s *service) ReadNotifications(c *client, maxID string) (err error) {
-	return c.ReadNotifications(ctx, maxID)
+	return c.ReadNotifications(c.ctx, maxID)
 }
 
 func (s *service) Bookmark(c *client, id string) (err error) {
-	_, err = c.Bookmark(ctx, id)
+	_, err = c.Bookmark(c.ctx, id)
 	return
 }
 
 func (s *service) UnBookmark(c *client, id string) (err error) {
-	_, err = c.Unbookmark(ctx, id)
+	_, err = c.Unbookmark(c.ctx, id)
 	return
 }
 
 func (svc *service) Filter(c *client, phrase string, wholeWord bool) (err error) {
 	fctx := []string{"home", "notifications", "public", "thread"}
-	return c.AddFilter(ctx, phrase, fctx, true, wholeWord, nil)
+	return c.AddFilter(c.ctx, phrase, fctx, true, wholeWord, nil)
 }
 
 func (svc *service) UnFilter(c *client, id string) (err error) {
-	return c.RemoveFilter(ctx, id)
+	return c.RemoveFilter(c.ctx, id)
 }
