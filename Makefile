@@ -26,18 +26,19 @@ bloat.def.conf:
 		< bloat.conf > bloat.def.conf
 
 install: bloat
-	mkdir -p $(BINPATH) $(SHAREPATH)/templates $(SHAREPATH)/static
-	cp bloat $(BINPATH)/bloat
-	chmod 0755 $(BINPATH)/bloat
-	cp -r templates/* $(SHAREPATH)/templates
-	chmod 0644 $(SHAREPATH)/templates/*
-	cp -r static/* $(SHAREPATH)/static
-	chmod 0644 $(SHAREPATH)/static/*
+	mkdir -p $(DESTDIR)$(BINPATH) \
+		$(DESTDIR)$(SHAREPATH)/templates \
+		$(DESTDIR)$(SHAREPATH)/static
+	cp bloat $(DESTDIR)$(BINPATH)/bloat
+	chmod 0755 $(DESTDIR)$(BINPATH)/bloat
+	cp -r templates/* $(DESTDIR)$(SHAREPATH)/templates
+	chmod 0644 $(DESTDIR)$(SHAREPATH)/templates/*
+	cp -r static/* $(DESTDIR)$(SHAREPATH)/static
+	chmod 0644 $(DESTDIR)$(SHAREPATH)/static/*
 
 uninstall:
-	rm -f $(BINPATH)/bloat
-	rm -fr $(SHAREPATH)/templates
-	rm -fr $(SHAREPATH)/static
+	rm -f $(DESTDIR)$(BINPATH)/bloat
+	rm -fr $(DESTDIR)$(SHAREPATH)
 
 clean: 
 	rm -f bloat
