@@ -63,6 +63,12 @@
 		<input id="dark-mode" name="dark_mode" type="checkbox" value="true" {{if .Settings.DarkMode}}checked{{end}}>
 		<label for="dark-mode"> Use dark theme </label>
 	</div>
+	<div class="settings-form-field">
+		<label for="css"> Custom CSS: </label>
+	</div>
+	<div>
+		<textarea id="css" name="css" cols="80" rows="8">{{.Settings.CSS}}</textarea>
+	</div>
 	<button type="submit"> Save </button>
 </form>
 

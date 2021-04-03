@@ -14,6 +14,7 @@ type Context struct {
 	CSRFToken        string
 	UserID           string
 	AntiDopamineMode bool
+	UserCSS          string
 	Referrer         string
 }
 

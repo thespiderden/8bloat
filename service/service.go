@@ -64,6 +64,7 @@ func (s *service) authenticate(c *client, sid string, csrf string, ref string, t
 			CSRFToken:        c.s.CSRFToken,
 			UserID:           c.s.UserID,
 			AntiDopamineMode: sett.AntiDopamineMode,
+			UserCSS:          sett.CSS,
 			Referrer:         ref,
 		}
 	}()
@@ -886,6 +887,9 @@ func (s *service) SaveSettings(c *client, settings *model.Settings) (err error) 
 	switch settings.NotificationInterval {
 	case 0, 30, 60, 120, 300, 600:
 	default:
+		return errInvalidArgument
+	}
+	if len(settings.CSS) > 1<<20 {
 		return errInvalidArgument
 	}
 	sess, err := s.sessionRepo.Get(c.s.ID)

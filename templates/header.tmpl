@@ -25,6 +25,9 @@
 	{{if $.Ctx.FluorideMode}}
 	<script src="/static/fluoride.js"></script>
 	{{end}}
+	{{if $.Ctx.UserCSS}}
+	<style>{{$.Ctx.UserCSS}}</style>
+	{{end}}
 </head>
 <body {{if $.Ctx.DarkMode}}class="dark"{{end}}>
 {{end}}
