@@ -1,6 +1,9 @@
 {{with $s := .Data}}
 {{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
-<div class="page-title"> Thread </div>
+<div class="notification-title-container">
+	<span class="page-title"> Thread </span>
+	<a class="notification-refresh" href="{{$.Ctx.Referrer}}" accesskey="T" title="Refresh (T)">refresh</a>
+</div>
 
 {{range .Statuses}}
 
