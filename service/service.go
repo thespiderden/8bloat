@@ -109,15 +109,21 @@ func (s *service) cdata(c *client, title string, count int, rinterval int,
 	return
 }
 
-func (s *service) ErrorPage(c *client, err error) error {
+func (s *service) ErrorPage(c *client, err error, retry bool) error {
 	var errStr string
+	var sessionErr bool
 	if err != nil {
 		errStr = err.Error()
+		if err == errInvalidSession || err == errInvalidCSRFToken {
+			sessionErr = true
+		}
 	}
 	cdata := s.cdata(nil, "error", 0, 0, "")
 	data := &renderer.ErrorData{
 		CommonData: cdata,
-		Error:      errStr,
+		Err:        errStr,
+		Retry:      retry,
+		SessionErr: sessionErr,
 	}
 	return s.renderer.Render(c.rctx, c.w, renderer.ErrorPage, data)
 }

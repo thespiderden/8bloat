@@ -34,7 +34,9 @@ type NavData struct {
 
 type ErrorData struct {
 	*CommonData
-	Error string
+	Err        string
+	Retry      bool
+	SessionErr bool
 }
 
 type HomePageData struct {

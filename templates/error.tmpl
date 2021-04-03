@@ -2,10 +2,15 @@
 {{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
 <div class="page-title"> Error </div>
 
-<div class="error-text"> {{.Error}} </div>
+<div class="error-text"> {{.Err}} </div>
 <div>
-	<a href="/timeline/home">Home</a>
-	<a href="/signin" target="_top">Sign In</a>
+	<a href="/timeline/home">home</a>
+	{{if .Retry}}
+	<a href="{{$.Ctx.Referrer}}">retry</a>
+	{{end}}
+	{{if .SessionErr}}
+	<a href="/signin" target="_top">signin</a>
+	{{end}}
 </div>
 
 {{template "footer.tmpl"}}

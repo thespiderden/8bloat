@@ -62,11 +62,11 @@ func redirect(c *client, url string) {
 func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	r := mux.NewRouter()
 
-	writeError := func(c *client, err error, t int) {
+	writeError := func(c *client, err error, t int, retry bool) {
 		switch t {
 		case HTML:
 			c.w.WriteHeader(http.StatusInternalServerError)
-			s.ErrorPage(c, err)
+			s.ErrorPage(c, err, retry)
 		case JSON:
 			c.w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(c.w).Encode(map[string]string{
@@ -110,13 +110,13 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 
 			err = authenticate(c, at)
 			if err != nil {
-				writeError(c, err, rt)
+				writeError(c, err, rt, req.Method == http.MethodGet)
 				return
 			}
 
 			err = f(c)
 			if err != nil {
-				writeError(c, err, rt)
+				writeError(c, err, rt, req.Method == http.MethodGet)
 				return
 			}
 		}
