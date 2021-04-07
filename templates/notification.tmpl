@@ -23,7 +23,7 @@
 	<div class="notification-follow-container">
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
-				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="profile-avatar" height="48" />
+				<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="profile-avatar" height="48" />
 			</a>
 		</div>
 		<div class="notification-follow">
@@ -43,7 +43,7 @@
 	<div class="notification-follow-container">
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
-				<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="profile-avatar" height="48" />
+				<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="profile-avatar" height="48" />
 			</a>
 		</div>
 		<div class="notification-follow">
@@ -76,7 +76,7 @@
 	{{else if eq .Type "reblog"}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
+			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
 		</a>
 		<a href="/user/{{.Account.ID}}">
 			<span class="status-uname"> @{{.Account.Acct}} </span>
@@ -90,7 +90,7 @@
 	{{else if eq .Type "favourite"}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
+			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
 		</a>
 		<a href="/user/{{.Account.ID}}">
 			<span class="status-uname"> @{{.Account.Acct}} </span>
@@ -104,7 +104,7 @@
 	{{else}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.AvatarStatic}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
+			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
 		</a>
 		<a href="/user/{{.Account.ID}}">
 			<span class="status-uname"> @{{.Account.Acct}} </span>
