@@ -101,7 +101,7 @@
 				</a>
 				{{else}}
 				<a class="img-link" href="{{.URL}}" target="_blank" title="{{.Description}}">
-					<img class="status-image" src="{{.URL}}" alt="status-image" height="240" />
+					<img class="status-image" src="{{.PreviewURL}}" alt="status-image" height="240" />
 					{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
 					<div class="status-nsfw-overlay"></div>
 					{{end}}
