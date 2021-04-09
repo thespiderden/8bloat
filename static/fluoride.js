@@ -205,6 +205,64 @@ function handleStatusLink(a) {
 		a.target = "_blank";
 }
 
+function setPos(el, cx, cy, mw, mh) {
+	var h = el.clientHeight;
+	var w = el.clientWidth;
+	var left, top;
+	if (cx < mw/2) {
+		if (w + cx + 20 < mw) {
+			left = cx + 20; 
+		} else {
+			left = (mw - w);
+		}
+	} else {
+		if (cx - w - 20 > 0) {
+			left = cx - w - 20; 
+		} else {
+			left = 0;
+		}
+	}
+	top = (cy - (h/2));
+	if (top < 0) {
+		top = 0;
+	} else if (top + h > mh) {
+		top = (mh - h);
+	} 
+	el.style.left = left + "px";
+	el.style.top = top + "px";
+}
+
+var imgPrev = null;
+function handleImgPreview(a) {
+	a.onmouseenter = function(e) {
+		var mw = document.documentElement.clientWidth;
+		var mh = document.documentElement.clientHeight - 24;
+		var img = document.createElement("img");
+		img.id = "img-preview";
+		img.src = e.target.getAttribute("href");
+		img.style["max-width"] = mw + "px";
+		img.style["max-height"] = mh + "px";
+		img.onload = function(e2) {
+			setPos(e2.target, e.clientX, e.clientY, mw, mh);
+		}
+		document.body.appendChild(img);
+		imgPrev = img;
+	}
+	a.onmouseleave = function(e) {
+		var img = document.getElementById("img-preview");
+		if (img)
+			document.body.removeChild(img);
+		imgPrev = null;
+	}
+	a.onmousemove = function(e) {
+		if (!imgPrev)
+			return;
+		var mw = document.documentElement.clientWidth;
+		var mh = document.documentElement.clientHeight - 24;
+		setPos(imgPrev, e.clientX, e.clientY, mw, mh);
+	}
+}
+
 document.addEventListener("DOMContentLoaded", function() { 
 	checkCSRFToken();
 	checkAntiDopamineMode();
@@ -237,6 +295,11 @@ document.addEventListener("DOMContentLoaded", function() {
 	var links = document.querySelectorAll(".user-profile-decription a");
 	for (var j = 0; j < links.length; j++) {
 		links[j].target = "_blank";
+	}
+
+	var links = document.querySelectorAll(".status-media-container .img-link");
+	for (var j = 0; j < links.length; j++) {
+		handleImgPreview(links[j]);
 	}
 });
 
