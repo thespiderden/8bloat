@@ -88,7 +88,7 @@
 				{{end}}
 			</div>
 			{{if .Content}}
-			<div class="status-content"> {{StatusContentFilter .SpoilerText .Content .Emojis .Mentions}} </div>
+			<div class="status-content"> {{StatusContentFilter (html .SpoilerText) .Content .Emojis .Mentions}} </div>
 			{{end}}
 			{{if .MediaAttachments}}
 			<div class="status-media-container">
@@ -153,12 +153,12 @@
 				{{range $i, $o := .Poll.Options}}
 				<div class="poll-option">
 					{{if (or $s.Poll.Expired $s.Poll.Voted)}}
-					<div> {{EmojiFilter $o.Title $s.Emojis}} - {{$o.VotesCount}} votes </div>
+					<div> {{EmojiFilter $o.Title $s.Emojis | html}} - {{$o.VotesCount}} votes </div>
 					{{else}}
 					<input type="{{if $s.Poll.Multiple}}checkbox{{else}}radio{{end}}" name="choices" 
 						id="poll-{{$s.ID}}-{{$i}}" value="{{$i}}">
 					<label for="poll-{{$s.ID}}-{{$i}}"> 
-						{{EmojiFilter $o.Title $s.Emojis}} 
+						{{EmojiFilter $o.Title $s.Emojis | html}} 
 					</label>
 					{{end}}
 				</div>

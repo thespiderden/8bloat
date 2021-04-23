@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"mime/multipart"
 	"net/url"
 	"strings"
@@ -560,16 +559,15 @@ func (s *service) UserSearchPage(c *client,
 			url.QueryEscape(q), offset)
 	}
 
-	qq := template.HTMLEscapeString(q)
 	if len(q) > 0 {
-		title += " \"" + qq + "\""
+		title += " \"" + q + "\""
 	}
 
 	cdata := s.cdata(c, title, 0, 0, "")
 	data := &renderer.UserSearchData{
 		CommonData: cdata,
 		User:       user,
-		Q:          qq,
+		Q:          q,
 		Statuses:   results.Statuses,
 		NextLink:   nextLink,
 	}
@@ -620,15 +618,14 @@ func (s *service) SearchPage(c *client,
 			url.QueryEscape(q), qType, offset)
 	}
 
-	qq := template.HTMLEscapeString(q)
 	if len(q) > 0 {
-		title += " \"" + qq + "\""
+		title += " \"" + q + "\""
 	}
 
 	cdata := s.cdata(c, title, 0, 0, "")
 	data := &renderer.SearchData{
 		CommonData: cdata,
-		Q:          qq,
+		Q:          q,
 		Type:       qType,
 		Users:      results.Accounts,
 		Statuses:   results.Statuses,
