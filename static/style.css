@@ -159,12 +159,20 @@ body {
 	margin-left: 4px;
 }
 
-.post-content {
+textarea {
 	padding: 4px;
 	font-size: 11pt;
 	font-family: initial;
-	width: 100%;
+}
+
+.post-content {
 	box-sizing: border-box;
+	width: 100%;
+}
+
+#css {
+	box-sizing: border-box;
+	max-width: 100%;
 }
 
 .pagination {
@@ -351,9 +359,10 @@ a:hover,
 }
 
 .emoji-item-container {
-	min-width: 220px;
+	width: 220px;
 	display: inline-block;
 	margin: 4px 0;
+	overflow: hidden;
 }
 
 .emoji-item {
@@ -576,7 +585,7 @@ kbd {
 	color: #81a2be;
 }
 
-.dark #post-content {
+.dark textarea {
 	background-color: #333333;
 	border: 1px solid #444444;
 	color: #eaeaea;
