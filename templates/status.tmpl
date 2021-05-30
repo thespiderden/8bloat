@@ -193,24 +193,19 @@
 					</a>
 				</div>
 				<div class="status-action">
-					{{if or (eq .Visibility "private") (eq .Visibility "direct")}}
-					<a class="status-retweet" href="" title="this status cannot be retweeted"> 
-						retweet
-					</a>
-					{{else}}
 					{{$rt := "retweet"}} {{if .Reblogged}} {{$rt = "unretweet"}} {{end}}
 					<form class="status-retweet" data-action="{{$rt}}" action="/{{$rt}}/{{.ID}}" method="post" target="_self">
 						<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 						<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
-						<input type="submit" value="{{$rt}}" class="btn-link">
+						<input type="submit" value="{{$rt}}" class="btn-link" 
+							{{if or (eq .Visibility "private") (eq .Visibility "direct")}}title="this status cannot be retweeted" disabled{{end}}>
 						<a class="status-retweet-count" href="/retweetedby/{{.ID}}" title="click to see the the list"> 
 							{{if and (not $.Ctx.AntiDopamineMode) .ReblogsCount}}
 								({{DisplayInteractionCount .ReblogsCount}})
 							{{end}}
 						</a>
 					</form>
-					{{end}}
 				</div>
 				<div class="status-action">
 					{{$like := "like"}} {{if .Favourited}} {{$like = "unlike"}} {{end}}
