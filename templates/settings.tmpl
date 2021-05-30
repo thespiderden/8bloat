@@ -5,6 +5,7 @@
 <form id="settings-form" action="/settings" method="POST">
 	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+	{{if .PostFormats}}
 	<div class="settings-form-field">
 		<label for="visibility"> Default format </label>
 		{{$defFormat := .Settings.DefaultFormat}}
@@ -14,6 +15,7 @@
 			{{end}}
 		</select>
 	</div>
+	{{end}}
 	<div class="settings-form-field">
 		<label for="visibility"> Default scope </label>
 		<select id="visibility" name="visibility">

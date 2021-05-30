@@ -15,7 +15,7 @@
 		<textarea id="post-content" name="content" class="post-content" cols="34" rows="5" accesskey="E" title="Edit post (E)">{{if .ReplyContext}}{{.ReplyContext.ReplyContent}}{{end}}</textarea>
 	</div>
 	<div>
-		{{if gt (len .Formats) 0}}
+		{{if .Formats}}
 		<span class="post-form-field">
 			{{$defFormat := .DefaultFormat}}
 			<select id="post-format" name="format" accesskey="F" title="Format (F)">
