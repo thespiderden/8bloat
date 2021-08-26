@@ -87,7 +87,7 @@
 				{{end}}
 				{{end}}
 			</div>
-			{{if .Content}}
+			{{if (or .Content .SpoilerText)}}
 			<div class="status-content"> {{StatusContentFilter (html .SpoilerText) .Content .Emojis .Mentions}} </div>
 			{{end}}
 			{{if .MediaAttachments}}
