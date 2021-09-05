@@ -482,7 +482,6 @@ img.emoji {
 .more-container {
 	position: relative;
 	display: inline-block;
-	z-index: 1;
 }
 
 .more-content {
@@ -491,6 +490,7 @@ img.emoji {
 	background-color: #d2d2d2;
 	padding: 2px 4px;
 	border: 1px solid #aaaaaa;
+	z-index: 1;
 }
 
 .more-container:hover .more-content {
