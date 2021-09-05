@@ -321,6 +321,62 @@ func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
 	return s.renderer.Render(c.rctx, c.w, renderer.ThreadPage, data)
 }
 
+func (s *service) QuickReplyPage(c *client, id string) (err error) {
+	status, err := c.GetStatus(c.ctx, id)
+	if err != nil {
+		return
+	}
+
+	var ancestor *mastodon.Status
+	if status.InReplyToID != nil {
+		ancestor, err = c.GetStatus(c.ctx, status.InReplyToID.(string))
+		if err != nil {
+			return
+		}
+	}
+
+	var content string
+	if c.s.UserID != status.Account.ID {
+		content += "@" + status.Account.Acct + " "
+	}
+	for i := range status.Mentions {
+		if status.Mentions[i].ID != c.s.UserID &&
+			status.Mentions[i].ID != status.Account.ID {
+			content += "@" + status.Mentions[i].Acct + " "
+		}
+	}
+
+	var visibility string
+	isDirect := status.Visibility == "direct"
+	if isDirect || c.s.Settings.CopyScope {
+		visibility = status.Visibility
+	} else {
+		visibility = c.s.Settings.DefaultVisibility
+	}
+
+	pctx := model.PostContext{
+		DefaultVisibility: visibility,
+		DefaultFormat:     c.s.Settings.DefaultFormat,
+		Formats:           s.postFormats,
+		ReplyContext: &model.ReplyContext{
+			InReplyToID:     id,
+			InReplyToName:   status.Account.Acct,
+			QuickReply:      true,
+			ReplyContent:    content,
+			ForceVisibility: isDirect,
+		},
+	}
+
+	cdata := s.cdata(c, "post by "+status.Account.DisplayName, 0, 0, "")
+	data := &renderer.QuickReplyData{
+		Ancestor:    ancestor,
+		Status:      status,
+		PostContext: pctx,
+		CommonData:  cdata,
+	}
+	return s.renderer.Render(c.rctx, c.w, renderer.QuickReplyPage, data)
+}
+
 func (s *service) LikedByPage(c *client, id string) (err error) {
 	likers, err := c.GetFavouritedBy(c.ctx, id, nil)
 	if err != nil {

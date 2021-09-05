@@ -1,0 +1,12 @@
+{{with $s := .Data}}
+{{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
+<div class="page-title"> Quick Reply </div>
+
+{{if .Ancestor}}
+{{template "status.tmpl" (WithContext .Ancestor $.Ctx)}}
+{{end}}
+{{template "status.tmpl" (WithContext .Status $.Ctx)}}
+{{template "postform.tmpl" (WithContext $s.PostContext $.Ctx)}}
+
+{{template "footer.tmpl"}}
+{{end}}

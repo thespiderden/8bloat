@@ -35,6 +35,9 @@
 						<a class="more-link" href="{{.URL}}" target="_blank">
 							source
 						</a>
+						<a class="more-link" href="/quickreply/{{.ID}}#status-{{.ID}}">
+							quickreply
+						</a>
 						{{if .Muted}}
 						<form action="/unmuteconv/{{.ID}}" method="post" target="_self">
 							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
