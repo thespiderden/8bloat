@@ -3,11 +3,27 @@ package mastodon
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
 )
+
+type Error struct {
+	code int
+	err  string
+}
+
+func (e Error) Error() string {
+	return e.err
+}
+
+func (e Error) IsAuthError() bool {
+	switch e.code {
+	case http.StatusForbidden, http.StatusUnauthorized:
+		return true
+	}
+	return false
+}
 
 // Base64EncodeFileName returns the base64 data URI format string of the file with the file name.
 func Base64EncodeFileName(filename string) (string, error) {
@@ -51,5 +67,8 @@ func parseAPIError(prefix string, resp *http.Response) error {
 		errMsg = fmt.Sprintf("%s: %s", errMsg, e.Error)
 	}
 
-	return errors.New(errMsg)
+	return Error{
+		code: resp.StatusCode,
+		err:  errMsg,
+	}
 }

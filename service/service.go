@@ -114,7 +114,8 @@ func (s *service) ErrorPage(c *client, err error, retry bool) error {
 	var sessionErr bool
 	if err != nil {
 		errStr = err.Error()
-		if err == errInvalidSession || err == errInvalidCSRFToken {
+		if me, ok := err.(mastodon.Error); ok && me.IsAuthError() ||
+			err == errInvalidSession || err == errInvalidCSRFToken {
 			sessionErr = true
 		}
 	}
