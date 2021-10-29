@@ -907,8 +907,8 @@ func (s *service) Reject(c *client, id string) (err error) {
 	return c.FollowRequestReject(c.ctx, id)
 }
 
-func (s *service) Mute(c *client, id string) (err error) {
-	_, err = c.AccountMute(c.ctx, id)
+func (s *service) Mute(c *client, id string, notifications *bool) (err error) {
+	_, err = c.AccountMute(c.ctx, id, notifications)
 	return
 }
 

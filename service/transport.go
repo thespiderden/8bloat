@@ -406,7 +406,13 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 
 	mute := handle(func(c *client) error {
 		id, _ := mux.Vars(c.r)["id"]
-		err := s.Mute(c, id)
+		q := c.r.URL.Query()
+		var notifications *bool
+		if r, ok := q["notifications"]; ok && len(r) > 0 {
+			notifications = new(bool)
+			*notifications = r[0] == "true"
+		}
+		err := s.Mute(c, id, notifications)
 		if err != nil {
 			return err
 		}

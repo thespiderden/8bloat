@@ -243,9 +243,13 @@ func (c *Client) AccountUnblock(ctx context.Context, id string) (*Relationship, 
 }
 
 // AccountMute mute the account.
-func (c *Client) AccountMute(ctx context.Context, id string) (*Relationship, error) {
+func (c *Client) AccountMute(ctx context.Context, id string, notifications *bool) (*Relationship, error) {
+	params := url.Values{}
+	if notifications != nil {
+		params.Set("notifications", strconv.FormatBool(*notifications))
+	}
 	var relationship Relationship
-	err := c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/accounts/%s/mute", url.PathEscape(string(id))), nil, &relationship, nil)
+	err := c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/accounts/%s/mute", url.PathEscape(string(id))), params, &relationship, nil)
 	if err != nil {
 		return nil, err
 	}
