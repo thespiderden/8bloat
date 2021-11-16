@@ -1,6 +1,6 @@
 {{with .Data}}
 {{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
-<div class="page-title"> Search {{EmojiFilter .User.DisplayName .User.Emojis}}'s statuses </div>
+<div class="page-title"> Search {{EmojiFilter (html .User.DisplayName) .User.Emojis}}'s statuses </div>
 
 <form class="search-form" action="/usersearch/{{.User.ID}}" method="GET">
 	<span class="post-form-field>

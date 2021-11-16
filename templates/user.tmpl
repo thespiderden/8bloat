@@ -11,7 +11,7 @@
 	</div>
 	<div class="user-profile-details-container">
 		<div>
-			<bdi class="status-dname"> {{EmojiFilter .User.DisplayName .User.Emojis}} </bdi>  
+			<bdi class="status-dname"> {{EmojiFilter (html .User.DisplayName) .User.Emojis}} </bdi>  
 			<span class="status-uname"> @{{.User.Acct}} </span>
 			<a class="remote-link" href="{{.User.URL}}" target="_blank" title="remote profile">
 				source
