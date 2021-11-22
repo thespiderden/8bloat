@@ -227,8 +227,8 @@
 				<div class="status-action status-action-last">
 					<a class="status-time" href="{{if not .ShowReplies}}/thread/{{.ID}}{{end}}#status-{{.ID}}"
 						{{if $.Ctx.ThreadInNewTab}}target="_blank"{{end}}> 
-						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}"> 
-							{{TimeSince .CreatedAt}}
+						<time datetime="{{FormatTimeRFC3339 .CreatedAt.Time}}" title="{{FormatTimeRFC822 .CreatedAt.Time}}">
+							{{TimeSince .CreatedAt.Time}}
 						</time> 
 					</a>
 				</div>

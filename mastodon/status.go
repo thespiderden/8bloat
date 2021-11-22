@@ -19,6 +19,19 @@ type ReplyInfo struct {
 	Number int    `json:"number"`
 }
 
+type CreatedAt struct {
+	time.Time
+}
+
+func (t *CreatedAt) UnmarshalJSON(d []byte) error {
+	// Special case to handle retweets from GNU Social
+	// which returns empty string ("") in created_at
+	if len(d) == 2 && string(d) == `""` {
+		return nil
+	}
+	return t.Time.UnmarshalJSON(d)
+}
+
 // Status is struct to hold status.
 type Status struct {
 	ID                 string       `json:"id"`
@@ -29,7 +42,7 @@ type Status struct {
 	InReplyToAccountID interface{}  `json:"in_reply_to_account_id"`
 	Reblog             *Status      `json:"reblog"`
 	Content            string       `json:"content"`
-	CreatedAt          time.Time    `json:"created_at"`
+	CreatedAt          CreatedAt    `json:"created_at"`
 	Emojis             []Emoji      `json:"emojis"`
 	RepliesCount       int64        `json:"replies_count"`
 	ReblogsCount       int64        `json:"reblogs_count"`
