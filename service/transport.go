@@ -481,20 +481,22 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		fluorideMode := c.r.FormValue("fluoride_mode") == "true"
 		darkMode := c.r.FormValue("dark_mode") == "true"
 		antiDopamineMode := c.r.FormValue("anti_dopamine_mode") == "true"
+		hideUnsupportedNotifs := c.r.FormValue("hide_unsupported_notifs") == "true"
 		css := c.r.FormValue("css")
 
 		settings := &model.Settings{
-			DefaultVisibility:    visibility,
-			DefaultFormat:        format,
-			CopyScope:            copyScope,
-			ThreadInNewTab:       threadInNewTab,
-			HideAttachments:      hideAttachments,
-			MaskNSFW:             maskNSFW,
-			NotificationInterval: ni,
-			FluorideMode:         fluorideMode,
-			DarkMode:             darkMode,
-			AntiDopamineMode:     antiDopamineMode,
-			CSS:                  css,
+			DefaultVisibility:     visibility,
+			DefaultFormat:         format,
+			CopyScope:             copyScope,
+			ThreadInNewTab:        threadInNewTab,
+			HideAttachments:       hideAttachments,
+			MaskNSFW:              maskNSFW,
+			NotificationInterval:  ni,
+			FluorideMode:          fluorideMode,
+			DarkMode:              darkMode,
+			AntiDopamineMode:      antiDopamineMode,
+			HideUnsupportedNotifs: hideUnsupportedNotifs,
+			CSS:                   css,
 		}
 
 		err := s.SaveSettings(c, settings)

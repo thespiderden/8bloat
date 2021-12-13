@@ -410,18 +410,29 @@ func (s *service) NotificationPage(c *client, maxID string,
 	var nextLink string
 	var unreadCount int
 	var readID string
-	var excludes []string
+	var includes, excludes []string
 	var pg = mastodon.Pagination{
 		MaxID: maxID,
 		MinID: minID,
 		Limit: 20,
 	}
 
+	if c.s.Settings.HideUnsupportedNotifs {
+		// Explicitly include the supported types.
+		// For now, only Pleroma supports this option, Mastadon
+		// will simply ignore the unknown params.
+		includes = []string{"follow", "follow_request", "mention", "reblog", "favourite"}
+
+		// Explicitly exclude the unsupported types.
+		// Pleroma prioritizes includes over excludes, but we
+		// still specify excludes to make it work with Mastadon.
+		excludes = []string{"poll"}
+	}
 	if c.s.Settings.AntiDopamineMode {
-		excludes = []string{"follow", "favourite", "reblog"}
+		excludes = append(excludes, "follow", "favourite", "reblog")
 	}
 
-	notifications, err := c.GetNotifications(c.ctx, &pg, excludes)
+	notifications, err := c.GetNotifications(c.ctx, &pg, includes, excludes)
 	if err != nil {
 		return
 	}

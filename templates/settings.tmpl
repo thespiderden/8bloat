@@ -62,6 +62,11 @@
 		<label for="anti-dopamine-mode"> Enable <abbr title="Remove like/retweet/unread notification count and disable like/retweet/follow notifications">anti-dopamine mode</abbr> </label>
 	</div>
 	<div class="settings-form-field">
+		<input id="hide-unsupported-notifs" name="hide_unsupported_notifs" type="checkbox"
+		value="true" {{if .Settings.HideUnsupportedNotifs}}checked{{end}}>
+		<label for="hide-unsupported-notifs"> Hide unsupported notifications </label>
+	</div>
+	<div class="settings-form-field">
 		<input id="dark-mode" name="dark_mode" type="checkbox" value="true" {{if .Settings.DarkMode}}checked{{end}}>
 		<label for="dark-mode"> Use dark theme </label>
 	</div>

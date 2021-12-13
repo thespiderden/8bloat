@@ -23,9 +23,12 @@ type Notification struct {
 }
 
 // GetNotifications return notifications.
-func (c *Client) GetNotifications(ctx context.Context, pg *Pagination, excludes []string) ([]*Notification, error) {
+func (c *Client) GetNotifications(ctx context.Context, pg *Pagination, includes, excludes []string) ([]*Notification, error) {
 	var notifications []*Notification
 	params := url.Values{}
+	for _, include := range includes {
+		params.Add("include_types[]", include)
+	}
 	for _, exclude := range excludes {
 		params.Add("exclude_types[]", exclude)
 	}
