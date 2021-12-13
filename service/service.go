@@ -422,11 +422,6 @@ func (s *service) NotificationPage(c *client, maxID string,
 		// For now, only Pleroma supports this option, Mastadon
 		// will simply ignore the unknown params.
 		includes = []string{"follow", "follow_request", "mention", "reblog", "favourite"}
-
-		// Explicitly exclude the unsupported types.
-		// Pleroma prioritizes includes over excludes, but we
-		// still specify excludes to make it work with Mastadon.
-		excludes = []string{"poll"}
 	}
 	if c.s.Settings.AntiDopamineMode {
 		excludes = append(excludes, "follow", "favourite", "reblog")
