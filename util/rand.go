@@ -2,24 +2,18 @@ package util
 
 import (
 	"crypto/rand"
-	"math/big"
+	"encoding/base64"
 )
 
-var (
-	runes        = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
-	runes_length = len(runes)
-)
+var enc = base64.URLEncoding
 
 func NewRandID(n int) (string, error) {
-	data := make([]rune, n)
-	for i := range data {
-		num, err := rand.Int(rand.Reader, big.NewInt(int64(runes_length)))
-		if err != nil {
-			return "", err
-		}
-		data[i] = runes[num.Int64()]
+	data := make([]byte, enc.DecodedLen(n))
+	_, err := rand.Read(data)
+	if err != nil {
+		return "", err
 	}
-	return string(data), nil
+	return enc.EncodeToString(data), nil
 }
 
 func NewSessionID() (string, error) {
