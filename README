@@ -15,11 +15,11 @@ Building and Installation:
 Typing make will build the binary 
 $ make
 
-Edit the provided config file. See the bloat.conf file for more details.  
+Edit the default config file. See the bloat.conf file for more details.
 $ ed bloat.conf
 
 Run the binary
-$ ./bloat -f bloat.conf
+$ ./bloat
 
 You can now access the frontend at http://127.0.0.1:8080, which is the default
 listen address. See the INSTALL file for more details.

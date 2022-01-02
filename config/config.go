@@ -108,21 +108,30 @@ func Parse(r io.Reader) (c *config, err error) {
 	return
 }
 
-func ParseFile(file string) (c *config, err error) {
-	f, err := os.Open(file)
-	if err != nil {
-		return
+func ParseFiles(files []string) (c *config, err error) {
+	var lastErr error
+	for _, file := range files {
+		f, err := os.Open(file)
+		if err != nil {
+			lastErr = err
+			if os.IsNotExist(err) {
+				continue
+			}
+			return nil, err
+		}
+		defer f.Close()
+		info, err := f.Stat()
+		if err != nil {
+			lastErr = err
+			return nil, err
+		}
+		if info.IsDir() {
+			continue
+		}
+		return Parse(f)
 	}
-	defer f.Close()
-
-	info, err := f.Stat()
-	if err != nil {
-		return
+	if lastErr == nil {
+		lastErr = errors.New("invalid config file")
 	}
-
-	if info.IsDir() {
-		return nil, errors.New("invalid config file")
-	}
-
-	return Parse(f)
+	return nil, lastErr
 }

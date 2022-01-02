@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	configFile = "/etc/bloat.conf"
+	configFiles = []string{"bloat.conf", "/etc/bloat.conf"}
 )
 
 func errExit(err error) {
@@ -34,11 +34,11 @@ func main() {
 	for _, opt := range opts {
 		switch opt.Option {
 		case 'f':
-			configFile = opt.Value
+			configFiles = []string{opt.Value}
 		}
 	}
 
-	config, err := config.ParseFile(configFile)
+	config, err := config.ParseFiles(configFiles)
 	if err != nil {
 		errExit(err)
 	}

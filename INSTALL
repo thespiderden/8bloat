@@ -15,12 +15,12 @@ This will perform a system wide installation of bloat. By default, it will
 install the binary in /usr/local/bin and data files in /usr/local/share/bloat.
 You can change these paths by editing the Makefile.
 
-3. Edit and copy the config file
-Edit the generated config file to you liking and then copy it to the default
-config location. Comments in the config file describe what each config value 
-does. For most cases, you only need to change the value of "client_website".
-$ $EDITOR bloat.def.conf
-# cp bloat.def.conf /etc/bloat.conf
+3. Edit the config file
+bloat looks for a file named bloat.conf in the working directory and
+/etc/bloat in that order. You can also specify another file by using the -f
+flag. Comments in the config file describe what each config value does. For
+most cases, you only need to change the value of "client_website".
+# $EDITOR /etc/bloat.conf
 
 4. Create database directory
 Create a directory to store session information. Optionally, create a user
