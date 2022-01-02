@@ -233,17 +233,21 @@ function setPos(el, cx, cy, mw, mh) {
 }
 
 var imgPrev = null;
+var imgX = 0;
+var imgY = 0;
 function handleImgPreview(a) {
 	a.onmouseenter = function(e) {
 		var mw = document.documentElement.clientWidth;
 		var mh = document.documentElement.clientHeight - 24;
+		imgX = e.clientX;
+		imgY = e.clientY;
 		var img = document.createElement("img");
 		img.id = "img-preview";
 		img.src = e.target.getAttribute("href");
 		img.style["max-width"] = mw + "px";
 		img.style["max-height"] = mh + "px";
 		img.onload = function(e2) {
-			setPos(e2.target, e.clientX, e.clientY, mw, mh);
+			setPos(imgPrev, imgX, imgY, mw, mh);
 		}
 		document.body.appendChild(img);
 		imgPrev = img;
@@ -259,7 +263,9 @@ function handleImgPreview(a) {
 			return;
 		var mw = document.documentElement.clientWidth;
 		var mh = document.documentElement.clientHeight - 24;
-		setPos(imgPrev, e.clientX, e.clientY, mw, mh);
+		imgX = e.clientX;
+		imgY = e.clientY;
+		setPos(imgPrev, imgX, imgY, mw, mh);
 	}
 }
 
