@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -26,18 +27,12 @@ func errExit(err error) {
 }
 
 func main() {
-	opts, _, err := util.Getopts(os.Args, "f:")
-	if err != nil {
-		errExit(err)
-	}
+	configFile := flag.String("f", "", "config file")
+	flag.Parse()
 
-	for _, opt := range opts {
-		switch opt.Option {
-		case 'f':
-			configFiles = []string{opt.Value}
-		}
+	if len(*configFile) > 0 {
+		configFiles = []string{*configFile}
 	}
-
 	config, err := config.ParseFiles(configFiles)
 	if err != nil {
 		errExit(err)
