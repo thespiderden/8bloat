@@ -1,7 +1,6 @@
 package renderer
 
 import (
-	"fmt"
 	"io"
 	"regexp"
 	"strconv"
@@ -39,32 +38,28 @@ type TemplateData struct {
 	Ctx  *Context
 }
 
+func emojiHTML(e mastodon.Emoji, height string) string {
+	return `<img class="emoji" src="` + e.URL + `" alt=":` + e.ShortCode + `:" title=":` + e.ShortCode + `:" height="` + height + `"/>`
+}
+
 func emojiFilter(content string, emojis []mastodon.Emoji) string {
 	var replacements []string
-	var r string
 	for _, e := range emojis {
-		r = fmt.Sprintf("<img class=\"emoji\" src=\"%s\" alt=\":%s:\" title=\":%s:\" height=\"24\" />",
-			e.URL, e.ShortCode, e.ShortCode)
-		replacements = append(replacements, ":"+e.ShortCode+":", r)
+		replacements = append(replacements, ":"+e.ShortCode+":", emojiHTML(e, "24"))
 	}
 	return strings.NewReplacer(replacements...).Replace(content)
 }
 
 var quoteRE = regexp.MustCompile("(?mU)(^|> *|\n)(&gt;.*)(<br|$)")
 
-func statusContentFilter(spoiler string, content string,
-	emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
-
-	var replacements []string
-	var r string
+func statusContentFilter(spoiler, content string, emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
 	if len(spoiler) > 0 {
-		content = spoiler + "<br />" + content
+		content = spoiler + "<br/>" + content
 	}
-	content = quoteRE.ReplaceAllString(content, "$1<span class=\"quote\">$2</span>$3")
+	content = quoteRE.ReplaceAllString(content, `$1<span class="quote">$2</span>$3`)
+	var replacements []string
 	for _, e := range emojis {
-		r = fmt.Sprintf("<img class=\"emoji\" src=\"%s\" alt=\":%s:\" title=\":%s:\" height=\"32\" />",
-			e.URL, e.ShortCode, e.ShortCode)
-		replacements = append(replacements, ":"+e.ShortCode+":", r)
+		replacements = append(replacements, ":"+e.ShortCode+":", emojiHTML(e, "32"))
 	}
 	for _, m := range mentions {
 		replacements = append(replacements, `"`+m.URL+`"`, `"/user/`+m.ID+`" title="@`+m.Acct+`"`)
