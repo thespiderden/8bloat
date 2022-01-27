@@ -1,13 +1,13 @@
 {{with .Data}}
 {{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
-<div class="notification-title-container">
+<div class="page-title-container">
 	<span class="page-title">
 		Notifications
 		{{if and (not $.Ctx.AntiDopamineMode) (gt .UnreadCount 0)}}
 			({{.UnreadCount }})
 		{{end}}
 	</span>
-	<a class="notification-refresh" href="/notifications" target="_self" accesskey="R" title="Refresh (R)">refresh</a>
+	<a class="page-refresh" href="/notifications" target="_self" accesskey="R" title="Refresh (R)">refresh</a>
 	{{if .ReadID}}
 	<form class="notification-read" action="/notifications/read?max_id={{.ReadID}}" method="post" target="_self">
 		<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">

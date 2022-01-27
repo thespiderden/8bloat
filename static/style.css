@@ -517,16 +517,16 @@ img.emoji {
 	margin-top: 6px;
 }
 
-.notification-title-container {
+.page-title-container {
 	margin: 8px 0;
+}
+
+.page-refresh {
+	margin-right: 8px;
 }
 
 .notification-text {
 	vertical-align: middle;
-}
-
-.notification-refresh {
-	margin-right: 8px;
 }
 
 .notification-read {
