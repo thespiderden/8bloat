@@ -246,11 +246,11 @@ function handleImgPreview(a) {
 		img.src = e.target.getAttribute("href");
 		img.style["max-width"] = mw + "px";
 		img.style["max-height"] = mh + "px";
+		imgPrev = img;
 		img.onload = function(e2) {
 			setPos(imgPrev, imgX, imgY, mw, mh);
 		}
 		document.body.appendChild(img);
-		imgPrev = img;
 	}
 	a.onmouseleave = function(e) {
 		var img = document.getElementById("img-preview");
