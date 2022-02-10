@@ -18,6 +18,10 @@ all: bloat
 
 bloat: $(SRC) $(TMPL)
 	$(GO) build $(GOFLAGS) -o bloat main.go
+	sed -e "s%=database%=/var/bloat%g" \
+		-e "s%=templates%=$(SHAREPATH)/templates%g" \
+		-e "s%=static%=$(SHAREPATH)/static%g" \
+		< bloat.conf > bloat.gen.conf
 
 install: bloat
 	mkdir -p $(DESTDIR)$(BINPATH) \
@@ -29,10 +33,6 @@ install: bloat
 	chmod 0644 $(DESTDIR)$(SHAREPATH)/templates/*
 	cp -r static/* $(DESTDIR)$(SHAREPATH)/static
 	chmod 0644 $(DESTDIR)$(SHAREPATH)/static/*
-	sed -e "s%=database%=/var/bloat%g" \
-		-e "s%=templates%=$(SHAREPATH)/templates%g" \
-		-e "s%=static%=$(SHAREPATH)/static%g" \
-		< bloat.conf > /etc/bloat.conf
 
 uninstall:
 	rm -f $(DESTDIR)$(BINPATH)/bloat
@@ -40,3 +40,4 @@ uninstall:
 
 clean: 
 	rm -f bloat
+	rm -f bloat.gen.conf

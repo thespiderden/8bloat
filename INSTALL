@@ -20,6 +20,7 @@ bloat looks for a file named bloat.conf in the working directory and
 /etc/bloat in that order. You can also specify another file by using the -f
 flag. Comments in the config file describe what each config value does. For
 most cases, you only need to change the value of "client_website".
+# cp bloat.gen.conf /etc/bloat.conf
 # $EDITOR /etc/bloat.conf
 
 4. Create database directory
