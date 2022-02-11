@@ -163,8 +163,8 @@ func (s *service) NavPage(c *client) (err error) {
 	return s.renderer.Render(c.rctx, c.w, renderer.NavPage, data)
 }
 
-func (s *service) TimelinePage(c *client, tType string, instance string,
-	maxID string, minID string) (err error) {
+func (s *service) TimelinePage(c *client, tType, instance, listId, maxID,
+	minID string) (err error) {
 
 	var nextLink, prevLink, title string
 	var statuses []*mastodon.Status
@@ -179,24 +179,46 @@ func (s *service) TimelinePage(c *client, tType string, instance string,
 		return errInvalidArgument
 	case "home":
 		statuses, err = c.GetTimelineHome(c.ctx, &pg)
+		if err != nil {
+			return err
+		}
 		title = "Timeline"
 	case "direct":
 		statuses, err = c.GetTimelineDirect(c.ctx, &pg)
+		if err != nil {
+			return err
+		}
 		title = "Direct Timeline"
 	case "local":
 		statuses, err = c.GetTimelinePublic(c.ctx, true, "", &pg)
+		if err != nil {
+			return err
+		}
 		title = "Local Timeline"
 	case "remote":
 		if len(instance) > 0 {
 			statuses, err = c.GetTimelinePublic(c.ctx, false, instance, &pg)
+			if err != nil {
+				return err
+			}
 		}
 		title = "Remote Timeline"
 	case "twkn":
 		statuses, err = c.GetTimelinePublic(c.ctx, false, "", &pg)
+		if err != nil {
+			return err
+		}
 		title = "The Whole Known Network"
-	}
-	if err != nil {
-		return err
+	case "list":
+		statuses, err = c.GetTimelineList(c.ctx, listId, &pg)
+		if err != nil {
+			return err
+		}
+		list, err := c.GetList(c.ctx, listId)
+		if err != nil {
+			return err
+		}
+		title = "List Timeline - " + list.Title
 	}
 
 	for i := range statuses {
@@ -211,6 +233,9 @@ func (s *service) TimelinePage(c *client, tType string, instance string,
 		if len(instance) > 0 {
 			v.Set("instance", instance)
 		}
+		if len(listId) > 0 {
+			v.Set("list", listId)
+		}
 		prevLink = "/timeline/" + tType + "?" + v.Encode()
 	}
 
@@ -219,6 +244,9 @@ func (s *service) TimelinePage(c *client, tType string, instance string,
 		v.Set("max_id", pg.MaxID)
 		if len(instance) > 0 {
 			v.Set("instance", instance)
+		}
+		if len(listId) > 0 {
+			v.Set("list", listId)
 		}
 		nextLink = "/timeline/" + tType + "?" + v.Encode()
 	}
@@ -250,6 +278,70 @@ func addToReplyMap(m map[string][]mastodon.ReplyInfo, key interface{},
 		m[keyStr] = []mastodon.ReplyInfo{}
 	}
 	m[keyStr] = append(m[keyStr], mastodon.ReplyInfo{val, number})
+}
+
+func (s *service) ListsPage(c *client) (err error) {
+	lists, err := c.GetLists(c.ctx)
+	if err != nil {
+		return
+	}
+
+	cdata := s.cdata(c, "Lists", 0, 0, "")
+	data := renderer.ListsData{
+		Lists:      lists,
+		CommonData: cdata,
+	}
+	return s.renderer.Render(c.rctx, c.w, renderer.ListsPage, data)
+}
+
+func (s *service) AddList(c *client, title string) (err error) {
+	_, err = c.CreateList(c.ctx, title)
+	return err
+}
+
+func (s *service) RemoveList(c *client, id string) (err error) {
+	return c.DeleteList(c.ctx, id)
+}
+
+func (s *service) RenameList(c *client, id, title string) (err error) {
+	_, err = c.RenameList(c.ctx, id, title)
+	return err
+}
+
+func (s *service) ListPage(c *client, id string, q string) (err error) {
+	list, err := c.GetList(c.ctx, id)
+	if err != nil {
+		return
+	}
+	accounts, err := c.GetListAccounts(c.ctx, id)
+	if err != nil {
+		return
+	}
+	var searchAccounts []*mastodon.Account
+	if len(q) > 0 {
+		result, err := c.Search(c.ctx, q, "accounts", 20, true, 0, id, true)
+		if err != nil {
+			return err
+		}
+		searchAccounts = result.Accounts
+	}
+	cdata := s.cdata(c, "List "+list.Title, 0, 0, "")
+	data := renderer.ListData{
+		List:           list,
+		Accounts:       accounts,
+		Q:              q,
+		SearchAccounts: searchAccounts,
+		CommonData:     cdata,
+	}
+	return s.renderer.Render(c.rctx, c.w, renderer.ListPage, data)
+}
+
+func (s *service) ListAddUser(c *client, id string, uid string) (err error) {
+	return c.AddToList(c.ctx, id, uid)
+}
+
+func (s *service) ListRemoveUser(c *client, id string, uid string) (err error) {
+	return c.RemoveFromList(c.ctx, id, uid)
 }
 
 func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
@@ -608,7 +700,7 @@ func (s *service) UserSearchPage(c *client,
 
 	var results *mastodon.Results
 	if len(q) > 0 {
-		results, err = c.Search(c.ctx, q, "statuses", 20, true, offset, id)
+		results, err = c.Search(c.ctx, q, "statuses", 20, true, offset, id, false)
 		if err != nil {
 			return err
 		}
@@ -666,7 +758,7 @@ func (s *service) SearchPage(c *client,
 
 	var results *mastodon.Results
 	if len(q) > 0 {
-		results, err = c.Search(c.ctx, q, qType, 20, true, offset, "")
+		results, err = c.Search(c.ctx, q, qType, 20, true, offset, "", false)
 		if err != nil {
 			return err
 		}

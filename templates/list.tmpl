@@ -1,0 +1,63 @@
+{{with .Data}}
+{{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
+<div class="page-title"> List {{.List.Title}} </div>
+
+<form action="/list/{{.List.ID}}/rename" method="POST">
+	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+	<input id="title" name="title" value="{{.List.Title}}">
+	<button type="submit"> Rename </button>
+</form>
+
+<div class="page-title"> Users </div>
+{{if .Accounts}}
+<table>
+{{range .Accounts}}
+	<tr>
+		<td class="p-0"> {{template "userlistitem.tmpl" (WithContext . $.Ctx)}} </td>
+		<td class="p-0"> 
+			<form class="user-list-action" action="/list/{{$.Data.List.ID}}/removeuser?uid={{.ID}}" method="POST">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+				<button type="submit"> Remove </button>
+			</form>
+		</td>
+	</tr>
+{{end}}
+</table>
+{{else}}
+<div class="no-data-found">No data found</div>
+{{end}}
+
+<div class="page-title"> Add user </div>
+<form class="search-form" action="/list/{{.List.ID}}" method="GET">
+	<span class="post-form-field">
+		<label for="query"> Query </label>
+		<input id="query" name="q" value="{{.Q | html}}">
+	</span>
+	<button type="submit"> Search </button>
+</form>
+
+{{if .Q}}
+{{if .SearchAccounts}}
+<table>
+{{range .SearchAccounts}}
+	<tr>
+		<td> {{template "userlistitem.tmpl" (WithContext . $.Ctx)}} </td>
+		<td>
+			<form class="user-list-action" action="/list/{{$.Data.List.ID}}/adduser?uid={{.ID}}" method="POST">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+				<button type="submit"> Add </button>
+			</form>
+		</td>
+	</tr>
+{{end}}
+</table>
+{{else}}
+<div class="no-data-found">No data found</div>
+{{end}}
+{{end}}
+
+{{template "footer.tmpl"}}
+{{end}}

@@ -90,7 +90,7 @@ func (c *Client) DeleteList(ctx context.Context, id string) error {
 func (c *Client) AddToList(ctx context.Context, list string, accounts ...string) error {
 	params := url.Values{}
 	for _, acct := range accounts {
-		params.Add("account_ids", string(acct))
+		params.Add("account_ids[]", string(acct))
 	}
 
 	return c.doAPI(ctx, http.MethodPost, fmt.Sprintf("/api/v1/lists/%s/accounts", url.PathEscape(string(list))), params, nil, nil)
@@ -100,7 +100,7 @@ func (c *Client) AddToList(ctx context.Context, list string, accounts ...string)
 func (c *Client) RemoveFromList(ctx context.Context, list string, accounts ...string) error {
 	params := url.Values{}
 	for _, acct := range accounts {
-		params.Add("account_ids", string(acct))
+		params.Add("account_ids[]", string(acct))
 	}
 
 	return c.doAPI(ctx, http.MethodDelete, fmt.Sprintf("/api/v1/lists/%s/accounts", url.PathEscape(string(list))), params, nil, nil)

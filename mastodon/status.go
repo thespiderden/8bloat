@@ -301,7 +301,7 @@ func (c *Client) DeleteStatus(ctx context.Context, id string) error {
 }
 
 // Search search content with query.
-func (c *Client) Search(ctx context.Context, q string, qType string, limit int, resolve bool, offset int, accountID string) (*Results, error) {
+func (c *Client) Search(ctx context.Context, q string, qType string, limit int, resolve bool, offset int, accountID string, following bool) (*Results, error) {
 	var results Results
 	params := url.Values{}
 	params.Set("q", q)
@@ -309,6 +309,7 @@ func (c *Client) Search(ctx context.Context, q string, qType string, limit int, 
 	params.Set("limit", fmt.Sprint(limit))
 	params.Set("resolve", fmt.Sprint(resolve))
 	params.Set("offset", fmt.Sprint(offset))
+	params.Set("following", fmt.Sprint(following))
 	if len(accountID) > 0 {
 		params.Set("account_id", accountID)
 	}

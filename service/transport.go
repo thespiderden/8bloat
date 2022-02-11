@@ -160,9 +160,10 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		tType, _ := mux.Vars(c.r)["type"]
 		q := c.r.URL.Query()
 		instance := q.Get("instance")
+		list := q.Get("list")
 		maxID := q.Get("max_id")
 		minID := q.Get("min_id")
-		return s.TimelinePage(c, tType, instance, maxID, minID)
+		return s.TimelinePage(c, tType, instance, list, maxID, minID)
 	}, SESSION, HTML)
 
 	defaultTimelinePage := handle(func(c *client) error {
@@ -597,6 +598,72 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		return nil
 	}, CSRF, HTML)
 
+	listsPage := handle(func(c *client) error {
+		return s.ListsPage(c)
+	}, SESSION, HTML)
+
+	addList := handle(func(c *client) error {
+		title := c.r.FormValue("title")
+		err := s.AddList(c, title)
+		if err != nil {
+			return err
+		}
+		redirect(c, c.r.FormValue("referrer"))
+		return nil
+	}, CSRF, HTML)
+
+	removeList := handle(func(c *client) error {
+		id, _ := mux.Vars(c.r)["id"]
+		err := s.RemoveList(c, id)
+		if err != nil {
+			return err
+		}
+		redirect(c, c.r.FormValue("referrer"))
+		return nil
+	}, CSRF, HTML)
+
+	renameList := handle(func(c *client) error {
+		id, _ := mux.Vars(c.r)["id"]
+		title := c.r.FormValue("title")
+		err := s.RenameList(c, id, title)
+		if err != nil {
+			return err
+		}
+		redirect(c, c.r.FormValue("referrer"))
+		return nil
+	}, CSRF, HTML)
+
+	listPage := handle(func(c *client) error {
+		id, _ := mux.Vars(c.r)["id"]
+		q := c.r.URL.Query()
+		sq := q.Get("q")
+		return s.ListPage(c, id, sq)
+	}, SESSION, HTML)
+
+	listAddUser := handle(func(c *client) error {
+		id, _ := mux.Vars(c.r)["id"]
+		q := c.r.URL.Query()
+		uid := q.Get("uid")
+		err := s.ListAddUser(c, id, uid)
+		if err != nil {
+			return err
+		}
+		redirect(c, c.r.FormValue("referrer"))
+		return nil
+	}, CSRF, HTML)
+
+	listRemoveUser := handle(func(c *client) error {
+		id, _ := mux.Vars(c.r)["id"]
+		q := c.r.URL.Query()
+		uid := q.Get("uid")
+		err := s.ListRemoveUser(c, id, uid)
+		if err != nil {
+			return err
+		}
+		redirect(c, c.r.FormValue("referrer"))
+		return nil
+	}, CSRF, HTML)
+
 	signout := handle(func(c *client) error {
 		s.Signout(c)
 		setSessionCookie(c.w, "", 0)
@@ -685,6 +752,13 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	r.HandleFunc("/unbookmark/{id}", unBookmark).Methods(http.MethodPost)
 	r.HandleFunc("/filter", filter).Methods(http.MethodPost)
 	r.HandleFunc("/unfilter/{id}", unFilter).Methods(http.MethodPost)
+	r.HandleFunc("/lists", listsPage).Methods(http.MethodGet)
+	r.HandleFunc("/list", addList).Methods(http.MethodPost)
+	r.HandleFunc("/list/{id}", listPage).Methods(http.MethodGet)
+	r.HandleFunc("/list/{id}/remove", removeList).Methods(http.MethodPost)
+	r.HandleFunc("/list/{id}/rename", renameList).Methods(http.MethodPost)
+	r.HandleFunc("/list/{id}/adduser", listAddUser).Methods(http.MethodPost)
+	r.HandleFunc("/list/{id}/removeuser", listRemoveUser).Methods(http.MethodPost)
 	r.HandleFunc("/signout", signout).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/like/{id}", fLike).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/unlike/{id}", fUnlike).Methods(http.MethodPost)

@@ -62,6 +62,19 @@ type TimelineData struct {
 	PrevLink string
 }
 
+type ListsData struct {
+	*CommonData
+	Lists []*mastodon.List
+}
+
+type ListData struct {
+	*CommonData
+	List           *mastodon.List
+	Accounts       []*mastodon.Account
+	Q              string
+	SearchAccounts []*mastodon.Account
+}
+
 type ThreadData struct {
 	*CommonData
 	Statuses    []*mastodon.Status

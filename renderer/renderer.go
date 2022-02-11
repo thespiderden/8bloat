@@ -19,6 +19,8 @@ const (
 	NavPage          = "nav.tmpl"
 	RootPage         = "root.tmpl"
 	TimelinePage     = "timeline.tmpl"
+	ListsPage        = "lists.tmpl"
+	ListPage         = "list.tmpl"
 	ThreadPage       = "thread.tmpl"
 	QuickReplyPage   = "quickreply.tmpl"
 	NotificationPage = "notification.tmpl"

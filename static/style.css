@@ -290,6 +290,10 @@ textarea {
 	display: inline;
 }
 
+.p-0 {
+	padding: 0;
+}
+
 .btn-link {
 	border: none;
 	outline: none;
@@ -422,9 +426,6 @@ img.emoji {
 	margin-right: 2px;
 }
 
-.user-list-container {
-}
-
 .user-list-item {
 	overflow: auto;
 	margin: 0 0 12px 0;
@@ -439,6 +440,10 @@ img.emoji {
 
 .user-list-name {
 	overflow: auto;
+}
+
+.user-list-action {
+	margin: 0 12px;
 }
 
 #settings-form {
