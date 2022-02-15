@@ -17,6 +17,7 @@ type Notification struct {
 	ID        string               `json:"id"`
 	Type      string               `json:"type"`
 	CreatedAt time.Time            `json:"created_at"`
+	Emoji     string               `json:"emoji"`
 	Account   Account              `json:"account"`
 	Status    *Status              `json:"status"`
 	Pleroma   *NotificationPleroma `json:"pleroma"`
