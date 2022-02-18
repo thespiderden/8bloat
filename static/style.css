@@ -580,6 +580,11 @@ kbd {
 	position: fixed;
 }
 
+.reaction-list-title {
+	font-size: 18pt;
+	margin-bottom: 0.5em;
+}
+
 .quote {
 	color: #789922;
 }

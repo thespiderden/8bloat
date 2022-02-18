@@ -4,7 +4,7 @@
 
 {{ range $k, $v := .Map }}
 {{ $number := len $v }}
-<h1>{{$k}} ({{$number}})</h1>
+<div class="reaction-list-title">{{$k}} ({{$number}})</div>
 {{template "userlist.tmpl" (WithContext $v $.Ctx)}}
 {{end}}
 
