@@ -1,0 +1,12 @@
+{{with .Data}}
+{{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
+<div class="page-title"> Reactions </div>
+
+{{ range $k, $v := .Map }}
+{{ $number := len $v }}
+<h1>{{$k}} ({{$number}})</h1>
+{{template "userlist.tmpl" (WithContext $v $.Ctx)}}
+{{end}}
+
+{{template "footer.tmpl"}}
+{{end}}

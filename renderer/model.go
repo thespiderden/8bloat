@@ -136,6 +136,11 @@ type RetweetedByData struct {
 	NextLink string
 }
 
+type ReactionsData struct {
+	*CommonData
+	Map map[string][]*mastodon.Account
+}
+
 type SearchData struct {
 	*CommonData
 	Q        string

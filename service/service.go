@@ -496,6 +496,21 @@ func (s *service) RetweetedByPage(c *client, id string) (err error) {
 	return s.renderer.Render(c.rctx, c.w, renderer.RetweetedByPage, data)
 }
 
+func (s *service) ReactionsPage(c *client, id string) (err error) {
+	reactions, err := c.GetReactedBy(c.ctx, id, nil)
+	if err != nil {
+		return
+	}
+	cdata := s.cdata(c, "reactions", 0, 0, "")
+	data := &renderer.ReactionsData{
+		CommonData: cdata,
+		Map:        reactions,
+	}
+
+	fmt.Println(reactions)
+	return s.renderer.Render(c.rctx, c.w, renderer.ReactionsPage, data)
+}
+
 func (s *service) NotificationPage(c *client, maxID string,
 	minID string) (err error) {
 

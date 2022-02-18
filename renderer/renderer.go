@@ -30,6 +30,7 @@ const (
 	EmojiPage        = "emoji.tmpl"
 	LikedByPage      = "likedby.tmpl"
 	RetweetedByPage  = "retweetedby.tmpl"
+	ReactionsPage    = "reactions.tmpl"
 	SearchPage       = "search.tmpl"
 	SettingsPage     = "settings.tmpl"
 	FiltersPage      = "filters.tmpl"

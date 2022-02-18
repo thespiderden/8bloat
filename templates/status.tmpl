@@ -224,6 +224,11 @@
 						</a>
 					</form>
 				</div>
+				{{ if .Pleroma.EmojiReactions }}
+				<div class="status-action">
+				<a class="status-reactions-count" href="/reactions/{{.ID}}" title="click to see the the list">reactions</a>
+				</div>
+				{{ end }}
 				<div class="status-action status-action-last">
 					<a class="status-time" href="{{if not .ShowReplies}}/thread/{{.ID}}{{end}}#status-{{.ID}}"
 						{{if $.Ctx.ThreadInNewTab}}target="_blank"{{end}}> 

@@ -12,6 +12,11 @@ import (
 
 type StatusPleroma struct {
 	InReplyToAccountAcct string `json:"in_reply_to_account_acct"`
+	EmojiReactions       []struct {
+		Emoji string `json:"name"`
+		Count int64  `json:"count"`
+		Me    bool   `json:"me"`
+	} `json:"emoji_reactions"`
 }
 
 type ReplyInfo struct {
@@ -110,6 +115,8 @@ func (c *Client) GetStatus(ctx context.Context, id string) (*Status, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println(status.Pleroma.EmojiReactions)
 	return &status, nil
 }
 
@@ -151,6 +158,27 @@ func (c *Client) GetFavouritedBy(ctx context.Context, id string, pg *Pagination)
 		return nil, err
 	}
 	return accounts, nil
+}
+
+// GetReactedBy returns a map of emojis to accounts of a toot.
+func (c *Client) GetReactedBy(ctx context.Context, id string, pg *Pagination) (map[string][]*Account, error) {
+	var reactionres []struct {
+		Emoji    string     `json:"name"`
+		Accounts []*Account `json:"accounts"`
+	}
+
+	err := c.doAPI(ctx, http.MethodGet, fmt.Sprintf("/api/v1/pleroma/statuses/%s/reactions", id), nil, &reactionres, pg)
+	if err != nil {
+		return nil, err
+	}
+
+	reactions := make(map[string][]*Account)
+
+	for _, v := range reactionres {
+		reactions[v.Emoji] = v.Accounts
+	}
+
+	return reactions, nil
 }
 
 // Reblog is reblog the toot of id and return status of reblog.

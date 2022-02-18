@@ -193,6 +193,11 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		return s.RetweetedByPage(c, id)
 	}, SESSION, HTML)
 
+	reactionsPage := handle(func(c *client) error {
+		id, _ := mux.Vars(c.r)["id"]
+		return s.ReactionsPage(c, id)
+	}, SESSION, HTML)
+
 	notificationsPage := handle(func(c *client) error {
 		q := c.r.URL.Query()
 		maxID := q.Get("max_id")
@@ -716,6 +721,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	r.HandleFunc("/quickreply/{id}", quickReplyPage).Methods(http.MethodGet)
 	r.HandleFunc("/likedby/{id}", likedByPage).Methods(http.MethodGet)
 	r.HandleFunc("/retweetedby/{id}", retweetedByPage).Methods(http.MethodGet)
+	r.HandleFunc("/reactions/{id}", reactionsPage).Methods(http.MethodGet)
 	r.HandleFunc("/notifications", notificationsPage).Methods(http.MethodGet)
 	r.HandleFunc("/user/{id}", userPage).Methods(http.MethodGet)
 	r.HandleFunc("/user/{id}/{type}", userPage).Methods(http.MethodGet)
