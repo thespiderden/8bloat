@@ -116,7 +116,6 @@ func (c *Client) GetStatus(ctx context.Context, id string) (*Status, error) {
 		return nil, err
 	}
 
-	fmt.Println(status.Pleroma.EmojiReactions)
 	return &status, nil
 }
 
