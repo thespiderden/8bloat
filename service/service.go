@@ -507,7 +507,6 @@ func (s *service) ReactionsPage(c *client, id string) (err error) {
 		Map:        reactions,
 	}
 
-	fmt.Println(reactions)
 	return s.renderer.Render(c.rctx, c.w, renderer.ReactionsPage, data)
 }
 
