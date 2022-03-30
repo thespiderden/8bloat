@@ -1,11 +1,11 @@
 package renderer
 
 import (
+	"html/template"
 	"io"
 	"regexp"
 	"strconv"
 	"strings"
-	"text/template"
 	"time"
 
 	"bloat/mastodon"
@@ -54,10 +54,7 @@ func emojiFilter(content string, emojis []mastodon.Emoji) string {
 
 var quoteRE = regexp.MustCompile("(?mU)(^|> *|\n)(&gt;.*)(<br|$)")
 
-func statusContentFilter(spoiler, content string, emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
-	if len(spoiler) > 0 {
-		content = spoiler + "<br/>" + content
-	}
+func statusContentFilter(content string, emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
 	content = quoteRE.ReplaceAllString(content, `$1<span class="quote">$2</span>$3`)
 	var replacements []string
 	for _, e := range emojis {
@@ -129,6 +126,10 @@ func withContext(data interface{}, ctx *Context) TemplateData {
 	return TemplateData{data, ctx}
 }
 
+func raw(s string) template.HTML {
+	return template.HTML(s)
+}
+
 type Renderer interface {
 	Render(ctx *Context, writer io.Writer, page string, data interface{}) (err error)
 }
@@ -148,6 +149,8 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 		"FormatTimeRFC3339":       formatTimeRFC3339,
 		"FormatTimeRFC822":        formatTimeRFC822,
 		"WithContext":             withContext,
+		"HTML":                    template.HTMLEscapeString,
+		"Raw":                     raw,
 	}).ParseGlob(templateGlobPattern)
 	if err != nil {
 		return

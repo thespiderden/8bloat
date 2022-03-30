@@ -11,7 +11,7 @@
 	</div>
 	<div class="user-profile-details-container">
 		<div>
-			<bdi class="status-dname"> {{EmojiFilter (html .User.DisplayName) .User.Emojis}} </bdi>  
+			<bdi class="status-dname"> {{EmojiFilter (HTML .User.DisplayName) .User.Emojis | Raw}} </bdi>
 			<span class="status-uname"> @{{.User.Acct}} </span>
 			<a class="remote-link" href="{{.User.URL}}" target="_blank" title="remote profile">
 				source
@@ -129,10 +129,10 @@
 		</div>
 	</div>
 	<div class="user-profile-decription">
-	{{EmojiFilter .User.Note .User.Emojis}}
+	{{EmojiFilter .User.Note .User.Emojis | Raw}}
 	</div>
 	{{if .User.Fields}}{{range .User.Fields}}
-	<div>{{.Name}} - {{.Value}}</div>
+	<div>{{.Name}} - {{.Value | Raw}}</div>
 	{{end}}{{end}}
 </div>
 </div>

@@ -711,7 +711,7 @@ func (s *service) UserSearchPage(c *client,
 	if len(results.Statuses) == 20 {
 		offset += 20
 		nextLink = fmt.Sprintf("/usersearch/%s?q=%s&offset=%d", id,
-			url.QueryEscape(q), offset)
+			q, offset)
 	}
 
 	if len(q) > 0 {
@@ -770,7 +770,7 @@ func (s *service) SearchPage(c *client,
 		(qType == "statuses" && len(results.Statuses) == 20) {
 		offset += 20
 		nextLink = fmt.Sprintf("/search?q=%s&type=%s&offset=%d",
-			url.QueryEscape(q), qType, offset)
+			q, qType, offset)
 	}
 
 	if len(q) > 0 {
