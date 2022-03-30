@@ -149,6 +149,7 @@ function handleReplyToLink(a) {
 			var copy = status.cloneNode(true);
 			copy.id = "reply-to-popup";
 			var ract = event.target.getBoundingClientRect();
+			copy.style["max-width"] = (window.innerWidth - ract.left - 32) + "px";
 			if (ract.top > window.innerHeight / 2) {
 				copy.style.bottom = (window.innerHeight - 
 					window.scrollY - ract.top) + "px";
@@ -180,6 +181,7 @@ function handleReplyLink(a) {
 			var copy = status.cloneNode(true);
 			copy.id = "reply-popup";
 			var ract = event.target.getBoundingClientRect();
+			copy.style["max-width"] = (window.innerWidth - 98) + "px";
 			if (ract.left > window.innerWidth / 2) {
 				copy.style.right = (window.innerWidth -
 					ract.right - 12) + "px";
