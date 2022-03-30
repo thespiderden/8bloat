@@ -103,7 +103,7 @@
 				{{if eq .Type "image"}}
 				{{if $.Ctx.HideAttachments}}
 				<a href="{{.URL}}" target="_blank">
-					{{if .Description}}[{{.Description}}]{{else}}[image]{{end}}
+					[image{{if $s.Sensitive}}/nsfw{{end}}{{if .Description}}: {{.Description}}{{end}}]
 				</a>
 				{{else}}
 				<a class="img-link" href="{{.URL}}" target="_blank" title="{{.Description}}">
@@ -117,7 +117,7 @@
 				{{else if eq .Type "audio"}}
 				{{if $.Ctx.HideAttachments}}
 				<a href="{{.URL}}" target="_blank">
-					{{if .Description}}[{{.Description}}]{{else}}[audio]{{end}}
+					[audio{{if $s.Sensitive}}/nsfw{{end}}{{if .Description}}: {{.Description}}{{end}}]
 				</a>
 				{{else}}
 				<audio class="status-audio" controls title="{{.Description}}">
@@ -129,7 +129,7 @@
 				{{else if eq .Type "video"}}
 				{{if $.Ctx.HideAttachments}}
 				<a href="{{.URL}}" target="_blank">
-					{{if .Description}}[{{.Description}}]{{else}}[video]{{end}}
+					[video{{if $s.Sensitive}}/nsfw{{end}}{{if .Description}}: {{.Description}}{{end}}]
 				</a>
 				{{else}}
 				<div class="status-video-container" title="{{.Description}}">
@@ -145,7 +145,7 @@
 
 				{{else}}
 				<a href="{{.URL}}" target="_blank"> 
-					{{if .Description}}[{{.Description}}]{{else}}[attachment]{{end}}
+					[attachment{{if $s.Sensitive}}/nsfw{{end}}{{if .Description}}: {{.Description}}{{end}}]
 				</a>
 				{{end}}
 				{{end}}
