@@ -73,16 +73,15 @@ func displayInteractionCount(c int64) string {
 	return ""
 }
 
-func DurToStr(dur time.Duration) string {
-	s := dur.Seconds()
+func durToStr(s int64) string {
 	if s < 60 {
 		return strconv.Itoa(int(s)) + "s"
 	}
-	m := dur.Minutes()
+	m := s / 60
 	if m < 60*2 {
 		return strconv.Itoa(int(m)) + "m"
 	}
-	h := dur.Hours()
+	h := m / 60
 	if h < 24*2 {
 		return strconv.Itoa(int(h)) + "h"
 	}
@@ -94,24 +93,24 @@ func DurToStr(dur time.Duration) string {
 	if mo < 12*2 {
 		return strconv.Itoa(int(mo)) + "mo"
 	}
-	y := mo / 12
+	y := d / 365
 	return strconv.Itoa(int(y)) + "y"
 }
 
 func timeSince(t time.Time) string {
-	d := time.Since(t)
+	d := time.Now().Unix() - t.Unix()
 	if d < 0 {
 		d = 0
 	}
-	return DurToStr(d)
+	return durToStr(d)
 }
 
 func timeUntil(t time.Time) string {
-	d := time.Until(t)
+	d := t.Unix() - time.Now().Unix()
 	if d < 0 {
 		d = 0
 	}
-	return DurToStr(d)
+	return durToStr(d)
 }
 
 func formatTimeRFC3339(t time.Time) string {
