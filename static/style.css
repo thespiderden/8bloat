@@ -286,6 +286,14 @@ textarea {
 	margin: 0;
 }
 
+.user-profile-decription img {
+	height: auto;
+	width: auto;
+	max-height: 240px;
+	max-width: 280px;
+	object-fit: contain;
+}
+
 .d-inline {
 	display: inline;
 }
