@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		}
 	}
 
-	var links = document.querySelectorAll(".user-profile-decription a");
+	var links = document.querySelectorAll(".user-profile-decription a, .user-fields a");
 	for (var j = 0; j < links.length; j++) {
 		links[j].target = "_blank";
 	}

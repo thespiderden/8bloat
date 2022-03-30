@@ -131,9 +131,13 @@
 	<div class="user-profile-decription">
 	{{EmojiFilter .User.Note .User.Emojis | Raw}}
 	</div>
-	{{if .User.Fields}}{{range .User.Fields}}
-	<div>{{.Name}} - {{.Value | Raw}}</div>
-	{{end}}{{end}}
+	{{if .User.Fields}}
+	<div class="user-fields">
+		{{range .User.Fields}}
+		<div>{{.Name}} - {{.Value | Raw}}</div>
+		{{end}}
+	</div>
+	{{end}}
 </div>
 </div>
 
