@@ -271,6 +271,20 @@ function handleImgPreview(a) {
 	}
 }
 
+function onPaste(e) {
+	if (!e.clipboardData.files)
+		return;
+	var fp = document.querySelector("#post-file-picker")
+	var dt = new DataTransfer();
+	for (var i = 0; i < fp.files.length; i++) {
+		dt.items.add(fp.files[i]);
+	}
+	for (var i = 0; i < e.clipboardData.files.length; i++) {
+		dt.items.add(e.clipboardData.files[i]);
+	}
+	fp.files = dt.files;
+}
+
 document.addEventListener("DOMContentLoaded", function() { 
 	checkCSRFToken();
 	checkAntiDopamineMode();
@@ -309,6 +323,10 @@ document.addEventListener("DOMContentLoaded", function() {
 	for (var j = 0; j < links.length; j++) {
 		handleImgPreview(links[j]);
 	}
+
+	var pf = document.querySelector(".post-form")
+	if (pf)
+		pf.addEventListener("paste", onPaste);
 });
 
 // @license-end
