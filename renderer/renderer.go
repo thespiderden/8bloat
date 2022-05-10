@@ -129,6 +129,10 @@ func raw(s string) template.HTML {
 	return template.HTML(s)
 }
 
+func rawCSS(s string) template.CSS {
+	return template.CSS(s)
+}
+
 type Renderer interface {
 	Render(ctx *Context, writer io.Writer, page string, data interface{}) (err error)
 }
@@ -150,6 +154,7 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 		"WithContext":             withContext,
 		"HTML":                    template.HTMLEscapeString,
 		"Raw":                     raw,
+		"RawCSS":                  rawCSS,
 	}).ParseGlob(templateGlobPattern)
 	if err != nil {
 		return
