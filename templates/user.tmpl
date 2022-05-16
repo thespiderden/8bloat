@@ -135,7 +135,7 @@
 	{{if .User.Fields}}
 	<div class="user-fields">
 		{{range .User.Fields}}
-		<div>{{.Name}} - {{.Value | Raw}}</div>
+		<div>{{.Name}} - {{EmojiFilter .Value $.Data.User.Emojis | Raw}}</div>
 		{{end}}
 	</div>
 	{{end}}
