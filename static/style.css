@@ -167,7 +167,24 @@ textarea {
 
 .post-content {
 	box-sizing: border-box;
+	flex-grow: 1;
 	width: 100%;
+	overflow:auto;
+	resize: none;
+}
+
+.subject-header-box {
+	box-sizing: border-box;
+	overflow:auto;
+
+	width: 100%;
+}
+
+.post-form-content-container {
+	display: flex;
+	flex-direction: column;
+	overflow:auto;
+	resize: both;
 }
 
 #css {
@@ -600,6 +617,12 @@ kbd {
 }
 
 .dark textarea {
+	background-color: #333333;
+	border: 1px solid #444444;
+	color: #eaeaea;
+}
+
+.dark .subject-header-box {
 	background-color: #333333;
 	border: 1px solid #444444;
 	color: #eaeaea;

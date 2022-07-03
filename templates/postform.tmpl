@@ -13,6 +13,7 @@
 		emoji list
 	</a>
 	<div class="post-form-content-container">
+		<input id="subject-header-box" type="text" name="subject" class="subject-header-box" cols="34" rows="1" acceskey="h" title="Edit subject header (H)" {{if .ReplyContext}}value="{{.ReplyContext.ReplySubjectHeader}}"{{end}}></input>
 		<textarea id="post-content" name="content" class="post-content" cols="34" rows="5" accesskey="E" title="Edit post (E)">{{if .ReplyContext}}{{.ReplyContext.ReplyContent}}{{end}}</textarea>
 	</div>
 	<div>

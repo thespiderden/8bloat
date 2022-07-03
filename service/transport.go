@@ -273,11 +273,12 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		replyToID := c.r.FormValue("reply_to_id")
 		format := c.r.FormValue("format")
 		visibility := c.r.FormValue("visibility")
+		subjectHeader := c.r.FormValue("subject")
 		isNSFW := c.r.FormValue("is_nsfw") == "true"
 		quickReply := c.r.FormValue("quickreply") == "true"
 		files := c.r.MultipartForm.File["attachments"]
 
-		id, err := s.Post(c, content, replyToID, format, visibility, isNSFW, files)
+		id, err := s.Post(c, content, replyToID, format, visibility, subjectHeader, isNSFW, files)
 		if err != nil {
 			return err
 		}

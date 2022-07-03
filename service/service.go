@@ -377,10 +377,11 @@ func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
 			DefaultFormat:     c.s.Settings.DefaultFormat,
 			Formats:           s.postFormats,
 			ReplyContext: &model.ReplyContext{
-				InReplyToID:     id,
-				InReplyToName:   status.Account.Acct,
-				ReplyContent:    content,
-				ForceVisibility: isDirect,
+				InReplyToID:        id,
+				InReplyToName:      status.Account.Acct,
+				ReplyContent:       content,
+				ReplySubjectHeader: status.SpoilerText,
+				ForceVisibility:    isDirect,
 			},
 		}
 	}
@@ -452,11 +453,12 @@ func (s *service) QuickReplyPage(c *client, id string) (err error) {
 		DefaultFormat:     c.s.Settings.DefaultFormat,
 		Formats:           s.postFormats,
 		ReplyContext: &model.ReplyContext{
-			InReplyToID:     id,
-			InReplyToName:   status.Account.Acct,
-			QuickReply:      true,
-			ReplyContent:    content,
-			ForceVisibility: isDirect,
+			InReplyToID:        id,
+			InReplyToName:      status.Account.Acct,
+			QuickReply:         true,
+			ReplyContent:       content,
+			ReplySubjectHeader: status.SpoilerText,
+			ForceVisibility:    isDirect,
 		},
 	}
 
@@ -930,7 +932,7 @@ func (s *service) Signout(c *client) (err error) {
 }
 
 func (s *service) Post(c *client, content string, replyToID string,
-	format string, visibility string, isNSFW bool,
+	format string, visibility string, subjectHeader string, isNSFW bool,
 	files []*multipart.FileHeader) (id string, err error) {
 
 	var mediaIDs []string
@@ -948,6 +950,7 @@ func (s *service) Post(c *client, content string, replyToID string,
 		MediaIDs:    mediaIDs,
 		ContentType: format,
 		Visibility:  visibility,
+		SpoilerText: subjectHeader,
 		Sensitive:   isNSFW,
 	}
 	st, err := c.PostStatus(c.ctx, tweet)

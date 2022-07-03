@@ -13,9 +13,10 @@ type PostContext struct {
 }
 
 type ReplyContext struct {
-	InReplyToID     string
-	InReplyToName   string
-	QuickReply      bool
-	ReplyContent    string
-	ForceVisibility bool
+	InReplyToID        string
+	InReplyToName      string
+	QuickReply         bool
+	ReplyContent       string
+	ReplySubjectHeader string
+	ForceVisibility    bool
 }
