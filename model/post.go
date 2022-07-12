@@ -1,5 +1,9 @@
 package model
 
+import (
+	ua "github.com/mileusna/useragent"
+)
+
 type PostFormat struct {
 	Name string
 	Type string
@@ -10,6 +14,7 @@ type PostContext struct {
 	DefaultFormat     string
 	ReplyContext      *ReplyContext
 	Formats           []PostFormat
+	UserAgent         ua.UserAgent
 }
 
 type ReplyContext struct {

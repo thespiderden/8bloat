@@ -11,6 +11,8 @@ import (
 	"bloat/model"
 	"bloat/renderer"
 	"bloat/util"
+
+	ua "github.com/mileusna/useragent"
 )
 
 var (
@@ -54,6 +56,7 @@ func (s *service) authenticate(c *client, sid string, csrf string, ref string, t
 		if sett == nil {
 			sett = model.NewSettings()
 		}
+
 		c.rctx = &renderer.Context{
 			HideAttachments:  sett.HideAttachments,
 			MaskNSFW:         sett.MaskNSFW,
@@ -153,6 +156,7 @@ func (s *service) NavPage(c *client) (err error) {
 		DefaultVisibility: c.s.Settings.DefaultVisibility,
 		DefaultFormat:     c.s.Settings.DefaultFormat,
 		Formats:           s.postFormats,
+		UserAgent:         ua.Parse(c.r.UserAgent()),
 	}
 	cdata := s.cdata(c, "nav", 0, 0, "main")
 	data := &renderer.NavData{
@@ -383,6 +387,7 @@ func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
 				ReplySubjectHeader: status.SpoilerText,
 				ForceVisibility:    isDirect,
 			},
+			UserAgent: ua.Parse(c.r.UserAgent()),
 		}
 	}
 
@@ -460,6 +465,7 @@ func (s *service) QuickReplyPage(c *client, id string) (err error) {
 			ReplySubjectHeader: status.SpoilerText,
 			ForceVisibility:    isDirect,
 		},
+		UserAgent: ua.Parse(c.r.UserAgent()),
 	}
 
 	cdata := s.cdata(c, "post by "+status.Account.DisplayName, 0, 0, "")
