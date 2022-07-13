@@ -29,9 +29,10 @@ type ReplyContext struct {
 }
 
 func (r *ReplyContext) ReifiedSubjectHeader() string {
-	if !strings.HasPrefix(r.ReplySubjectHeader, "re: ") {
-		return "re: " + r.ReplySubjectHeader
+	sh := r.ReplySubjectHeader
+	if (sh != "") && (!strings.HasPrefix(sh, "re: ")) {
+		return "re: " + sh
 	}
 
-	return r.ReplySubjectHeader
+	return sh
 }
