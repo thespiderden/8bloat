@@ -1,6 +1,8 @@
 package model
 
 import (
+	"strings"
+
 	ua "github.com/mileusna/useragent"
 )
 
@@ -24,4 +26,12 @@ type ReplyContext struct {
 	ReplyContent       string
 	ReplySubjectHeader string
 	ForceVisibility    bool
+}
+
+func (r *ReplyContext) ReifiedSubjectHeader() string {
+	if !strings.HasPrefix(r.ReplySubjectHeader, "re: ") {
+		return "re: " + r.ReplySubjectHeader
+	}
+
+	return r.ReplySubjectHeader
 }
