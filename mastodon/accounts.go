@@ -189,6 +189,7 @@ type Relationship struct {
 	Following           bool   `json:"following"`
 	FollowedBy          bool   `json:"followed_by"`
 	Blocking            bool   `json:"blocking"`
+	BlockedBy           bool   `json:"blocked_by"`
 	Muting              bool   `json:"muting"`
 	MutingNotifications bool   `json:"muting_notifications"`
 	Subscribing         bool   `json:"subscribing"`

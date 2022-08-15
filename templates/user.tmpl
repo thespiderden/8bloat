@@ -20,6 +20,7 @@
 		{{if not .IsCurrent}}
 		<div>
 			<span> {{if .User.Pleroma.Relationship.FollowedBy}} follows you - {{end}} </span>  
+			{{if .User.Pleroma.Relationship.BlockedBy}} blocks you - {{end}}
 			{{if .User.Pleroma.Relationship.Following}} 
 			<form class="d-inline" action="/unfollow/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
