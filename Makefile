@@ -10,7 +10,6 @@ SRC=main.go		\
 	mastodon/*.go	\
 	model/*.go	\
 	renderer/*.go 	\
-	repo/*.go 	\
 	service/*.go 	\
 	util/*.go 	\
 
@@ -18,8 +17,7 @@ all: bloat
 
 bloat: $(SRC) $(TMPL)
 	$(GO) build $(GOFLAGS) -o bloat main.go
-	sed -e "s%=database%=/var/bloat%g" \
-		-e "s%=templates%=$(SHAREPATH)/templates%g" \
+	sed -e "s%=templates%=$(SHAREPATH)/templates%g" \
 		-e "s%=static%=$(SHAREPATH)/static%g" \
 		< bloat.conf > bloat.gen.conf
 

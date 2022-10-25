@@ -1,22 +1,15 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 
-	"bloat/mastodon"
 	"bloat/model"
-	"bloat/renderer"
 
 	"github.com/gorilla/mux"
-)
-
-const (
-	sessionExp = 365 * 24 * time.Hour
 )
 
 const (
@@ -29,35 +22,6 @@ const (
 	SESSION
 	CSRF
 )
-
-type client struct {
-	*mastodon.Client
-	w    http.ResponseWriter
-	r    *http.Request
-	s    model.Session
-	csrf string
-	ctx  context.Context
-	rctx *renderer.Context
-}
-
-func setSessionCookie(w http.ResponseWriter, sid string, exp time.Duration) {
-	http.SetCookie(w, &http.Cookie{
-		Name:    "session_id",
-		Value:   sid,
-		Expires: time.Now().Add(exp),
-	})
-}
-
-func writeJson(c *client, data interface{}) error {
-	return json.NewEncoder(c.w).Encode(map[string]interface{}{
-		"data": data,
-	})
-}
-
-func redirect(c *client, url string) {
-	c.w.Header().Add("Location", url)
-	c.w.WriteHeader(http.StatusFound)
-}
 
 func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	r := mux.NewRouter()
@@ -73,16 +37,6 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 				"error": err.Error(),
 			})
 		}
-	}
-
-	authenticate := func(c *client, t int) error {
-		var sid string
-		if cookie, _ := c.r.Cookie("session_id"); cookie != nil {
-			sid = cookie.Value
-		}
-		csrf := c.r.FormValue("csrf_token")
-		ref := c.r.URL.RequestURI()
-		return s.authenticate(c, sid, csrf, ref, t)
 	}
 
 	handle := func(f func(c *client) error, at int, rt int) http.HandlerFunc {
@@ -108,7 +62,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 			}
 			c.w.Header().Add("Content-Type", ct)
 
-			err = authenticate(c, at)
+			err = c.authenticate(at)
 			if err != nil {
 				writeError(c, err, rt, req.Method == http.MethodGet)
 				return
@@ -123,16 +77,16 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	}
 
 	rootPage := handle(func(c *client) error {
-		err := authenticate(c, SESSION)
+		err := c.authenticate(SESSION)
 		if err != nil {
 			if err == errInvalidSession {
-				redirect(c, "/signin")
+				c.redirect("/signin")
 				return nil
 			}
 			return err
 		}
 		if !c.s.IsLoggedIn() {
-			redirect(c, "/signin")
+			c.redirect("/signin")
 			return nil
 		}
 		return s.RootPage(c)
@@ -147,12 +101,12 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if !ok {
 			return s.SigninPage(c)
 		}
-		url, sid, err := s.NewSession(c, instance)
+		url, sess, err := s.NewSession(c, instance)
 		if err != nil {
 			return err
 		}
-		setSessionCookie(c.w, sid, sessionExp)
-		redirect(c, url)
+		c.setSession(sess)
+		c.redirect(url)
 		return nil
 	}, NOAUTH, HTML)
 
@@ -167,7 +121,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	}, SESSION, HTML)
 
 	defaultTimelinePage := handle(func(c *client) error {
-		redirect(c, "/timeline/home")
+		c.redirect("/timeline/home")
 		return nil
 	}, SESSION, HTML)
 
@@ -243,12 +197,12 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 
 	signin := handle(func(c *client) error {
 		instance := c.r.FormValue("instance")
-		url, sid, err := s.NewSession(c, instance)
+		url, sess, err := s.NewSession(c, instance)
 		if err != nil {
 			return err
 		}
-		setSessionCookie(c.w, sid, sessionExp)
-		redirect(c, url)
+		c.setSession(sess)
+		c.redirect(url)
 		return nil
 	}, NOAUTH, HTML)
 
@@ -259,7 +213,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, "/")
+		c.redirect("/")
 		return nil
 	}, SESSION, HTML)
 
@@ -287,7 +241,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		} else {
 			location = c.r.FormValue("referrer")
 		}
-		redirect(c, location)
+		c.redirect(location)
 		return nil
 	}, CSRF, HTML)
 
@@ -301,7 +255,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.r.FormValue("referrer")+"#status-"+id)
+		c.redirect(c.r.FormValue("referrer") + "#status-" + id)
 		return nil
 	}, CSRF, HTML)
 
@@ -315,7 +269,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.r.FormValue("referrer")+"#status-"+id)
+		c.redirect(c.r.FormValue("referrer") + "#status-" + id)
 		return nil
 	}, CSRF, HTML)
 
@@ -329,7 +283,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.r.FormValue("referrer")+"#status-"+id)
+		c.redirect(c.r.FormValue("referrer") + "#status-" + id)
 		return nil
 	}, CSRF, HTML)
 
@@ -343,7 +297,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.r.FormValue("referrer")+"#status-"+id)
+		c.redirect(c.r.FormValue("referrer") + "#status-" + id)
 		return nil
 	}, CSRF, HTML)
 
@@ -355,7 +309,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer")+"#status-"+statusID)
+		c.redirect(c.r.FormValue("referrer") + "#status-" + statusID)
 		return nil
 	}, CSRF, HTML)
 
@@ -371,7 +325,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -381,7 +335,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -391,7 +345,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -401,7 +355,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -417,7 +371,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -427,7 +381,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -437,7 +391,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -447,7 +401,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -457,7 +411,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -467,7 +421,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -504,7 +458,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, "/")
+		c.redirect("/")
 		return nil
 	}, CSRF, HTML)
 
@@ -514,7 +468,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -524,7 +478,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -534,7 +488,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -545,7 +499,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -559,7 +513,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.r.FormValue("referrer")+"#status-"+id)
+		c.redirect(c.r.FormValue("referrer") + "#status-" + id)
 		return nil
 	}, CSRF, HTML)
 
@@ -573,7 +527,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if len(rid) > 0 {
 			id = rid
 		}
-		redirect(c, c.r.FormValue("referrer")+"#status-"+id)
+		c.redirect(c.r.FormValue("referrer") + "#status-" + id)
 		return nil
 	}, CSRF, HTML)
 
@@ -584,7 +538,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -594,7 +548,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -608,7 +562,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -618,7 +572,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -629,7 +583,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -648,7 +602,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
@@ -660,14 +614,13 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		redirect(c, c.r.FormValue("referrer"))
+		c.redirect(c.r.FormValue("referrer"))
 		return nil
 	}, CSRF, HTML)
 
 	signout := handle(func(c *client) error {
-		s.Signout(c)
-		setSessionCookie(c.w, "", 0)
-		redirect(c, "/")
+		c.unsetSession()
+		c.redirect("/")
 		return nil
 	}, CSRF, HTML)
 
@@ -677,7 +630,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		return writeJson(c, count)
+		return c.writeJson(count)
 	}, CSRF, JSON)
 
 	fUnlike := handle(func(c *client) error {
@@ -686,7 +639,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		return writeJson(c, count)
+		return c.writeJson(count)
 	}, CSRF, JSON)
 
 	fRetweet := handle(func(c *client) error {
@@ -695,7 +648,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		return writeJson(c, count)
+		return c.writeJson(count)
 	}, CSRF, JSON)
 
 	fUnretweet := handle(func(c *client) error {
@@ -704,7 +657,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		if err != nil {
 			return err
 		}
-		return writeJson(c, count)
+		return c.writeJson(count)
 	}, CSRF, JSON)
 
 	r.HandleFunc("/", rootPage).Methods(http.MethodGet)
