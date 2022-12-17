@@ -1,0 +1,29 @@
+{{with .Data}}
+{{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
+<div class="page-title"> Mute {{.User.Acct}} </div>
+
+<form action="/mute/{{.User.ID}}" method="POST">
+	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+	<div class="settings-form-field">
+		<input id="notifications" name="notifications" type="checkbox" value="true" checked>
+		<label for="notifications"> Mute notifications </label>
+	</div>
+	<div class="settings-form-field">
+		<label for="duration"> Auto unmute </label>
+		<select id="duration" name="duration">
+			<option value="0" selected>Disabled</option>
+			<option value="300">After 5m</option>
+			<option value="1800">After 30m</option>
+			<option value="3600">After 1h</option>
+			<option value="21600">After 6h</option>
+			<option value="86400">After 1d</option>
+			<option value="259200">After 3d</option>
+			<option value="604800">After 7d</option>
+		</select>
+	</div>
+	<button type="submit"> Mute </button>
+</form>
+
+{{template "footer.tmpl"}}
+{{end}}

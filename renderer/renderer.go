@@ -33,6 +33,7 @@ const (
 	SearchPage       = "search.tmpl"
 	SettingsPage     = "settings.tmpl"
 	FiltersPage      = "filters.tmpl"
+	MutePage         = "mute.tmpl"
 )
 
 type TemplateData struct {

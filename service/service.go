@@ -678,6 +678,19 @@ func (s *service) UserSearchPage(c *client,
 	return s.renderer.Render(c.rctx, c.w, renderer.UserSearchPage, data)
 }
 
+func (s *service) MutePage(c *client, id string) (err error) {
+	user, err := c.GetAccount(c.ctx, id)
+	if err != nil {
+		return
+	}
+	cdata := s.cdata(c, "Mute"+user.DisplayName+" @"+user.Acct, 0, 0, "")
+	data := &renderer.UserData{
+		User:       user,
+		CommonData: cdata,
+	}
+	return s.renderer.Render(c.rctx, c.w, renderer.MutePage, data)
+}
+
 func (s *service) AboutPage(c *client) (err error) {
 	cdata := s.cdata(c, "about", 0, 0, "")
 	data := &renderer.AboutData{
@@ -930,8 +943,8 @@ func (s *service) Reject(c *client, id string) (err error) {
 	return c.FollowRequestReject(c.ctx, id)
 }
 
-func (s *service) Mute(c *client, id string, notifications *bool) (err error) {
-	_, err = c.AccountMute(c.ctx, id, notifications)
+func (s *service) Mute(c *client, id string, notifications bool, duration int) (err error) {
+	_, err = c.AccountMute(c.ctx, id, notifications, duration)
 	return
 }
 

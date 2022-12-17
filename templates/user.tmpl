@@ -79,17 +79,7 @@
 				<input type="submit" value="unmute" class="btn-link">
 			</form>
 			{{else}}
-			<form class="d-inline" action="/mute/{{.User.ID}}" method="post">
-				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-				<input type="submit" value="mute" class="btn-link">
-			</form>
-			-
-			<form class="d-inline" action="/mute/{{.User.ID}}?notifications=false" method="post">
-				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-				<input type="submit" value="mute (keep notifications)" class="btn-link">
-			</form>
+			<a href="/mute/{{.User.ID}}"> mute </a>
 			{{end}}
 			{{if .User.Pleroma.Relationship.Following}} 
 			-

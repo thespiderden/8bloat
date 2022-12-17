@@ -171,6 +171,11 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 		return s.UserSearchPage(c, id, sq, offset)
 	}, SESSION, HTML)
 
+	mutePage := handle(func(c *client) error {
+		id, _ := mux.Vars(c.r)["id"]
+		return s.MutePage(c, id)
+	}, SESSION, HTML)
+
 	aboutPage := handle(func(c *client) error {
 		return s.AboutPage(c)
 	}, SESSION, HTML)
@@ -361,17 +366,13 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 
 	mute := handle(func(c *client) error {
 		id, _ := mux.Vars(c.r)["id"]
-		q := c.r.URL.Query()
-		var notifications *bool
-		if r, ok := q["notifications"]; ok && len(r) > 0 {
-			notifications = new(bool)
-			*notifications = r[0] == "true"
-		}
-		err := s.Mute(c, id, notifications)
+		notifications, _ := strconv.ParseBool(c.r.FormValue("notifications"))
+		duration, _ := strconv.Atoi(c.r.FormValue("duration"))
+		err := s.Mute(c, id, notifications, duration)
 		if err != nil {
 			return err
 		}
-		c.redirect(c.r.FormValue("referrer"))
+		c.redirect("/user/" + id)
 		return nil
 	}, CSRF, HTML)
 
@@ -673,6 +674,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	r.HandleFunc("/user/{id}", userPage).Methods(http.MethodGet)
 	r.HandleFunc("/user/{id}/{type}", userPage).Methods(http.MethodGet)
 	r.HandleFunc("/usersearch/{id}", userSearchPage).Methods(http.MethodGet)
+	r.HandleFunc("/mute/{id}", mutePage).Methods(http.MethodGet)
 	r.HandleFunc("/about", aboutPage).Methods(http.MethodGet)
 	r.HandleFunc("/emojis", emojisPage).Methods(http.MethodGet)
 	r.HandleFunc("/search", searchPage).Methods(http.MethodGet)

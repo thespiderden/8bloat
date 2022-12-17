@@ -155,3 +155,8 @@ type FiltersData struct {
 	*CommonData
 	Filters []*mastodon.Filter
 }
+
+type MuteData struct {
+	*CommonData
+	User *mastodon.Account
+}
