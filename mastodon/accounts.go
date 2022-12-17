@@ -56,7 +56,9 @@ type AccountSource struct {
 // GetAccount return Account.
 func (c *Client) GetAccount(ctx context.Context, id string) (*Account, error) {
 	var account Account
-	err := c.doAPI(ctx, http.MethodGet, fmt.Sprintf("/api/v1/accounts/%s", url.PathEscape(string(id))), nil, &account, nil)
+	params := url.Values{}
+	params.Set("with_relationships", strconv.FormatBool(true))
+	err := c.doAPI(ctx, http.MethodGet, fmt.Sprintf("/api/v1/accounts/%s", url.PathEscape(string(id))), params, &account, nil)
 	if err != nil {
 		return nil, err
 	}
