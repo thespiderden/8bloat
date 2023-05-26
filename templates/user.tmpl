@@ -11,7 +11,7 @@
 	</div>
 	<div class="user-profile-details-container">
 		<div>
-			<bdi class="status-dname"> {{EmojiFilter (html .User.DisplayName) .User.Emojis}} </bdi>  
+			<bdi class="status-dname"> {{EmojiFilter (HTML .User.DisplayName) .User.Emojis | Raw}} </bdi>
 			<span class="status-uname"> @{{.User.Acct}} </span>
 			<a class="remote-link" href="{{.User.URL}}" target="_blank" title="remote profile">
 				source
@@ -20,6 +20,7 @@
 		{{if not .IsCurrent}}
 		<div>
 			<span> {{if .User.Pleroma.Relationship.FollowedBy}} follows you - {{end}} </span>  
+			{{if .User.Pleroma.Relationship.BlockedBy}} blocks you - {{end}}
 			{{if .User.Pleroma.Relationship.Following}} 
 			<form class="d-inline" action="/unfollow/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
@@ -78,17 +79,7 @@
 				<input type="submit" value="unmute" class="btn-link">
 			</form>
 			{{else}}
-			<form class="d-inline" action="/mute/{{.User.ID}}" method="post">
-				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-				<input type="submit" value="mute" class="btn-link">
-			</form>
-			-
-			<form class="d-inline" action="/mute/{{.User.ID}}?notifications=false" method="post">
-				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-				<input type="submit" value="mute (keep notifications)" class="btn-link">
-			</form>
+			<a href="/mute/{{.User.ID}}"> mute </a>
 			{{end}}
 			{{if .User.Pleroma.Relationship.Following}} 
 			-
@@ -129,11 +120,15 @@
 		</div>
 	</div>
 	<div class="user-profile-decription">
-	{{EmojiFilter .User.Note .User.Emojis}}
+	{{EmojiFilter .User.Note .User.Emojis | Raw}}
 	</div>
-	{{if .User.Fields}}{{range .User.Fields}}
-	<div>{{.Name}} - {{.Value}}</div>
-	{{end}}{{end}}
+	{{if .User.Fields}}
+	<div class="user-fields">
+		{{range .User.Fields}}
+		<div>{{EmojiFilter .Name $.Data.User.Emojis | Raw}} - {{EmojiFilter .Value $.Data.User.Emojis | Raw}}</div>
+		{{end}}
+	</div>
+	{{end}}
 </div>
 </div>
 

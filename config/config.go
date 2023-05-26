@@ -18,7 +18,6 @@ type config struct {
 	SingleInstance  string
 	StaticDirectory string
 	TemplatesPath   string
-	DatabasePath    string
 	CustomCSS       string
 	PostFormats     []model.PostFormat
 	LogFile         string
@@ -30,8 +29,7 @@ func (c *config) IsValid() bool {
 		len(c.ClientScope) < 1 ||
 		len(c.ClientWebsite) < 1 ||
 		len(c.StaticDirectory) < 1 ||
-		len(c.TemplatesPath) < 1 ||
-		len(c.DatabasePath) < 1 {
+		len(c.TemplatesPath) < 1 {
 		return false
 	}
 	return true
@@ -75,10 +73,10 @@ func Parse(r io.Reader) (c *config, err error) {
 			c.StaticDirectory = val
 		case "templates_path":
 			c.TemplatesPath = val
-		case "database_path":
-			c.DatabasePath = val
 		case "custom_css":
 			c.CustomCSS = val
+		case "database_path":
+			// ignore
 		case "post_formats":
 			vals := strings.Split(val, ",")
 			var formats []model.PostFormat

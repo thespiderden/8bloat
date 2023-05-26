@@ -5,7 +5,7 @@
 	{{if .ReplyContext}}
 	<input type="hidden" name="reply_to_id" value="{{.ReplyContext.InReplyToID}}" />
 	<input type="hidden" name="quickreply" value="{{.ReplyContext.QuickReply}}" />
-	<label for="post-content" class="post-form-title"> Reply to {{.ReplyContext.InReplyToName}} </label>
+	<label for="post-content" class="post-form-title"> Reply to @{{.ReplyContext.InReplyToName}} </label>
 	{{else}}
 	<label for="post-content" class="post-form-title"> New post </label>
 	{{end}}

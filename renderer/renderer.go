@@ -1,11 +1,11 @@
 package renderer
 
 import (
+	"html/template"
 	"io"
 	"regexp"
 	"strconv"
 	"strings"
-	"text/template"
 	"time"
 
 	"bloat/mastodon"
@@ -34,6 +34,7 @@ const (
 	SearchPage       = "search.tmpl"
 	SettingsPage     = "settings.tmpl"
 	FiltersPage      = "filters.tmpl"
+	MutePage         = "mute.tmpl"
 )
 
 type TemplateData struct {
@@ -55,10 +56,7 @@ func emojiFilter(content string, emojis []mastodon.Emoji) string {
 
 var quoteRE = regexp.MustCompile("(?mU)(^|> *|\n)(&gt;.*)(<br|$)")
 
-func statusContentFilter(spoiler, content string, emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
-	if len(spoiler) > 0 {
-		content = spoiler + "<br/>" + content
-	}
+func statusContentFilter(content string, emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
 	content = quoteRE.ReplaceAllString(content, `$1<span class="quote">$2</span>$3`)
 	var replacements []string
 	for _, e := range emojis {
@@ -77,45 +75,41 @@ func displayInteractionCount(c int64) string {
 	return ""
 }
 
-func DurToStr(dur time.Duration) string {
-	s := dur.Seconds()
+func durUnit(s int64) (dur int64, unit string) {
 	if s < 60 {
-		return strconv.Itoa(int(s)) + "s"
+		if s < 0 {
+			s = 0
+		}
+		return s, "s"
 	}
-	m := dur.Minutes()
-	if m < 60*2 {
-		return strconv.Itoa(int(m)) + "m"
-	}
-	h := dur.Hours()
-	if h < 24*2 {
-		return strconv.Itoa(int(h)) + "h"
+	m := s / 60
+	h := m / 60
+	if h < 2 {
+		return m, "m"
 	}
 	d := h / 24
-	if d < 30*2 {
-		return strconv.Itoa(int(d)) + "d"
+	if d < 2 {
+		return h, "h"
 	}
 	mo := d / 30
-	if mo < 12*2 {
-		return strconv.Itoa(int(mo)) + "mo"
+	if mo < 2 {
+		return d, "d"
 	}
-	y := mo / 12
-	return strconv.Itoa(int(y)) + "y"
+	y := d / 365
+	if y < 2 {
+		return mo, "mo"
+	}
+	return y, "y"
 }
 
 func timeSince(t time.Time) string {
-	d := time.Since(t)
-	if d < 0 {
-		d = 0
-	}
-	return DurToStr(d)
+	d, u := durUnit(time.Now().Unix() - t.Unix())
+	return strconv.FormatInt(d, 10) + u
 }
 
 func timeUntil(t time.Time) string {
-	d := time.Until(t)
-	if d < 0 {
-		d = 0
-	}
-	return DurToStr(d)
+	d, u := durUnit(t.Unix() - time.Now().Unix())
+	return strconv.FormatInt(d, 10) + u
 }
 
 func formatTimeRFC3339(t time.Time) string {
@@ -128,6 +122,14 @@ func formatTimeRFC822(t time.Time) string {
 
 func withContext(data interface{}, ctx *Context) TemplateData {
 	return TemplateData{data, ctx}
+}
+
+func raw(s string) template.HTML {
+	return template.HTML(s)
+}
+
+func rawCSS(s string) template.CSS {
+	return template.CSS(s)
 }
 
 type Renderer interface {
@@ -149,6 +151,9 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 		"FormatTimeRFC3339":       formatTimeRFC3339,
 		"FormatTimeRFC822":        formatTimeRFC822,
 		"WithContext":             withContext,
+		"HTML":                    template.HTMLEscapeString,
+		"Raw":                     raw,
+		"RawCSS":                  rawCSS,
 	}).ParseGlob(templateGlobPattern)
 	if err != nil {
 		return

@@ -5,7 +5,7 @@
 		<a class="img-link" href="/user/{{.Account.ID}}">
 			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="24" />
 		</a>
-		<bdi class="status-dname"> {{EmojiFilter (html .Account.DisplayName) .Account.Emojis}} </bdi>  
+		<bdi class="status-dname"> {{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}} </bdi>
 		<a href="/user/{{.Account.ID}}"> 
 			<span class="status-uname"> @{{.Account.Acct}} </span> 
 		</a>
@@ -23,7 +23,7 @@
 		</div>
 		<div class="status"> 
 			<div class="status-name">
-				<bdi class="status-dname"> {{EmojiFilter (html .Account.DisplayName) .Account.Emojis}} </bdi> 
+				<bdi class="status-dname"> {{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}} </bdi>
 				<a href="/user/{{.Account.ID}}">
 					<span class="status-uname"> @{{.Account.Acct}} </span>
 				</a>
@@ -91,7 +91,10 @@
 				{{end}}
 			</div>
 			{{if (or .Content .SpoilerText)}}
-			<div class="status-content"> {{StatusContentFilter (html .SpoilerText) .Content .Emojis .Mentions}} </div>
+			<div class="status-content">
+				{{if .SpoilerText}}{{EmojiFilter (HTML .SpoilerText) .Emojis | Raw}}<br/>{{end}}
+				{{StatusContentFilter .Content .Emojis .Mentions | Raw}}
+			</div>
 			{{end}}
 			{{if .MediaAttachments}}
 			<div class="status-media-container">
@@ -100,7 +103,7 @@
 				{{if eq .Type "image"}}
 				{{if $.Ctx.HideAttachments}}
 				<a href="{{.URL}}" target="_blank">
-					{{if .Description}}[{{.Description}}]{{else}}[image]{{end}}
+					[image{{if $s.Sensitive}}/nsfw{{end}}{{if .Description}}: {{.Description}}{{end}}]
 				</a>
 				{{else}}
 				<a class="img-link" href="{{.URL}}" target="_blank" title="{{.Description}}">
@@ -114,7 +117,7 @@
 				{{else if eq .Type "audio"}}
 				{{if $.Ctx.HideAttachments}}
 				<a href="{{.URL}}" target="_blank">
-					{{if .Description}}[{{.Description}}]{{else}}[audio]{{end}}
+					[audio{{if $s.Sensitive}}/nsfw{{end}}{{if .Description}}: {{.Description}}{{end}}]
 				</a>
 				{{else}}
 				<audio class="status-audio" controls title="{{.Description}}">
@@ -126,7 +129,7 @@
 				{{else if eq .Type "video"}}
 				{{if $.Ctx.HideAttachments}}
 				<a href="{{.URL}}" target="_blank">
-					{{if .Description}}[{{.Description}}]{{else}}[video]{{end}}
+					[video{{if $s.Sensitive}}/nsfw{{end}}{{if .Description}}: {{.Description}}{{end}}]
 				</a>
 				{{else}}
 				<div class="status-video-container" title="{{.Description}}">
@@ -142,7 +145,7 @@
 
 				{{else}}
 				<a href="{{.URL}}" target="_blank"> 
-					{{if .Description}}[{{.Description}}]{{else}}[attachment]{{end}}
+					[attachment{{if $s.Sensitive}}/nsfw{{end}}{{if .Description}}: {{.Description}}{{end}}]
 				</a>
 				{{end}}
 				{{end}}
@@ -156,12 +159,12 @@
 				{{range $i, $o := .Poll.Options}}
 				<div class="poll-option">
 					{{if (or $s.Poll.Expired $s.Poll.Voted)}}
-					<div> {{EmojiFilter (html $o.Title) $s.Emojis}} - {{$o.VotesCount}} votes </div>
+					<div> {{EmojiFilter (HTML $o.Title) $s.Emojis | Raw}} - {{$o.VotesCount}} votes </div>
 					{{else}}
 					<input type="{{if $s.Poll.Multiple}}checkbox{{else}}radio{{end}}" name="choices" 
 						id="poll-{{$s.ID}}-{{$i}}" value="{{$i}}">
 					<label for="poll-{{$s.ID}}-{{$i}}"> 
-						{{EmojiFilter (html $o.Title) $s.Emojis}} 
+						{{EmojiFilter (HTML $o.Title) $s.Emojis | Raw}}
 					</label>
 					{{end}}
 				</div>

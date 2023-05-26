@@ -1,11 +1,11 @@
 {{with .Data}}
 {{template "header.tmpl" (WithContext .CommonData $.Ctx)}}
-<div class="page-title"> Search {{EmojiFilter (html .User.DisplayName) .User.Emojis}}'s statuses </div>
+<div class="page-title"> Search {{EmojiFilter (HTML .User.DisplayName) .User.Emojis | Raw}}'s statuses </div>
 
 <form class="search-form" action="/usersearch/{{.User.ID}}" method="GET">
-	<span class="post-form-field>
+	<span class="post-form-field">
 		<label for="query"> Query </label>
-		<input id="query" name="q" value="{{.Q | html}}">
+		<input id="query" name="q" value="{{.Q}}">
 	</span>
 	<button type="submit"> Search </button>
 </form>

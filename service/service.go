@@ -29,14 +29,11 @@ type service struct {
 	instance    string
 	postFormats []model.PostFormat
 	renderer    renderer.Renderer
-	sessionRepo model.SessionRepo
-	appRepo     model.AppRepo
 }
 
 func NewService(cname string, cscope string, cwebsite string,
 	css string, instance string, postFormats []model.PostFormat,
-	renderer renderer.Renderer, sessionRepo model.SessionRepo,
-	appRepo model.AppRepo) *service {
+	renderer renderer.Renderer) *service {
 	return &service{
 		cname:       cname,
 		cscope:      cscope,
@@ -45,56 +42,7 @@ func NewService(cname string, cscope string, cwebsite string,
 		instance:    instance,
 		postFormats: postFormats,
 		renderer:    renderer,
-		sessionRepo: sessionRepo,
-		appRepo:     appRepo,
 	}
-}
-
-func (s *service) authenticate(c *client, sid string, csrf string, ref string, t int) (err error) {
-	var sett *model.Settings
-	defer func() {
-		if sett == nil {
-			sett = model.NewSettings()
-		}
-
-		c.rctx = &renderer.Context{
-			HideAttachments:  sett.HideAttachments,
-			MaskNSFW:         sett.MaskNSFW,
-			ThreadInNewTab:   sett.ThreadInNewTab,
-			FluorideMode:     sett.FluorideMode,
-			DarkMode:         sett.DarkMode,
-			CSRFToken:        c.s.CSRFToken,
-			UserID:           c.s.UserID,
-			AntiDopamineMode: sett.AntiDopamineMode,
-			UserCSS:          sett.CSS,
-			Referrer:         ref,
-		}
-	}()
-	if t < SESSION {
-		return
-	}
-	if len(sid) < 1 {
-		return errInvalidSession
-	}
-	c.s, err = s.sessionRepo.Get(sid)
-	if err != nil {
-		return errInvalidSession
-	}
-	sett = &c.s.Settings
-	app, err := s.appRepo.Get(c.s.InstanceDomain)
-	if err != nil {
-		return err
-	}
-	c.Client = mastodon.NewClient(&mastodon.Config{
-		Server:       app.InstanceURL,
-		ClientID:     app.ClientID,
-		ClientSecret: app.ClientSecret,
-		AccessToken:  c.s.AccessToken,
-	})
-	if t >= CSRF && (len(csrf) < 1 || csrf != c.s.CSRFToken) {
-		return errInvalidCSRFToken
-	}
-	return
 }
 
 func (s *service) cdata(c *client, title string, count int, rinterval int,
@@ -733,7 +681,7 @@ func (s *service) UserSearchPage(c *client,
 	if len(results.Statuses) == 20 {
 		offset += 20
 		nextLink = fmt.Sprintf("/usersearch/%s?q=%s&offset=%d", id,
-			url.QueryEscape(q), offset)
+			q, offset)
 	}
 
 	if len(q) > 0 {
@@ -749,6 +697,19 @@ func (s *service) UserSearchPage(c *client,
 		NextLink:   nextLink,
 	}
 	return s.renderer.Render(c.rctx, c.w, renderer.UserSearchPage, data)
+}
+
+func (s *service) MutePage(c *client, id string) (err error) {
+	user, err := c.GetAccount(c.ctx, id)
+	if err != nil {
+		return
+	}
+	cdata := s.cdata(c, "Mute"+user.DisplayName+" @"+user.Acct, 0, 0, "")
+	data := &renderer.UserData{
+		User:       user,
+		CommonData: cdata,
+	}
+	return s.renderer.Render(c.rctx, c.w, renderer.MutePage, data)
 }
 
 func (s *service) AboutPage(c *client) (err error) {
@@ -792,7 +753,7 @@ func (s *service) SearchPage(c *client,
 		(qType == "statuses" && len(results.Statuses) == 20) {
 		offset += 20
 		nextLink = fmt.Sprintf("/search?q=%s&type=%s&offset=%d",
-			url.QueryEscape(q), qType, offset)
+			q, qType, offset)
 	}
 
 	if len(q) > 0 {
@@ -842,7 +803,7 @@ func (s *service) SingleInstance() (instance string, ok bool) {
 	return
 }
 
-func (s *service) NewSession(c *client, instance string) (rurl string, sid string, err error) {
+func (s *service) NewSession(c *client, instance string) (rurl string, sess *model.Session, err error) {
 	var instanceURL string
 	if strings.HasPrefix(instance, "https://") {
 		instanceURL = instance
@@ -851,7 +812,7 @@ func (s *service) NewSession(c *client, instance string) (rurl string, sid strin
 		instanceURL = "https://" + instance
 	}
 
-	sid, err = util.NewSessionID()
+	sid, err := util.NewSessionID()
 	if err != nil {
 		return
 	}
@@ -860,42 +821,23 @@ func (s *service) NewSession(c *client, instance string) (rurl string, sid strin
 		return
 	}
 
-	sess := model.Session{
-		ID:             sid,
-		InstanceDomain: instance,
-		CSRFToken:      csrf,
-		Settings:       *model.NewSettings(),
-	}
-	err = s.sessionRepo.Add(sess)
+	app, err := mastodon.RegisterApp(c.ctx, &mastodon.AppConfig{
+		Server:       instanceURL,
+		ClientName:   s.cname,
+		Scopes:       s.cscope,
+		Website:      s.cwebsite,
+		RedirectURIs: s.cwebsite + "/oauth_callback",
+	})
 	if err != nil {
 		return
 	}
-
-	app, err := s.appRepo.Get(instance)
-	if err != nil {
-		if err != model.ErrAppNotFound {
-			return
-		}
-		mastoApp, err := mastodon.RegisterApp(c.ctx, &mastodon.AppConfig{
-			Server:       instanceURL,
-			ClientName:   s.cname,
-			Scopes:       s.cscope,
-			Website:      s.cwebsite,
-			RedirectURIs: s.cwebsite + "/oauth_callback",
-		})
-		if err != nil {
-			return "", "", err
-		}
-		app = model.App{
-			InstanceDomain: instance,
-			InstanceURL:    instanceURL,
-			ClientID:       mastoApp.ClientID,
-			ClientSecret:   mastoApp.ClientSecret,
-		}
-		err = s.appRepo.Add(app)
-		if err != nil {
-			return "", "", err
-		}
+	sess = &model.Session{
+		ID:           sid,
+		Instance:     instance,
+		ClientID:     app.ClientID,
+		ClientSecret: app.ClientSecret,
+		CSRFToken:    csrf,
+		Settings:     *model.NewSettings(),
 	}
 
 	u, err := url.Parse("/oauth/authorize")
@@ -929,12 +871,7 @@ func (s *service) Signin(c *client, code string) (err error) {
 	}
 	c.s.AccessToken = c.GetAccessToken(c.ctx)
 	c.s.UserID = u.ID
-	return s.sessionRepo.Add(c.s)
-}
-
-func (s *service) Signout(c *client) (err error) {
-	s.sessionRepo.Remove(c.s.ID)
-	return
+	return c.setSession(c.s)
 }
 
 func (s *service) Post(c *client, content string, replyToID string,
@@ -1028,8 +965,8 @@ func (s *service) Reject(c *client, id string) (err error) {
 	return c.FollowRequestReject(c.ctx, id)
 }
 
-func (s *service) Mute(c *client, id string, notifications *bool) (err error) {
-	_, err = c.AccountMute(c.ctx, id, notifications)
+func (s *service) Mute(c *client, id string, notifications bool, duration int) (err error) {
+	_, err = c.AccountMute(c.ctx, id, notifications, duration)
 	return
 }
 
@@ -1067,12 +1004,8 @@ func (s *service) SaveSettings(c *client, settings *model.Settings) (err error) 
 	if len(settings.CSS) > 1<<20 {
 		return errInvalidArgument
 	}
-	sess, err := s.sessionRepo.Get(c.s.ID)
-	if err != nil {
-		return
-	}
-	sess.Settings = *settings
-	return s.sessionRepo.Add(sess)
+	c.s.Settings = *settings
+	return c.setSession(c.s)
 }
 
 func (s *service) MuteConversation(c *client, id string) (err error) {

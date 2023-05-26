@@ -149,6 +149,7 @@ function handleReplyToLink(a) {
 			var copy = status.cloneNode(true);
 			copy.id = "reply-to-popup";
 			var ract = event.target.getBoundingClientRect();
+			copy.style["max-width"] = (window.innerWidth - ract.left - 32) + "px";
 			if (ract.top > window.innerHeight / 2) {
 				copy.style.bottom = (window.innerHeight - 
 					window.scrollY - ract.top) + "px";
@@ -180,6 +181,7 @@ function handleReplyLink(a) {
 			var copy = status.cloneNode(true);
 			copy.id = "reply-popup";
 			var ract = event.target.getBoundingClientRect();
+			copy.style["max-width"] = (window.innerWidth - 98) + "px";
 			if (ract.left > window.innerWidth / 2) {
 				copy.style.right = (window.innerWidth -
 					ract.right - 12) + "px";
@@ -269,6 +271,20 @@ function handleImgPreview(a) {
 	}
 }
 
+function onPaste(e) {
+	if (!e.clipboardData.files)
+		return;
+	var fp = document.querySelector("#post-file-picker")
+	var dt = new DataTransfer();
+	for (var i = 0; i < fp.files.length; i++) {
+		dt.items.add(fp.files[i]);
+	}
+	for (var i = 0; i < e.clipboardData.files.length; i++) {
+		dt.items.add(e.clipboardData.files[i]);
+	}
+	fp.files = dt.files;
+}
+
 document.addEventListener("DOMContentLoaded", function() { 
 	checkCSRFToken();
 	checkAntiDopamineMode();
@@ -298,7 +314,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		}
 	}
 
-	var links = document.querySelectorAll(".user-profile-decription a");
+	var links = document.querySelectorAll(".user-profile-decription a, .user-fields a");
 	for (var j = 0; j < links.length; j++) {
 		links[j].target = "_blank";
 	}
@@ -307,6 +323,10 @@ document.addEventListener("DOMContentLoaded", function() {
 	for (var j = 0; j < links.length; j++) {
 		handleImgPreview(links[j]);
 	}
+
+	var pf = document.querySelector(".post-form")
+	if (pf)
+		pf.addEventListener("paste", onPaste);
 });
 
 // @license-end

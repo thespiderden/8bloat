@@ -210,9 +210,12 @@ textarea {
 	border-color: #777777;
 }
 
-.notification-container.favourite .status-container,
-.notification-container.reblog .status-container {
+.notification-container .status-container {
 	opacity: 0.6;
+}
+
+.notification-container.mention .status-container {
+	opacity: unset;
 }
 
 .notification-info-text span {
@@ -293,13 +296,22 @@ textarea {
 	margin-top: 2px;
 }
 
-.user-profile-decription {
+.user-profile-decription,
+.user-fields {
 	overflow-wrap: break-word;
 	margin: 8px 0;
 }
 
 .user-profile-decription p {
 	margin: 0;
+}
+
+.user-profile-decription img {
+	height: auto;
+	width: auto;
+	max-height: 240px;
+	max-width: 280px;
+	object-fit: contain;
 }
 
 .d-inline {
@@ -372,10 +384,6 @@ a:hover,
 
 .status-video-container:hover .status-nsfw-overlay {
 	display: none;
-}
-
-.post-form-field>* {
-	vertical-align: middle;
 }
 
 .emoji-item-container {
@@ -468,10 +476,6 @@ img.emoji {
 
 .settings-form-field {
 	margin: 4px 0;
-}
-
-.settings-form-field>* {
-	vertical-align: middle;
 }
 
 #settings-form button[type=submit] {

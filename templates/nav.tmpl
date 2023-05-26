@@ -8,7 +8,7 @@
 	</div>
 	<div class="user-info-details-container">
 		<div class="user-info-details-name">
-			<bdi class="status-dname"> {{EmojiFilter (html .User.DisplayName) .User.Emojis}} </bdi>  
+			<bdi class="status-dname"> {{EmojiFilter (HTML .User.DisplayName) .User.Emojis | Raw}} </bdi>
 			<a class="nav-link" href="/user/{{.User.ID}}" accesskey="0" title="User profile (0)">
 				<span class="status-uname"> @{{.User.Acct}} </span>
 			</a>

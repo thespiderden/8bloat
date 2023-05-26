@@ -23,16 +23,8 @@ most cases, you only need to change the value of "client_website".
 # cp bloat.gen.conf /etc/bloat.conf
 # $EDITOR /etc/bloat.conf
 
-4. Create database directory
-Create a directory to store session information. Optionally, create a user
-to run bloat and change the ownership of the database directory accordingly.
-# mkdir /var/bloat
-# useradd _bloat
-# chown -R _bloat:_bloat /var/bloat
-Replace /var/bloat with the value you specified in the config file.
-
 5. Run the binary
-# su _bloat -c bloat
+$ bloat
 Now you should create an init script to automatically start bloat at system 
 startup.
 

@@ -12,9 +12,7 @@ import (
 
 	"bloat/config"
 	"bloat/renderer"
-	"bloat/repo"
 	"bloat/service"
-	"bloat/util"
 )
 
 var (
@@ -48,26 +46,6 @@ func main() {
 		errExit(err)
 	}
 
-	err = os.Mkdir(config.DatabasePath, 0755)
-	if err != nil && !os.IsExist(err) {
-		errExit(err)
-	}
-
-	sessionDBPath := filepath.Join(config.DatabasePath, "session")
-	sessionDB, err := util.NewDatabse(sessionDBPath)
-	if err != nil {
-		errExit(err)
-	}
-
-	appDBPath := filepath.Join(config.DatabasePath, "app")
-	appDB, err := util.NewDatabse(appDBPath)
-	if err != nil {
-		errExit(err)
-	}
-
-	sessionRepo := repo.NewSessionRepo(sessionDB)
-	appRepo := repo.NewAppRepo(appDB)
-
 	customCSS := config.CustomCSS
 	if len(customCSS) > 0 && !strings.HasPrefix(customCSS, "http://") &&
 		!strings.HasPrefix(customCSS, "https://") {
@@ -89,7 +67,7 @@ func main() {
 
 	s := service.NewService(config.ClientName, config.ClientScope,
 		config.ClientWebsite, customCSS, config.SingleInstance,
-		config.PostFormats, renderer, sessionRepo, appRepo)
+		config.PostFormats, renderer)
 	handler := service.NewHandler(s, logger, config.StaticDirectory)
 
 	logger.Println("listening on", config.ListenAddress)
