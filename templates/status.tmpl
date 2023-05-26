@@ -97,27 +97,28 @@
 			</div>
 			{{end}}
 			{{if .MediaAttachments}}
+			{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
+			<details class="status-nsfw-attachment-dropdown">
+			<summary>Attachments marked as sensitive</summary>
+			{{end}}
 			<div class="status-media-container">
 				{{range .MediaAttachments}}
 
 				{{if eq .Type "image"}}
 				{{if $.Ctx.HideAttachments}}
 				<a href="{{.URL}}" target="_blank">
-					[image{{if $s.Sensitive}}/nsfw{{end}}{{if .Description}}: {{.Description}}{{end}}]
+					[image{{if .Description}}: {{.Description}}{{end}}]
 				</a>
 				{{else}}
 				<a class="img-link" href="{{.URL}}" target="_blank" title="{{.Description}}">
 					<img class="status-image" src="{{.PreviewURL}}" alt="status-image" height="240" />
-					{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
-					<div class="status-nsfw-overlay"></div>
-					{{end}}
 				</a>
 				{{end}}
 
 				{{else if eq .Type "audio"}}
 				{{if $.Ctx.HideAttachments}}
 				<a href="{{.URL}}" target="_blank">
-					[audio{{if $s.Sensitive}}/nsfw{{end}}{{if .Description}}: {{.Description}}{{end}}]
+					[audio{{if .Description}}: {{.Description}}{{end}}]
 				</a>
 				{{else}}
 				<audio class="status-audio" controls title="{{.Description}}">
@@ -145,11 +146,14 @@
 
 				{{else}}
 				<a href="{{.URL}}" target="_blank"> 
-					[attachment{{if $s.Sensitive}}/nsfw{{end}}{{if .Description}}: {{.Description}}{{end}}]
+					[attachment{{if .Description}}: {{.Description}}{{end}}]
 				</a>
 				{{end}}
 				{{end}}
 			</div>
+			{{end}}
+			{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
+			</details>
 			{{end}}
 			{{if .Poll}}
 			<form class="poll-form" action="/vote/{{.Poll.ID}}" method="POST" target="_self">

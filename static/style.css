@@ -46,6 +46,13 @@ body {
 	object-fit: contain;
 }
 
+.status-nsfw-attachment-dropdown summary {
+	font-weight: bold;
+	font-size:1.1em;
+	user-select: none; /* Standard syntax */
+	cursor: pointer;
+}
+
 .status-media-container {
 	margin: 5px 0 -5px 0;
 	overflow: auto;
@@ -363,27 +370,10 @@ a:hover,
 	width: 48px;
 }
 
-.status-nsfw-overlay {
-	background: black;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-}
-
-.img-link:hover .status-nsfw-overlay {
-	display: none;
-}
-
 .status-video-container {
 	display: inline-block;
 	position: relative;
 	margin-bottom: 5px;
-}
-
-.status-video-container:hover .status-nsfw-overlay {
-	display: none;
 }
 
 .emoji-item-container {
