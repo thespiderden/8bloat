@@ -97,7 +97,7 @@
 				{{EmojiFilter (HTML .SpoilerText) .Emojis | Raw}}<br/>
 				</div>
 				{{end}}
-				{{StatusContentFilter .Content .Emojis .Mentions | Raw}}
+				<span class="status-content-text">{{StatusContentFilter .Content .Emojis .Mentions | Raw}}</span>
 			</div>
 			{{end}}
 			{{if .MediaAttachments}}

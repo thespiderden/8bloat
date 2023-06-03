@@ -27,6 +27,10 @@ body {
 	overflow-wrap: break-word;
 }
 
+.status-content-text {
+     white-space: pre-wrap;
+}
+
 .status-name {
 	overflow-wrap: break-word;
 }
