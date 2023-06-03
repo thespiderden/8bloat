@@ -21,6 +21,7 @@
 		<select id="visibility" name="visibility">
 			<option value="public" {{if eq .Settings.DefaultVisibility "public"}}selected{{end}}>Public</option>
 			<option value="unlisted" {{if eq .Settings.DefaultVisibility "unlisted"}}selected{{end}}>Unlisted</option>
+			<option value="local" {{if eq .Settings.DefaultVisibility "local"}}selected{{end}}>Local</option>
 			<option value="private" {{if eq .Settings.DefaultVisibility "private"}}selected{{end}}>Private</option>
 			<option value="direct" {{if eq .Settings.DefaultVisibility "direct"}}selected{{end}}>Direct</option>
 		</select>

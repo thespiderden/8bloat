@@ -35,6 +35,7 @@
 			<select id="post-visilibity" name="visibility" {{if .ReplyContext}}{{if .ReplyContext.ForceVisibility}}disabled{{end}}{{end}} accesskey="S" title="Scope (S)">
 				<option value="public" {{if eq .DefaultVisibility "public"}}selected{{end}}>Public</option>
 				<option value="unlisted" {{if eq .DefaultVisibility "unlisted"}}selected{{end}}>Unlisted</option>
+				<option value="local" {{if eq .DefaultVisibility "local"}}selected{{end}}>Local</option>
 				<option value="private" {{if eq .DefaultVisibility "private"}}selected{{end}}>Private</option>
 				<option value="direct" {{if eq .DefaultVisibility "direct"}}selected{{end}}>Direct</option>
 			</select>
