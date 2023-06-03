@@ -92,14 +92,18 @@
 			</div>
 			{{if (or .Content .SpoilerText)}}
 			<div class="status-content">
-				{{if .SpoilerText}}{{EmojiFilter (HTML .SpoilerText) .Emojis | Raw}}<br/>{{end}}
+				{{if .SpoilerText}}
+				<div class="status-subject-header">
+				{{EmojiFilter (HTML .SpoilerText) .Emojis | Raw}}<br/>
+				</div>
+				{{end}}
 				{{StatusContentFilter .Content .Emojis .Mentions | Raw}}
 			</div>
 			{{end}}
 			{{if .MediaAttachments}}
 			{{if (and $.Ctx.MaskNSFW $s.Sensitive)}}
 			<details class="status-nsfw-attachment-dropdown">
-			<summary>Attachments marked as sensitive</summary>
+			<summary>attachments marked as sensitive</summary>
 			{{end}}
 			<div class="status-media-container">
 				{{range .MediaAttachments}}
