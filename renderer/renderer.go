@@ -132,6 +132,12 @@ func rawCSS(s string) template.CSS {
 	return template.CSS(s)
 }
 
+func wrapRawStatus(status *masta.Status) StatusData {
+	return StatusData{
+		Status: status,
+	}
+}
+
 type Renderer interface {
 	Render(ctx *Context, writer io.Writer, page string, data interface{}) (err error)
 }
@@ -154,6 +160,7 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 		"HTML":                    template.HTMLEscapeString,
 		"Raw":                     raw,
 		"RawCSS":                  rawCSS,
+		"wrapRawStatus":           wrapRawStatus,
 	}).ParseGlob(templateGlobPattern)
 	if err != nil {
 		return

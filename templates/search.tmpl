@@ -19,7 +19,7 @@
 
 {{if eq .Type "statuses"}}
 {{range .Statuses}}
-{{template "status.tmpl" (WithContext . $.Ctx)}}
+{{template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{else}}
 {{if .Q}}<div class="no-data-found">No data found</div>{{end}}
 {{end}}

@@ -3,9 +3,9 @@
 <div class="page-title"> Quick Reply </div>
 
 {{if .Ancestor}}
-{{template "status.tmpl" (WithContext .Ancestor $.Ctx)}}
+{{template "status.tmpl" (WithContext (wrapRawStatus .Ancestor) $.Ctx)}}
 {{end}}
-{{template "status.tmpl" (WithContext .Status $.Ctx)}}
+{{template "status.tmpl" (WithContext (wrapRawStatus .Status) $.Ctx)}}
 {{template "postform.tmpl" (WithContext $s.PostContext $.Ctx)}}
 
 {{template "footer.tmpl"}}

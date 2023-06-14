@@ -71,7 +71,7 @@
 	</div>
 
 	{{else if eq .Type "mention"}}
-	{{template "status" (WithContext .Status $.Ctx)}}
+	{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
 
 	{{else if eq .Type "reblog"}}
 	<div class="retweet-info">
@@ -85,7 +85,7 @@
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
-	{{template "status" (WithContext .Status $.Ctx)}}
+	{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
 
 	{{else if eq .Type "favourite"}}
 	<div class="retweet-info">
@@ -99,7 +99,7 @@
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
-	{{template "status" (WithContext .Status $.Ctx)}}
+	{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
 
 	{{else if eq .Type "pleroma:emoji_reaction"}}
 	<div class="retweet-info">
@@ -113,7 +113,7 @@
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
-	{{template "status" (WithContext .Status $.Ctx)}}
+	{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
 
 	{{else}}
 	<div class="retweet-info">
@@ -127,7 +127,7 @@
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
-	{{if .Status}}{{template "status" (WithContext .Status $.Ctx)}}{{end}}
+	{{if .Status}}{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}{{end}}
 	{{end}}
 </div>
 {{end}}

@@ -313,10 +313,18 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	}, CSRF, HTML)
 
 	vote := handle(func(c *client) error {
+		var err error
 		id, _ := mux.Vars(c.r)["id"]
 		statusID := c.r.FormValue("status_id")
 		choices, _ := c.r.PostForm["choices"]
-		err := s.Vote(c, id, choices)
+		convchoice := make([]int, len(choices))
+		for i, v := range choices {
+			convchoice[i], err = strconv.Atoi(v)
+			if err != nil {
+				return err
+			}
+		}
+		err = s.Vote(c, id, convchoice...)
 		if err != nil {
 			return err
 		}
@@ -373,8 +381,11 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	mute := handle(func(c *client) error {
 		id, _ := mux.Vars(c.r)["id"]
 		notifications, _ := strconv.ParseBool(c.r.FormValue("notifications"))
-		duration, _ := strconv.Atoi(c.r.FormValue("duration"))
-		err := s.Mute(c, id, notifications, duration)
+		duration, err := strconv.ParseInt(c.r.FormValue("duration"), 10, 64)
+		if err != nil {
+			return err
+		}
+		err = s.Mute(c, id, notifications, duration)
 		if err != nil {
 			return err
 		}

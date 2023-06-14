@@ -3,7 +3,9 @@ package service
 import (
 	"errors"
 	"fmt"
+	"io"
 	"mime/multipart"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -66,9 +68,11 @@ func (s *service) ErrorPage(c *client, err error, retry bool) error {
 	var sessionErr bool
 	if err != nil {
 		errStr = err.Error()
-		if me, ok := err.(masta.Error); ok && me.IsAuthError() ||
-			err == errInvalidSession || err == errInvalidCSRFToken {
-			sessionErr = true
+		if me, ok := err.(*masta.APIError); ok {
+			switch me.Code {
+			case http.StatusForbidden, http.StatusUnauthorized:
+				sessionErr = true
+			}
 		}
 	}
 	cdata := s.cdata(nil, "error", 0, 0, "")
@@ -143,21 +147,21 @@ func (s *service) TimelinePage(c *client, tType, instance, listId, maxID,
 		}
 		title = "Direct Timeline"
 	case "local":
-		statuses, err = c.GetTimelinePublic(c.ctx, true, "", &pg)
+		statuses, err = c.GetTimelinePublic(c.ctx, true, &pg)
 		if err != nil {
 			return err
 		}
 		title = "Local Timeline"
 	case "remote":
 		if len(instance) > 0 {
-			statuses, err = c.GetTimelinePublic(c.ctx, false, instance, &pg)
+			statuses, err = c.PlGetTimelineRemote(c.ctx, instance, &pg)
 			if err != nil {
 				return err
 			}
 		}
 		title = "Remote Timeline"
 	case "twkn":
-		statuses, err = c.GetTimelinePublic(c.ctx, false, "", &pg)
+		statuses, err = c.GetTimelinePublic(c.ctx, false, &pg)
 		if err != nil {
 			return err
 		}
@@ -172,12 +176,6 @@ func (s *service) TimelinePage(c *client, tType, instance, listId, maxID,
 			return err
 		}
 		title = "List Timeline - " + list.Title
-	}
-
-	for i := range statuses {
-		if statuses[i].Reblog != nil {
-			statuses[i].Reblog.RetweetedByID = statuses[i].ID
-		}
 	}
 
 	if (len(maxID) > 0 || len(minID) > 0) && len(statuses) > 0 {
@@ -215,22 +213,6 @@ func (s *service) TimelinePage(c *client, tType, instance, listId, maxID,
 		CommonData: cdata,
 	}
 	return s.renderer.Render(c.rctx, c.w, renderer.TimelinePage, data)
-}
-
-func addToReplyMap(m map[string][]masta.ReplyInfo, key interface{},
-	val string, number int) {
-	if key == nil {
-		return
-	}
-	keyStr, ok := key.(string)
-	if !ok {
-		return
-	}
-	_, ok = m[keyStr]
-	if !ok {
-		m[keyStr] = []masta.ReplyInfo{}
-	}
-	m[keyStr] = append(m[keyStr], masta.ReplyInfo{val, number})
 }
 
 func (s *service) ListsPage(c *client) (err error) {
@@ -272,7 +254,15 @@ func (s *service) ListPage(c *client, id string, q string) (err error) {
 	}
 	var searchAccounts []*masta.Account
 	if len(q) > 0 {
-		result, err := c.Search(c.ctx, q, "accounts", 20, true, 0, id, true)
+		result, err := c.DoSearch(c.ctx, q, masta.SearchOpts{
+			Type:      "accounts",
+			Resolve:   true,
+			AccountID: id,
+			Following: true,
+			Pagination: &masta.Pagination{
+				Limit: 20,
+			},
+		})
 		if err != nil {
 			return err
 		}
@@ -346,24 +336,56 @@ func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
 	}
 
 	statuses := append(append(context.Ancestors, status), context.Descendants...)
-	replies := make(map[string][]masta.ReplyInfo)
-	idNumbers := make(map[string]int)
+	replymap := make(map[masta.ID][]renderer.ThreadReplyData)
+	nomap := make(map[masta.ID]int)
 
-	for i := range statuses {
-		statuses[i].ShowReplies = true
+	statusdata := make([]*renderer.StatusData, len(statuses))
 
-		statuses[i].IDNumbers = idNumbers
-		idNumbers[statuses[i].ID] = i + 1
+	for i, status := range statuses {
+		no := i + 1
+		nomap[status.ID] = no
 
-		statuses[i].IDReplies = replies
-		addToReplyMap(replies, statuses[i].InReplyToID, statuses[i].ID, i+1)
+		data := renderer.StatusData{
+			No:          &no,
+			Status:      status,
+			Replies:     []renderer.ThreadReplyData{},
+			ShowReplies: true,
+		}
+
+		statusdata[i] = &data
+
+		if replyee := status.InReplyToID; replyee != nil {
+			replyee := *replyee
+			replydata := renderer.ThreadReplyData{
+				No: no,
+				ID: status.ID,
+			}
+
+			_, ok := replymap[replyee]
+			if !ok {
+				replymap[replyee] = []renderer.ThreadReplyData{replydata}
+			} else {
+				replyarr := replymap[replyee]
+				replymap[replyee] = append(replyarr, replydata)
+			}
+		}
+
+	}
+
+	for i, v := range statusdata {
+		v.Replies = replymap[v.Status.ID]
+		fmt.Println(v.Status.ID, replymap[v.Status.ID], v.Replies)
+
+		if id := statuses[i].InReplyToID; id != nil {
+			no := nomap[*id]
+			v.InReplyToNo = &no
+		}
 	}
 
 	cdata := s.cdata(c, "post by "+status.Account.DisplayName, 0, 0, "")
 	data := &renderer.ThreadData{
-		Statuses:    statuses,
+		Statuses:    statusdata,
 		PostContext: pctx,
-		ReplyMap:    replies,
 		CommonData:  cdata,
 	}
 	return s.renderer.Render(c.rctx, c.w, renderer.ThreadPage, data)
@@ -377,7 +399,7 @@ func (s *service) QuickReplyPage(c *client, id string) (err error) {
 
 	var ancestor *masta.Status
 	if status.InReplyToID != nil {
-		ancestor, err = c.GetStatus(c.ctx, status.InReplyToID.(string))
+		ancestor, err = c.GetStatus(c.ctx, *status.InReplyToID)
 		if err != nil {
 			return
 		}
@@ -454,14 +476,14 @@ func (s *service) RetweetedByPage(c *client, id string) (err error) {
 }
 
 func (s *service) ReactionsPage(c *client, id string) (err error) {
-	reactions, err := c.GetReactedBy(c.ctx, id, nil)
+	reactions, err := c.PlGetReactions(c.ctx, id, false)
 	if err != nil {
 		return
 	}
 	cdata := s.cdata(c, "reactions", 0, 0, "")
 	data := &renderer.ReactionsData{
 		CommonData: cdata,
-		Map:        reactions,
+		Reactions:  reactions,
 	}
 
 	return s.renderer.Render(c.rctx, c.w, renderer.ReactionsPage, data)
@@ -473,24 +495,24 @@ func (s *service) NotificationPage(c *client, maxID string,
 	var nextLink string
 	var unreadCount int
 	var readID string
-	var includes, excludes []string
 	var pg = masta.Pagination{
 		MaxID: maxID,
 		MinID: minID,
 		Limit: 20,
 	}
 
+	var filter masta.NotificationFilter
 	if c.s.Settings.HideUnsupportedNotifs {
 		// Explicitly include the supported types.
 		// For now, only Pleroma supports this option, Mastadon
 		// will simply ignore the unknown params.
-		includes = []string{"follow", "follow_request", "mention", "reblog", "favourite", "pleroma:emoji_reaction"}
+		filter.Include = []string{"follow", "follow_request", "mention", "reblog", "favourite", "pleroma:emoji_reaction"}
 	}
 	if c.s.Settings.AntiDopamineMode {
-		excludes = append(excludes, "follow", "favourite", "reblog")
+		filter.Exclude = []string{"follow", "favourite", "reblog"}
 	}
 
-	notifications, err := c.GetNotifications(c.ctx, &pg, includes, excludes)
+	notifications, err := c.GetNotificationsOf(c.ctx, filter, &pg)
 	if err != nil {
 		return
 	}
@@ -540,7 +562,10 @@ func (s *service) UserPage(c *client, id string, pageType string,
 
 	switch pageType {
 	case "":
-		statuses, err = c.GetAccountStatuses(c.ctx, id, false, &pg)
+		statuses, err = c.GetAcctStatuses(c.ctx, id, masta.AcctStatusOpts{
+			OnlyMedia:  true,
+			Pagination: &pg,
+		})
 		if err != nil {
 			return
 		}
@@ -567,7 +592,10 @@ func (s *service) UserPage(c *client, id string, pageType string,
 				id, pg.MaxID)
 		}
 	case "media":
-		statuses, err = c.GetAccountStatuses(c.ctx, id, true, &pg)
+		statuses, err = c.GetAcctStatuses(c.ctx, id, masta.AcctStatusOpts{
+			OnlyMedia:  true,
+			Pagination: &pg,
+		})
 		if err != nil {
 			return
 		}
@@ -639,11 +667,12 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		return errInvalidArgument
 	}
 
-	for i := range statuses {
-		if statuses[i].Reblog != nil {
-			statuses[i].Reblog.RetweetedByID = statuses[i].ID
-		}
-	}
+	//  COMEBACK
+	//	for i := range statuses {
+	//		if statuses[i].Reblog != nil {
+	//			statuses[i].Reblog.RetweetedByID = statuses[i].ID
+	//		}
+	//	}
 
 	cdata := s.cdata(c, user.DisplayName+" @"+user.Acct, 0, 0, "")
 	data := &renderer.UserData{
@@ -671,7 +700,18 @@ func (s *service) UserSearchPage(c *client,
 
 	var results *masta.Results
 	if len(q) > 0 {
-		results, err = c.Search(c.ctx, q, "statuses", 20, true, offset, id, false)
+		results, err = c.DoSearch(c.ctx, q,
+			masta.SearchOpts{
+				Type:      "statuses",
+				Resolve:   true,
+				Offset:    offset,
+				AccountID: id,
+				Following: false,
+				Pagination: &masta.Pagination{
+					Limit: 20,
+				},
+			},
+		)
 		if err != nil {
 			return err
 		}
@@ -742,7 +782,17 @@ func (s *service) SearchPage(c *client,
 
 	var results *masta.Results
 	if len(q) > 0 {
-		results, err = c.Search(c.ctx, q, qType, 20, true, offset, "", false)
+		results, err = c.DoSearch(c.ctx, q,
+			masta.SearchOpts{
+				Type:      qType,
+				Resolve:   true,
+				Offset:    offset,
+				Following: false,
+				Pagination: &masta.Pagination{
+					Limit: 20,
+				},
+			},
+		)
 		if err != nil {
 			return err
 		}
@@ -870,7 +920,8 @@ func (s *service) Signin(c *client, code string) (err error) {
 	if err != nil {
 		return
 	}
-	c.s.AccessToken = c.GetAccessToken(c.ctx)
+
+	c.s.AccessToken = c.Config.AccessToken
 	c.s.UserID = u.ID
 	return c.setSession(c.s)
 }
@@ -881,7 +932,12 @@ func (s *service) Post(c *client, content string, replyToID string,
 
 	var mediaIDs []string
 	for _, f := range files {
-		a, err := c.UploadMediaFromMultipartFileHeader(c.ctx, f)
+		var reader io.Reader
+		reader, err = f.Open()
+		if err != nil {
+			return
+		}
+		a, err := c.UploadMediaFromReader(c.ctx, reader)
 		if err != nil {
 			return "", err
 		}
@@ -943,13 +999,13 @@ func (s *service) UnRetweet(c *client, id string) (
 	return
 }
 
-func (s *service) Vote(c *client, id string, choices []string) (err error) {
-	_, err = c.Vote(c.ctx, id, choices)
-	return
+func (s *service) Vote(c *client, id string, choices ...int) error {
+	_, err := c.PollVote(c.ctx, id, choices...)
+	return err
 }
 
 func (s *service) Follow(c *client, id string, reblogs *bool) (err error) {
-	_, err = c.AccountFollow(c.ctx, id, reblogs)
+	_, err = c.AccountFollow(c.ctx, id)
 	return
 }
 
@@ -966,8 +1022,12 @@ func (s *service) Reject(c *client, id string) (err error) {
 	return c.FollowRequestReject(c.ctx, id)
 }
 
-func (s *service) Mute(c *client, id string, notifications bool, duration int) (err error) {
-	_, err = c.AccountMute(c.ctx, id, notifications, duration)
+func (s *service) Mute(c *client, id string, notifications bool, duration int64) (err error) {
+	_, err = c.AccountMuteWith(c.ctx, id, masta.AccountMuteOpts{
+		Notifications: notifications,
+		Duration:      duration,
+	},
+	)
 	return
 }
 
@@ -987,12 +1047,12 @@ func (s *service) UnBlock(c *client, id string) (err error) {
 }
 
 func (s *service) Subscribe(c *client, id string) (err error) {
-	_, err = c.Subscribe(c.ctx, id)
+	_, err = c.PlAccountSubscribe(c.ctx, id)
 	return
 }
 
 func (s *service) UnSubscribe(c *client, id string) (err error) {
-	_, err = c.UnSubscribe(c.ctx, id)
+	_, err = c.PlAccountUnsubscribe(c.ctx, id)
 	return
 }
 
@@ -1024,7 +1084,7 @@ func (s *service) Delete(c *client, id string) (err error) {
 }
 
 func (s *service) ReadNotifications(c *client, maxID string) (err error) {
-	return c.ReadNotifications(c.ctx, maxID)
+	return c.PlReadNotificationsTo(c.ctx, maxID)
 }
 
 func (s *service) Bookmark(c *client, id string) (err error) {
@@ -1038,10 +1098,15 @@ func (s *service) UnBookmark(c *client, id string) (err error) {
 }
 
 func (svc *service) Filter(c *client, phrase string, wholeWord bool) (err error) {
-	fctx := []string{"home", "notifications", "public", "thread"}
-	return c.AddFilter(c.ctx, phrase, fctx, true, wholeWord, nil)
+	filter := &masta.Filter{
+		Context:   []string{"home", "notifications", "public", "thread"},
+		Phrase:    phrase,
+		WholeWord: wholeWord,
+	}
+	_, err = c.CreateFilter(c.ctx, filter)
+	return
 }
 
 func (svc *service) UnFilter(c *client, id string) (err error) {
-	return c.RemoveFilter(c.ctx, id)
+	return c.DeleteFilter(c.ctx, id)
 }

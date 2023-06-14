@@ -78,9 +78,21 @@ type ListData struct {
 
 type ThreadData struct {
 	*CommonData
-	Statuses    []*masta.Status
+	Statuses    []*StatusData
 	PostContext model.PostContext
-	ReplyMap    map[string][]masta.ReplyInfo
+}
+
+type StatusData struct {
+	*masta.Status
+	No          *int
+	InReplyToNo *int
+	Replies     []ThreadReplyData
+	ShowReplies bool
+}
+
+type ThreadReplyData struct {
+	No int
+	masta.ID
 }
 
 type QuickReplyData struct {
@@ -139,7 +151,7 @@ type RetweetedByData struct {
 
 type ReactionsData struct {
 	*CommonData
-	Map map[string][]*masta.Account
+	Reactions []masta.EmojiReaction
 }
 
 type SearchData struct {
