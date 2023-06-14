@@ -1,4 +1,4 @@
-package mastodon
+package masta
 
 import (
 	"context"
@@ -19,7 +19,7 @@ type Poll struct {
 	Options     []PollOption `json:"options"`
 }
 
-// Poll hold information for a mastodon poll option.
+// Poll hold information for a masta poll option.
 type PollOption struct {
 	Title      string `json:"title"`
 	VotesCount int64  `json:"votes_count"`

@@ -1,11 +1,11 @@
-package mastodon
+package masta
 
 import (
 	"context"
 	"net/http"
 )
 
-// Instance hold information for mastodon instance.
+// Instance hold information for masta instance.
 type Instance struct {
 	URI            string            `json:"uri"`
 	Title          string            `json:"title"`
@@ -19,7 +19,7 @@ type Instance struct {
 	ContactAccount *Account          `json:"account"`
 }
 
-// InstanceStats hold information for mastodon instance stats.
+// InstanceStats hold information for masta instance stats.
 type InstanceStats struct {
 	UserCount   int64 `json:"user_count"`
 	StatusCount int64 `json:"status_count"`
@@ -36,7 +36,7 @@ func (c *Client) GetInstance(ctx context.Context) (*Instance, error) {
 	return &instance, nil
 }
 
-// WeeklyActivity hold information for mastodon weekly activity.
+// WeeklyActivity hold information for masta weekly activity.
 type WeeklyActivity struct {
 	Week          Unixtime `json:"week"`
 	Statuses      int64    `json:"statuses,string"`

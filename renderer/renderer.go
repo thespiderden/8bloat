@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"bloat/mastodon"
+	"spiderden.org/masta"
 )
 
 type Page string
@@ -42,11 +42,11 @@ type TemplateData struct {
 	Ctx  *Context
 }
 
-func emojiHTML(e mastodon.Emoji, height string) string {
+func emojiHTML(e masta.Emoji, height string) string {
 	return `<img class="emoji" src="` + e.URL + `" alt=":` + e.ShortCode + `:" title=":` + e.ShortCode + `:" height="` + height + `"/>`
 }
 
-func emojiFilter(content string, emojis []mastodon.Emoji) string {
+func emojiFilter(content string, emojis []masta.Emoji) string {
 	var replacements []string
 	for _, e := range emojis {
 		replacements = append(replacements, ":"+e.ShortCode+":", emojiHTML(e, "24"))
@@ -56,7 +56,7 @@ func emojiFilter(content string, emojis []mastodon.Emoji) string {
 
 var quoteRE = regexp.MustCompile("(?mU)(^|> *|\n)(&gt;.*)(<br|$)")
 
-func statusContentFilter(content string, emojis []mastodon.Emoji, mentions []mastodon.Mention) string {
+func statusContentFilter(content string, emojis []masta.Emoji, mentions []masta.Mention) string {
 	content = quoteRE.ReplaceAllString(content, `$1<span class="quote">$2</span>$3`)
 	var replacements []string
 	for _, e := range emojis {

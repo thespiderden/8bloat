@@ -1,4 +1,4 @@
-package mastodon
+package masta
 
 import (
 	"context"
@@ -12,7 +12,7 @@ type NotificationPleroma struct {
 	IsSeen bool `json:"is_seen"`
 }
 
-// Notification hold information for mastodon notification.
+// Notification hold information for masta notification.
 type Notification struct {
 	ID        string               `json:"id"`
 	Type      string               `json:"type"`

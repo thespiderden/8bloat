@@ -1,4 +1,4 @@
-package mastodon
+package masta
 
 import (
 	"context"
@@ -13,7 +13,7 @@ type AccountPleroma struct {
 	Relationship Relationship `json:"relationship"`
 }
 
-// Account hold information for mastodon account.
+// Account hold information for masta account.
 type Account struct {
 	ID             string          `json:"id"`
 	Username       string          `json:"username"`

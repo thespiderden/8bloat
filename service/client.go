@@ -8,13 +8,14 @@ import (
 	"strings"
 	"time"
 
-	"bloat/mastodon"
 	"bloat/model"
 	"bloat/renderer"
+
+	"spiderden.org/masta"
 )
 
 type client struct {
-	*mastodon.Client
+	*masta.Client
 	w    http.ResponseWriter
 	r    *http.Request
 	s    *model.Session
@@ -98,7 +99,7 @@ func (c *client) authenticate(t int) (err error) {
 		return err
 	}
 	c.s = sess
-	c.Client = mastodon.NewClient(&mastodon.Config{
+	c.Client = masta.NewClient(&masta.Config{
 		Server:       "https://" + c.s.Instance,
 		ClientID:     c.s.ClientID,
 		ClientSecret: c.s.ClientSecret,

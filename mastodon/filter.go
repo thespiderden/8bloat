@@ -1,4 +1,4 @@
-package mastodon
+package masta
 
 import (
 	"context"

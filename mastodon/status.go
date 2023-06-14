@@ -1,4 +1,4 @@
-package mastodon
+package masta
 
 import (
 	"context"
@@ -75,7 +75,7 @@ type Status struct {
 	RetweetedByID string                 `json:"retweeted_by_id"`
 }
 
-// Context hold information for mastodon context.
+// Context hold information for masta context.
 type Context struct {
 	Ancestors   []*Status `json:"ancestors"`
 	Descendants []*Status `json:"descendants"`

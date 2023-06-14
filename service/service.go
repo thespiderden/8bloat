@@ -7,10 +7,11 @@ import (
 	"net/url"
 	"strings"
 
-	"bloat/mastodon"
 	"bloat/model"
 	"bloat/renderer"
 	"bloat/util"
+
+	"spiderden.org/masta"
 
 	ua "github.com/mileusna/useragent"
 )
@@ -65,7 +66,7 @@ func (s *service) ErrorPage(c *client, err error, retry bool) error {
 	var sessionErr bool
 	if err != nil {
 		errStr = err.Error()
-		if me, ok := err.(mastodon.Error); ok && me.IsAuthError() ||
+		if me, ok := err.(masta.Error); ok && me.IsAuthError() ||
 			err == errInvalidSession || err == errInvalidCSRFToken {
 			sessionErr = true
 		}
@@ -119,8 +120,8 @@ func (s *service) TimelinePage(c *client, tType, instance, listId, maxID,
 	minID string) (err error) {
 
 	var nextLink, prevLink, title string
-	var statuses []*mastodon.Status
-	var pg = mastodon.Pagination{
+	var statuses []*masta.Status
+	var pg = masta.Pagination{
 		MaxID: maxID,
 		MinID: minID,
 		Limit: 20,
@@ -216,7 +217,7 @@ func (s *service) TimelinePage(c *client, tType, instance, listId, maxID,
 	return s.renderer.Render(c.rctx, c.w, renderer.TimelinePage, data)
 }
 
-func addToReplyMap(m map[string][]mastodon.ReplyInfo, key interface{},
+func addToReplyMap(m map[string][]masta.ReplyInfo, key interface{},
 	val string, number int) {
 	if key == nil {
 		return
@@ -227,9 +228,9 @@ func addToReplyMap(m map[string][]mastodon.ReplyInfo, key interface{},
 	}
 	_, ok = m[keyStr]
 	if !ok {
-		m[keyStr] = []mastodon.ReplyInfo{}
+		m[keyStr] = []masta.ReplyInfo{}
 	}
-	m[keyStr] = append(m[keyStr], mastodon.ReplyInfo{val, number})
+	m[keyStr] = append(m[keyStr], masta.ReplyInfo{val, number})
 }
 
 func (s *service) ListsPage(c *client) (err error) {
@@ -269,7 +270,7 @@ func (s *service) ListPage(c *client, id string, q string) (err error) {
 	if err != nil {
 		return
 	}
-	var searchAccounts []*mastodon.Account
+	var searchAccounts []*masta.Account
 	if len(q) > 0 {
 		result, err := c.Search(c.ctx, q, "accounts", 20, true, 0, id, true)
 		if err != nil {
@@ -345,7 +346,7 @@ func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
 	}
 
 	statuses := append(append(context.Ancestors, status), context.Descendants...)
-	replies := make(map[string][]mastodon.ReplyInfo)
+	replies := make(map[string][]masta.ReplyInfo)
 	idNumbers := make(map[string]int)
 
 	for i := range statuses {
@@ -374,7 +375,7 @@ func (s *service) QuickReplyPage(c *client, id string) (err error) {
 		return
 	}
 
-	var ancestor *mastodon.Status
+	var ancestor *masta.Status
 	if status.InReplyToID != nil {
 		ancestor, err = c.GetStatus(c.ctx, status.InReplyToID.(string))
 		if err != nil {
@@ -473,7 +474,7 @@ func (s *service) NotificationPage(c *client, maxID string,
 	var unreadCount int
 	var readID string
 	var includes, excludes []string
-	var pg = mastodon.Pagination{
+	var pg = masta.Pagination{
 		MaxID: maxID,
 		MinID: minID,
 		Limit: 20,
@@ -523,9 +524,9 @@ func (s *service) UserPage(c *client, id string, pageType string,
 	maxID string, minID string) (err error) {
 
 	var nextLink string
-	var statuses []*mastodon.Status
-	var users []*mastodon.Account
-	var pg = mastodon.Pagination{
+	var statuses []*masta.Status
+	var users []*masta.Account
+	var pg = masta.Pagination{
 		MaxID: maxID,
 		MinID: minID,
 		Limit: 20,
@@ -668,14 +669,14 @@ func (s *service) UserSearchPage(c *client,
 		return
 	}
 
-	var results *mastodon.Results
+	var results *masta.Results
 	if len(q) > 0 {
 		results, err = c.Search(c.ctx, q, "statuses", 20, true, offset, id, false)
 		if err != nil {
 			return err
 		}
 	} else {
-		results = &mastodon.Results{}
+		results = &masta.Results{}
 	}
 
 	if len(results.Statuses) == 20 {
@@ -739,14 +740,14 @@ func (s *service) SearchPage(c *client,
 	var nextLink string
 	var title = "search"
 
-	var results *mastodon.Results
+	var results *masta.Results
 	if len(q) > 0 {
 		results, err = c.Search(c.ctx, q, qType, 20, true, offset, "", false)
 		if err != nil {
 			return err
 		}
 	} else {
-		results = &mastodon.Results{}
+		results = &masta.Results{}
 	}
 
 	if (qType == "accounts" && len(results.Accounts) == 20) ||
@@ -821,7 +822,7 @@ func (s *service) NewSession(c *client, instance string) (rurl string, sess *mod
 		return
 	}
 
-	app, err := mastodon.RegisterApp(c.ctx, &mastodon.AppConfig{
+	app, err := masta.RegisterApp(c.ctx, &masta.AppConfig{
 		Server:       instanceURL,
 		ClientName:   s.cname,
 		Scopes:       s.cscope,
@@ -887,7 +888,7 @@ func (s *service) Post(c *client, content string, replyToID string,
 		mediaIDs = append(mediaIDs, a.ID)
 	}
 
-	tweet := &mastodon.Toot{
+	tweet := &masta.Toot{
 		Status:      content,
 		InReplyToID: replyToID,
 		MediaIDs:    mediaIDs,

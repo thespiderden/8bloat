@@ -1,5 +1,5 @@
-// Package mastodon provides functions and structs for accessing the mastodon API.
-package mastodon
+// Package masta provides functions and structs for accessing the masta API.
+package masta
 
 import (
 	"bytes"
@@ -19,7 +19,7 @@ import (
 	"github.com/tomnomnom/linkheader"
 )
 
-// Config is a setting for access mastodon APIs.
+// Config is a setting for access masta APIs.
 type Config struct {
 	Server       string
 	ClientID     string
@@ -27,7 +27,7 @@ type Config struct {
 	AccessToken  string
 }
 
-// Client is a API client for mastodon.
+// Client is a API client for masta.
 type Client struct {
 	*http.Client
 	config *Config
@@ -170,7 +170,7 @@ func (c *Client) doAPI(ctx context.Context, method string, uri string, params in
 	return json.NewDecoder(resp.Body).Decode(&res)
 }
 
-// NewClient return new mastodon API client.
+// NewClient return new masta API client.
 func NewClient(config *Config) *Client {
 	return &Client{
 		Client: http.DefaultClient,

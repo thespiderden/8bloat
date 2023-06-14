@@ -1,4 +1,4 @@
-package mastodon
+package masta
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"net/url"
 )
 
-// Report hold information for mastodon report.
+// Report hold information for masta report.
 type Report struct {
 	ID          int64 `json:"id"`
 	ActionTaken bool  `json:"action_taken"`
