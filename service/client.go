@@ -19,7 +19,6 @@ type client struct {
 	w    http.ResponseWriter
 	r    *http.Request
 	s    *model.Session
-	csrf string
 	ctx  context.Context
 	rctx *renderer.Context
 }

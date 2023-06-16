@@ -112,7 +112,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, NOAUTH, HTML)
 
 	timelinePage := handle(func(c *client) error {
-		tType, _ := mux.Vars(c.r)["type"]
+		tType := mux.Vars(c.r)["type"]
 		q := c.r.URL.Query()
 		instance := q.Get("instance")
 		list := q.Get("list")
@@ -127,29 +127,29 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, SESSION, HTML)
 
 	threadPage := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		q := c.r.URL.Query()
 		reply := q.Get("reply")
 		return s.ThreadPage(c, id, len(reply) > 1)
 	}, SESSION, HTML)
 
 	quickReplyPage := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		return s.QuickReplyPage(c, id)
 	}, SESSION, HTML)
 
 	likedByPage := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		return s.LikedByPage(c, id)
 	}, SESSION, HTML)
 
 	retweetedByPage := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		return s.RetweetedByPage(c, id)
 	}, SESSION, HTML)
 
 	reactionsPage := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		return s.ReactionsPage(c, id)
 	}, SESSION, HTML)
 
@@ -161,8 +161,8 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, SESSION, HTML)
 
 	userPage := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
-		pageType, _ := mux.Vars(c.r)["type"]
+		id := mux.Vars(c.r)["id"]
+		pageType := mux.Vars(c.r)["type"]
 		q := c.r.URL.Query()
 		maxID := q.Get("max_id")
 		minID := q.Get("min_id")
@@ -170,7 +170,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, SESSION, HTML)
 
 	userSearchPage := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		q := c.r.URL.Query()
 		sq := q.Get("q")
 		offset, _ := strconv.Atoi(q.Get("offset"))
@@ -178,7 +178,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, SESSION, HTML)
 
 	mutePage := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		return s.MutePage(c, id)
 	}, SESSION, HTML)
 
@@ -258,7 +258,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	like := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		rid := c.r.FormValue("retweeted_by_id")
 		_, err := s.Like(c, id)
 		if err != nil {
@@ -272,7 +272,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	unlike := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		rid := c.r.FormValue("retweeted_by_id")
 		_, err := s.UnLike(c, id)
 		if err != nil {
@@ -286,7 +286,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	retweet := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		rid := c.r.FormValue("retweeted_by_id")
 		_, err := s.Retweet(c, id)
 		if err != nil {
@@ -300,7 +300,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	unretweet := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		rid := c.r.FormValue("retweeted_by_id")
 		_, err := s.UnRetweet(c, id)
 		if err != nil {
@@ -315,9 +315,9 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 
 	vote := handle(func(c *client) error {
 		var err error
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		statusID := c.r.FormValue("status_id")
-		choices, _ := c.r.PostForm["choices"]
+		choices := c.r.PostForm["choices"]
 		convchoice := make([]int, len(choices))
 		for i, v := range choices {
 			convchoice[i], err = strconv.Atoi(v)
@@ -334,7 +334,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	follow := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		q := c.r.URL.Query()
 		var reblogs *bool
 		if r, ok := q["reblogs"]; ok && len(r) > 0 {
@@ -350,7 +350,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	unfollow := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.UnFollow(c, id)
 		if err != nil {
 			return err
@@ -360,7 +360,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	accept := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.Accept(c, id)
 		if err != nil {
 			return err
@@ -370,7 +370,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	reject := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.Reject(c, id)
 		if err != nil {
 			return err
@@ -380,7 +380,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	mute := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		notifications, _ := strconv.ParseBool(c.r.FormValue("notifications"))
 		duration, err := strconv.ParseInt(c.r.FormValue("duration"), 10, 64)
 		if err != nil {
@@ -395,7 +395,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	unMute := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.UnMute(c, id)
 		if err != nil {
 			return err
@@ -405,7 +405,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	block := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.Block(c, id)
 		if err != nil {
 			return err
@@ -415,7 +415,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	unBlock := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.UnBlock(c, id)
 		if err != nil {
 			return err
@@ -425,7 +425,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	subscribe := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.Subscribe(c, id)
 		if err != nil {
 			return err
@@ -435,7 +435,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	unSubscribe := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.UnSubscribe(c, id)
 		if err != nil {
 			return err
@@ -482,7 +482,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	muteConversation := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.MuteConversation(c, id)
 		if err != nil {
 			return err
@@ -492,7 +492,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	unMuteConversation := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.UnMuteConversation(c, id)
 		if err != nil {
 			return err
@@ -502,7 +502,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	delete := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.Delete(c, id)
 		if err != nil {
 			return err
@@ -523,7 +523,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	bookmark := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		rid := c.r.FormValue("retweeted_by_id")
 		err := s.Bookmark(c, id)
 		if err != nil {
@@ -537,7 +537,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	unBookmark := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		rid := c.r.FormValue("retweeted_by_id")
 		err := s.UnBookmark(c, id)
 		if err != nil {
@@ -562,7 +562,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	unFilter := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.UnFilter(c, id)
 		if err != nil {
 			return err
@@ -586,7 +586,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	removeList := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		err := s.RemoveList(c, id)
 		if err != nil {
 			return err
@@ -596,7 +596,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	renameList := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		title := c.r.FormValue("title")
 		err := s.RenameList(c, id, title)
 		if err != nil {
@@ -607,14 +607,14 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	listPage := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		q := c.r.URL.Query()
 		sq := q.Get("q")
 		return s.ListPage(c, id, sq)
 	}, SESSION, HTML)
 
 	listAddUser := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		q := c.r.URL.Query()
 		uid := q.Get("uid")
 		err := s.ListAddUser(c, id, uid)
@@ -626,7 +626,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	listRemoveUser := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		q := c.r.URL.Query()
 		uid := q.Get("uid")
 		err := s.ListRemoveUser(c, id, uid)
@@ -644,7 +644,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, HTML)
 
 	fLike := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		count, err := s.Like(c, id)
 		if err != nil {
 			return err
@@ -653,7 +653,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, JSON)
 
 	fUnlike := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		count, err := s.UnLike(c, id)
 		if err != nil {
 			return err
@@ -662,7 +662,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, JSON)
 
 	fRetweet := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		count, err := s.Retweet(c, id)
 		if err != nil {
 			return err
@@ -671,7 +671,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	}, CSRF, JSON)
 
 	fUnretweet := handle(func(c *client) error {
-		id, _ := mux.Vars(c.r)["id"]
+		id := mux.Vars(c.r)["id"]
 		count, err := s.UnRetweet(c, id)
 		if err != nil {
 			return err

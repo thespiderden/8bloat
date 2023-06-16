@@ -35,7 +35,8 @@ type service struct {
 
 func NewService(cname string, cscope string, cwebsite string,
 	instance string, postFormats []model.PostFormat,
-	renderer renderer.Renderer) *service {
+	renderer renderer.Renderer,
+) *service {
 	return &service{
 		cname:       cname,
 		cscope:      cscope,
@@ -47,7 +48,8 @@ func NewService(cname string, cscope string, cwebsite string,
 }
 
 func (s *service) cdata(c *client, title string, count int, rinterval int,
-	target string) (data *renderer.CommonData) {
+	target string,
+) (data *renderer.CommonData) {
 	data = &renderer.CommonData{
 		Title:           title + " - " + s.cname,
 		Count:           count,
@@ -118,11 +120,11 @@ func (s *service) NavPage(c *client) (err error) {
 }
 
 func (s *service) TimelinePage(c *client, tType, instance, listId, maxID,
-	minID string) (err error) {
-
+	minID string,
+) (err error) {
 	var nextLink, prevLink, title string
 	var statuses []*masta.Status
-	var pg = masta.Pagination{
+	pg := masta.Pagination{
 		MaxID: maxID,
 		MinID: minID,
 		Limit: 20,
@@ -485,13 +487,11 @@ func (s *service) ReactionsPage(c *client, id string) (err error) {
 	return s.renderer.Render(c.rctx, c.w, renderer.ReactionsPage, data)
 }
 
-func (s *service) NotificationPage(c *client, maxID string,
-	minID string) (err error) {
-
+func (s *service) NotificationPage(c *client, maxID string, minID string) (err error) {
 	var nextLink string
 	var unreadCount int
 	var readID string
-	var pg = masta.Pagination{
+	pg := masta.Pagination{
 		MaxID: maxID,
 		MinID: minID,
 		Limit: 20,
@@ -538,13 +538,11 @@ func (s *service) NotificationPage(c *client, maxID string,
 	return s.renderer.Render(c.rctx, c.w, renderer.NotificationPage, data)
 }
 
-func (s *service) UserPage(c *client, id string, pageType string,
-	maxID string, minID string) (err error) {
-
+func (s *service) UserPage(c *client, id string, pageType string, maxID string, minID string) (err error) {
 	var nextLink string
 	var statuses []*masta.Status
 	var users []*masta.Account
-	var pg = masta.Pagination{
+	pg := masta.Pagination{
 		MaxID: maxID,
 		MinID: minID,
 		Limit: 20,
@@ -676,11 +674,9 @@ func (s *service) UserPage(c *client, id string, pageType string,
 	return s.renderer.Render(c.rctx, c.w, renderer.UserPage, data)
 }
 
-func (s *service) UserSearchPage(c *client,
-	id string, q string, offset int) (err error) {
-
+func (s *service) UserSearchPage(c *client, id string, q string, offset int) (err error) {
 	var nextLink string
-	var title = "search"
+	title := "search"
 
 	user, err := c.GetAccount(c.ctx, id)
 	if err != nil {
@@ -763,11 +759,9 @@ func (s *service) EmojiPage(c *client) (err error) {
 	return s.renderer.Render(c.rctx, c.w, renderer.EmojiPage, data)
 }
 
-func (s *service) SearchPage(c *client,
-	q string, qType string, offset int) (err error) {
-
+func (s *service) SearchPage(c *client, q string, qType string, offset int) (err error) {
 	var nextLink string
-	var title = "search"
+	title := "search"
 
 	var results *masta.Results
 	if len(q) > 0 {
@@ -917,8 +911,8 @@ func (s *service) Signin(c *client, code string) (err error) {
 
 func (s *service) Post(c *client, content string, replyToID string,
 	format string, visibility string, subjectHeader string, isNSFW bool,
-	files []*multipart.FileHeader) (id string, err error) {
-
+	files []*multipart.FileHeader,
+) (id string, err error) {
 	var mediaIDs []string
 	for _, f := range files {
 		var reader io.Reader
@@ -978,8 +972,7 @@ func (s *service) Retweet(c *client, id string) (count int64, err error) {
 	return
 }
 
-func (s *service) UnRetweet(c *client, id string) (
-	count int64, err error) {
+func (s *service) UnRetweet(c *client, id string) (count int64, err error) {
 	st, err := c.Unreblog(c.ctx, id)
 	if err != nil {
 		return

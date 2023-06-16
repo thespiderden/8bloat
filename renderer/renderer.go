@@ -171,7 +171,6 @@ func NewRenderer(templateGlobPattern string, fs fs.FS) (r *renderer, err error) 
 	}, nil
 }
 
-func (r *renderer) Render(ctx *Context, writer io.Writer,
-	page string, data interface{}) (err error) {
+func (r *renderer) Render(ctx *Context, writer io.Writer, page string, data interface{}) (err error) {
 	return r.template.ExecuteTemplate(writer, page, withContext(data, ctx))
 }

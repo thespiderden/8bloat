@@ -51,7 +51,7 @@ func Parse(r io.Reader) (c *config, err error) {
 		}
 
 		key := strings.TrimSpace(line[:index])
-		val := strings.TrimSpace(line[index+1 : len(line)])
+		val := strings.TrimSpace(line[index+1:])
 
 		switch key {
 		case "listen_address":

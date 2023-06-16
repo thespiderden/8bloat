@@ -17,9 +17,7 @@ import (
 //go:embed templates/* static/*
 var embedFS embed.FS
 
-var (
-	configFiles = []string{"bloat.conf", "/etc/bloat.conf"}
-)
+var configFiles = []string{"bloat.conf", "/etc/bloat.conf"}
 
 func errExit(err error) {
 	fmt.Fprintln(os.Stderr, err.Error())
@@ -52,8 +50,7 @@ func main() {
 	if len(config.LogFile) < 1 {
 		logger = log.New(os.Stdout, "", log.LstdFlags)
 	} else {
-		lf, err := os.OpenFile(config.LogFile,
-			os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+		lf, err := os.OpenFile(config.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o644)
 		if err != nil {
 			errExit(err)
 		}
