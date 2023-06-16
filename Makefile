@@ -1,40 +1,47 @@
+.POSIX:
+
 GO=go
 GOFLAGS=-ldflags "-s -w"
 PREFIX=/usr/local
 BINPATH=$(PREFIX)/bin
-SHAREPATH=$(PREFIX)/share/bloat
 
-TMPL=templates/*.tmpl
-SRC=main.go		\
+
+GOSRC=main.go		\
 	config/*.go 	\
 	model/*.go	\
 	renderer/*.go 	\
 	service/*.go 	\
 	util/*.go 	\
 
-all: bloat
+TMPLSRC=templates/*.tmpl
 
-bloat: $(SRC) $(TMPL)
-	$(GO) build $(GOFLAGS) -o bloat main.go
-	sed -e "s%=templates%=$(SHAREPATH)/templates%g" \
-		-e "s%=static%=$(SHAREPATH)/static%g" \
-		< bloat.conf > bloat.gen.conf
+all: 8bloat
 
-install: bloat
-	mkdir -p $(DESTDIR)$(BINPATH) \
-		$(DESTDIR)$(SHAREPATH)/templates \
-		$(DESTDIR)$(SHAREPATH)/static
-	cp bloat $(DESTDIR)$(BINPATH)/bloat
-	chmod 0755 $(DESTDIR)$(BINPATH)/bloat
-	cp -r templates/* $(DESTDIR)$(SHAREPATH)/templates
-	chmod 0644 $(DESTDIR)$(SHAREPATH)/templates/*
-	cp -r static/* $(DESTDIR)$(SHAREPATH)/static
-	chmod 0644 $(DESTDIR)$(SHAREPATH)/static/*
+8bloat: $(SRC) $(TMPLSRC)
+	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -o 8b main.go
+
+install: 8b
+	mkdir -p $(DESTDIR)$(BINPATH)
+	cp 8b $(DESTDIR)$(BINPATH)/8b
+	chmod 0755 $(DESTDIR)$(BINPATH)/8b
 
 uninstall:
-	rm -f $(DESTDIR)$(BINPATH)/bloat
-	rm -fr $(DESTDIR)$(SHAREPATH)
+	rm -f $(DESTDIR)$(BINPATH)/8b
 
 clean: 
-	rm -f bloat
+	rm -f 8b
 	rm -f bloat.gen.conf
+
+# ExportRemove
+# Everything after the above comment will get nuked when running export,
+# since export depends on git commands.
+REF := $(shell ( git describe --tags --exact-match 2>/dev/null || git rev-parse --short HEAD ) | sed 1q )
+TMPDIR = /tmp/8bloat-$(REF)
+
+export:
+	rm -rf $(TMPDIR)
+	git clone ./ $(TMPDIR)
+	cd $(TMPDIR); git checkout $(REF); go mod vendor; go mod tidy
+	rm -rf $(TMPDIR)/.git
+	sed -i '/# ExportRemove/,$$d' $(TMPDIR)/Makefile
+	tar -cvf 8bloat-$(REF)-src.tar -C $(TMPDIR)/ .

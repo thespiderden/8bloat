@@ -1,32 +1,97 @@
-bloat - A web client for Mastadon Network[1]
+8bloat - A web client for Mastadon Network[1]
 
-Features:
+Features
+--------
 
-- Does not require JavaScript to display text, images, audio and videos.
+- Does not use JavaScript (unless you ask it very nicely)
+- Adds many features, bug fixes, and improvements to Bloat
+- You can hopefully use this is your primary client
 
+Requirements
+------------
 
-Requirements:
+- Go 1.16
+- A network connection, if you're building directly from Git.
 
-- Go 1.11
+== BUILDING ==
 
-
-Building and Installation:
-
-Typing make will build the binary 
 $ make
 
 Edit the default config file. See the bloat.conf file for more details.
-$ ed bloat.conf
+
+$ ed 8bloat.conf
 
 Run the binary
-$ ./bloat
 
-You can now access the frontend at http://127.0.0.1:8080, which is the default
-listen address. See the INSTALL file for more details.
+$ ./8b
 
+You can now access the frontend at http://localhost:8080, which is the default
+frontend address.
 
-License:
+== INSTALLATION ==
 
-This uses the AGPLv3, which can be found under COPYING.
+1. Get the source
+-----------------
+Get the source code by running
+
+$ git clone https://git.sr.ht/~webb/bloat 8bloat
+
+You can also download the latest source tarball from the refs page:
+https://git.sr.ht/~webb/bloat/refs
+
+2. Build and install
+--------------------
+Install Go from your system's package manager or from https://golang.org/dl.
+Then run make to compile the source.
+
+$ make
+$ doas make install
+
+This will perform a system wide installation of 8bloat. By default, it will
+install the binary in /usr/local/bin.
+
+8bloat looks for a file named bloat.conf in the working directory and
+/etc/bloat in that order. You can also specify another file by using the -f
+flag. Comments in the config file describe what each config value does. For
+most cases, you only need to change the value of "client_website", and
+"single_instance."
+
+It is strongly reccomended that you use "single_instance", as 8bloat makes
+the API calls on behalf of the user. This can be used as a means to spam
+instances by using 8bloat as a proxy.
+
+$ doas cp bloat.gen.conf /etc/bloat.conf
+$ doas ed /etc/bloat.conf
+
+Now, 8bloat can be run.
+
+$ 8b
+
+== MIGRATING FROM BLOAT ==
+
+8bloat is mostly identical in deployment to vanilla Bloat, however, it no 
+longer depends on static assets being present at runtime. This means that
+/usr/local/share is no longer used.
+
+The following configuration options are no longer necessary, and have
+been removed:
+
+templates_path
+static_directory
+custom_css
+
+If you'd like to change 8bloat's templating, you should create a branch
+and publish it, to help fufill your obligations under the license. It
+would be a good idea to put a link to it in templates/about.tmpl.
+
+== UPDATING ==
+
+Either run git pull to fetch the updated source or download the latest tarball
+from the URL mentioned in the installation step. Then run make to install the
+updated binary and data files
+
+$ git pull
+$ make 
+$ doas make install
 
 [1] https://pleroma.social
