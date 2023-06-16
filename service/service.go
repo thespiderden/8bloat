@@ -28,20 +28,18 @@ type service struct {
 	cname       string
 	cscope      string
 	cwebsite    string
-	css         string
 	instance    string
 	postFormats []model.PostFormat
 	renderer    renderer.Renderer
 }
 
 func NewService(cname string, cscope string, cwebsite string,
-	css string, instance string, postFormats []model.PostFormat,
+	instance string, postFormats []model.PostFormat,
 	renderer renderer.Renderer) *service {
 	return &service{
 		cname:       cname,
 		cscope:      cscope,
 		cwebsite:    cwebsite,
-		css:         css,
 		instance:    instance,
 		postFormats: postFormats,
 		renderer:    renderer,
@@ -52,7 +50,6 @@ func (s *service) cdata(c *client, title string, count int, rinterval int,
 	target string) (data *renderer.CommonData) {
 	data = &renderer.CommonData{
 		Title:           title + " - " + s.cname,
-		CustomCSS:       s.css,
 		Count:           count,
 		RefreshInterval: rinterval,
 		Target:          target,

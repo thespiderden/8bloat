@@ -1,19 +1,21 @@
 package main
 
 import (
+	"embed"
 	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"bloat/config"
 	"bloat/renderer"
 	"bloat/service"
 )
+
+//go:embed templates/* static/*
+var embedFS embed.FS
 
 var (
 	configFiles = []string{"bloat.conf", "/etc/bloat.conf"}
@@ -40,16 +42,10 @@ func main() {
 		errExit(errors.New("invalid config"))
 	}
 
-	templatesGlobPattern := filepath.Join(config.TemplatesPath, "*")
-	renderer, err := renderer.NewRenderer(templatesGlobPattern)
+	templatesGlobPattern := "templates/*"
+	renderer, err := renderer.NewRenderer(templatesGlobPattern, embedFS)
 	if err != nil {
 		errExit(err)
-	}
-
-	customCSS := config.CustomCSS
-	if len(customCSS) > 0 && !strings.HasPrefix(customCSS, "http://") &&
-		!strings.HasPrefix(customCSS, "https://") {
-		customCSS = "/static/" + customCSS
 	}
 
 	var logger *log.Logger
@@ -66,9 +62,9 @@ func main() {
 	}
 
 	s := service.NewService(config.ClientName, config.ClientScope,
-		config.ClientWebsite, customCSS, config.SingleInstance,
+		config.ClientWebsite, config.SingleInstance,
 		config.PostFormats, renderer)
-	handler := service.NewHandler(s, logger, config.StaticDirectory)
+	handler := service.NewHandler(s, logger, embedFS)
 
 	logger.Println("listening on", config.ListenAddress)
 	err = http.ListenAndServe(config.ListenAddress, handler)

@@ -6,4 +6,4 @@ require (
 	spiderden.org/masta v0.0.0-20230616173659-850f41394ed0
 )
 
-go 1.13
+go 1.16

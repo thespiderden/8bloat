@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"io/fs"
 	"log"
 	"net/http"
 	"strconv"
@@ -23,7 +24,7 @@ const (
 	CSRF
 )
 
-func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
+func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	r := mux.NewRouter()
 
 	writeError := func(c *client, err error, t int, retry bool) {
@@ -737,8 +738,7 @@ func NewHandler(s *service, logger *log.Logger, staticDir string) http.Handler {
 	r.HandleFunc("/fluoride/unlike/{id}", fUnlike).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/retweet/{id}", fRetweet).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/unretweet/{id}", fUnretweet).Methods(http.MethodPost)
-	r.PathPrefix("/static").Handler(http.StripPrefix("/static",
-		http.FileServer(http.Dir(staticDir))))
+	r.PathPrefix("/static").Handler(http.FileServer(http.FS(staticfs)))
 
 	return r
 }

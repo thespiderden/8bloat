@@ -3,6 +3,7 @@ package renderer
 import (
 	"html/template"
 	"io"
+	"io/fs"
 	"regexp"
 	"strconv"
 	"strings"
@@ -146,7 +147,7 @@ type renderer struct {
 	template *template.Template
 }
 
-func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
+func NewRenderer(templateGlobPattern string, fs fs.FS) (r *renderer, err error) {
 	t := template.New("default")
 	t, err = t.Funcs(template.FuncMap{
 		"EmojiFilter":             emojiFilter,
@@ -161,7 +162,7 @@ func NewRenderer(templateGlobPattern string) (r *renderer, err error) {
 		"Raw":                     raw,
 		"RawCSS":                  rawCSS,
 		"wrapRawStatus":           wrapRawStatus,
-	}).ParseGlob(templateGlobPattern)
+	}).ParseFS(fs, templateGlobPattern)
 	if err != nil {
 		return
 	}
