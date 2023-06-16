@@ -112,12 +112,13 @@ type NotificationData struct {
 
 type UserData struct {
 	*CommonData
-	User      *masta.Account
-	IsCurrent bool
-	Type      string
-	Users     []*masta.Account
-	Statuses  []*masta.Status
-	NextLink  string
+	User         *masta.Account
+	Relationship *masta.Relationship
+	IsCurrent    bool
+	Type         string
+	Users        []*masta.Account
+	Statuses     []*masta.Status
+	NextLink     string
 }
 
 type UserSearchData struct {

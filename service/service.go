@@ -554,7 +554,7 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		Limit: 20,
 	}
 
-	user, err := c.GetAccount(c.ctx, id)
+	user, relationship, err := c.GetAccountWithRelationship(c.ctx, id)
 	if err != nil {
 		return
 	}
@@ -563,7 +563,6 @@ func (s *service) UserPage(c *client, id string, pageType string,
 	switch pageType {
 	case "":
 		statuses, err = c.GetAcctStatuses(c.ctx, id, masta.AcctStatusOpts{
-			OnlyMedia:  true,
 			Pagination: &pg,
 		})
 		if err != nil {
@@ -667,22 +666,17 @@ func (s *service) UserPage(c *client, id string, pageType string,
 		return errInvalidArgument
 	}
 
-	//  COMEBACK
-	//	for i := range statuses {
-	//		if statuses[i].Reblog != nil {
-	//			statuses[i].Reblog.RetweetedByID = statuses[i].ID
-	//		}
-	//	}
-
 	cdata := s.cdata(c, user.DisplayName+" @"+user.Acct, 0, 0, "")
+	fmt.Println("following", user.Pleroma.Relationship.Following)
 	data := &renderer.UserData{
-		User:       user,
-		IsCurrent:  isCurrent,
-		Type:       pageType,
-		Users:      users,
-		Statuses:   statuses,
-		NextLink:   nextLink,
-		CommonData: cdata,
+		User:         user,
+		IsCurrent:    isCurrent,
+		Type:         pageType,
+		Users:        users,
+		Statuses:     statuses,
+		NextLink:     nextLink,
+		CommonData:   cdata,
+		Relationship: relationship,
 	}
 	return s.renderer.Render(c.rctx, c.w, renderer.UserPage, data)
 }
