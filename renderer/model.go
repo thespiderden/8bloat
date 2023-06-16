@@ -1,8 +1,9 @@
 package renderer
 
 import (
-	"bloat/mastodon"
 	"bloat/model"
+
+	"spiderden.org/masta"
 )
 
 type Context struct {
@@ -29,7 +30,7 @@ type CommonData struct {
 
 type NavData struct {
 	CommonData  *CommonData
-	User        *mastodon.Account
+	User        *masta.Account
 	PostContext model.PostContext
 }
 
@@ -57,41 +58,53 @@ type TimelineData struct {
 	Title    string
 	Type     string
 	Instance string
-	Statuses []*mastodon.Status
+	Statuses []*masta.Status
 	NextLink string
 	PrevLink string
 }
 
 type ListsData struct {
 	*CommonData
-	Lists []*mastodon.List
+	Lists []*masta.List
 }
 
 type ListData struct {
 	*CommonData
-	List           *mastodon.List
-	Accounts       []*mastodon.Account
+	List           *masta.List
+	Accounts       []*masta.Account
 	Q              string
-	SearchAccounts []*mastodon.Account
+	SearchAccounts []*masta.Account
 }
 
 type ThreadData struct {
 	*CommonData
-	Statuses    []*mastodon.Status
+	Statuses    []*StatusData
 	PostContext model.PostContext
-	ReplyMap    map[string][]mastodon.ReplyInfo
+}
+
+type StatusData struct {
+	*masta.Status
+	No          *int
+	InReplyToNo *int
+	Replies     []ThreadReplyData
+	ShowReplies bool
+}
+
+type ThreadReplyData struct {
+	No int
+	masta.ID
 }
 
 type QuickReplyData struct {
 	*CommonData
-	Ancestor    *mastodon.Status
-	Status      *mastodon.Status
+	Ancestor    *masta.Status
+	Status      *masta.Status
 	PostContext model.PostContext
 }
 
 type NotificationData struct {
 	*CommonData
-	Notifications []*mastodon.Notification
+	Notifications []*masta.Notification
 	UnreadCount   int
 	ReadID        string
 	NextLink      string
@@ -99,19 +112,20 @@ type NotificationData struct {
 
 type UserData struct {
 	*CommonData
-	User      *mastodon.Account
-	IsCurrent bool
-	Type      string
-	Users     []*mastodon.Account
-	Statuses  []*mastodon.Status
-	NextLink  string
+	User         *masta.Account
+	Relationship *masta.Relationship
+	IsCurrent    bool
+	Type         string
+	Users        []*masta.Account
+	Statuses     []*masta.Status
+	NextLink     string
 }
 
 type UserSearchData struct {
 	*CommonData
-	User     *mastodon.Account
+	User     *masta.Account
 	Q        string
-	Statuses []*mastodon.Status
+	Statuses []*masta.Status
 	NextLink string
 }
 
@@ -121,32 +135,32 @@ type AboutData struct {
 
 type EmojiData struct {
 	*CommonData
-	Emojis []*mastodon.Emoji
+	Emojis []*masta.Emoji
 }
 
 type LikedByData struct {
 	*CommonData
-	Users    []*mastodon.Account
+	Users    []*masta.Account
 	NextLink string
 }
 
 type RetweetedByData struct {
 	*CommonData
-	Users    []*mastodon.Account
+	Users    []*masta.Account
 	NextLink string
 }
 
 type ReactionsData struct {
 	*CommonData
-	Map map[string][]*mastodon.Account
+	Reactions []masta.EmojiReaction
 }
 
 type SearchData struct {
 	*CommonData
 	Q        string
 	Type     string
-	Users    []*mastodon.Account
-	Statuses []*mastodon.Status
+	Users    []*masta.Account
+	Statuses []*masta.Status
 	NextLink string
 }
 
@@ -158,10 +172,10 @@ type SettingsData struct {
 
 type FiltersData struct {
 	*CommonData
-	Filters []*mastodon.Filter
+	Filters []*masta.Filter
 }
 
 type MuteData struct {
 	*CommonData
-	User *mastodon.Account
+	User *masta.Account
 }

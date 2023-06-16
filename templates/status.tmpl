@@ -11,7 +11,7 @@
 		</a>
 		retweeted
 	</div>
-	{{template "status" (WithContext .Reblog $.Ctx)}}
+	{{template "status" (WithContext (wrapRawStatus .Reblog) $.Ctx)}}
 	{{else}}
 	{{block "status" (WithContext . $.Ctx)}}
 	{{with $s := .Data}}
@@ -29,7 +29,7 @@
 				</a>
 				<div class="more-container">
 					<div class="remote-link">
-						{{if .IDNumbers}}#{{index .IDNumbers .ID}}{{end}} {{.Visibility}}
+						{{if .No}}#{{.No}}{{end}} {{.Visibility}}
 					</div>
 					<div class="more-content">
 						<a class="more-link" href="{{.URL}}" target="_blank">
@@ -62,7 +62,9 @@
 						<form action="/bookmark/{{.ID}}" method="post" target="_self">
 							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 							<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-							<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
+							{{if .Reblog}}
+							<input type="hidden" name="retweeted_by_id" value="{{.Acct.ID}}">
+							{{end}}
 							<input type="submit" value="bookmark" class="btn-link more-link">
 						</form>
 						{{end}}
@@ -79,14 +81,14 @@
 			<div class="status-reply-container">
 				{{if .InReplyToID}}
 				<a class="status-reply-to-link" href="{{if not .ShowReplies}}/thread/{{.InReplyToID}}{{end}}#status-{{.InReplyToID}}"> 
-					 in reply to {{if .IDNumbers}}#{{index .IDNumbers .InReplyToID}}{{end}} {{if .Pleroma.InReplyToAccountAcct}}@{{.Pleroma.InReplyToAccountAcct}}{{else if not .IDNumbers}}{{.InReplyToID}}{{end}}
+					 in reply to {{if .InReplyToNo}}#{{.InReplyToNo}}{{end}} {{if .Pleroma.InReplyToAccountAcct}}@{{.Pleroma.InReplyToAccountAcct}}{{else if not .IDNumbers}}{{.InReplyToID}}{{end}}
 				</a>
-				{{if index .IDReplies .ID}} <span class="status-reply-info-divider"> - </span> {{end}}
+				{{if .Replies}} <span class="status-reply-info-divider"> - </span> {{end}}
 				{{end}}
 				{{if .ShowReplies}}
-				{{if index .IDReplies .ID}} <span class="status-reply-text"> replies: </span> {{end}}
-				{{range index .IDReplies .ID}}
-				<a class="status-reply-link" href="#status-{{.ID}}">#{{.Number}}</a>
+				{{if .Replies}} <span class="status-reply-text"> replies: </span> {{end}}
+				{{range .Replies}}
+				<a class="status-reply-link" href="#status-{{.ID}}">#{{.No}}</a>
 				{{end}}
 				{{end}}
 			</div>
@@ -211,7 +213,11 @@
 					<form class="status-retweet" data-action="{{$rt}}" action="/{{$rt}}/{{.ID}}" method="post" target="_self">
 						<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 						<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
+						{{if .Reblog}}
+						<input type="hidden" name="retweeted_by_id" value="{{.ID}}">
+						{{else}}
+						<input type="hidden" name="retweeted_by_id" value="">
+						{{end}}
 						<input type="submit" value="{{$rt}}" class="btn-link" 
 							{{if or (eq .Visibility "private") (eq .Visibility "direct")}}title="this status cannot be retweeted" disabled{{end}}>
 						<a class="status-retweet-count" href="/retweetedby/{{.ID}}" title="click to see the the list"> 
@@ -226,7 +232,11 @@
 					<form class="status-like" data-action="{{$like}}" action="/{{$like}}/{{.ID}}" method="post" target="_self">
 						<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 						<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-						<input type="hidden" name="retweeted_by_id" value="{{.RetweetedByID}}">
+						{{if .Reblog}}
+						<input type="hidden" name="retweeted_by_id" value="{{.ID}}">
+						{{else}}
+						<input type="hidden" name="retweeted_by_id" value="">
+						{{end}}
 						<input type="submit" value="{{$like}}" class="btn-link">
 						<a class="status-like-count" href="/likedby/{{.ID}}" title="click to see the the list"> 
 							{{if and (not $.Ctx.AntiDopamineMode) .FavouritesCount}}
@@ -243,8 +253,8 @@
 				<div class="status-action status-action-last">
 					<a class="status-time" href="{{if not .ShowReplies}}/thread/{{.ID}}{{end}}#status-{{.ID}}"
 						{{if $.Ctx.ThreadInNewTab}}target="_blank"{{end}}> 
-						<time datetime="{{FormatTimeRFC3339 .CreatedAt.Time}}" title="{{FormatTimeRFC822 .CreatedAt.Time}}">
-							{{TimeSince .CreatedAt.Time}}
+						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">
+							{{TimeSince .CreatedAt}}
 						</time> 
 					</a>
 				</div>

@@ -135,7 +135,7 @@
 {{if eq .Type ""}}
 <div class="page-title"> Statuses </div>
 {{range .Statuses}}
-{{template "status.tmpl" (WithContext . $.Ctx)}}
+{{template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{else}}
 <div class="no-data-found">No data found</div>
 {{end}}
@@ -151,7 +151,7 @@
 {{else if eq .Type "media"}}
 <div class="page-title"> Statuses with media </div>
 {{range .Statuses}}
-{{template "status.tmpl" (WithContext . $.Ctx)}}
+{{template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{else}}
 <div class="no-data-found">No data found</div>
 {{end}}
@@ -159,7 +159,7 @@
 {{else if eq .Type "bookmarks"}}
 <div class="page-title"> Bookmarks </div>
 {{range .Statuses}}
-{{template "status.tmpl" (WithContext . $.Ctx)}}
+{{template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{else}}
 <div class="no-data-found">No data found</div>
 {{end}}
@@ -167,7 +167,7 @@
 {{else if eq .Type "likes"}}
 <div class="page-title"> Likes </div>
 {{range .Statuses}}
-{{template "status.tmpl" (WithContext . $.Ctx)}}
+{{template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{else}}
 <div class="no-data-found">No data found</div>
 {{end}}
