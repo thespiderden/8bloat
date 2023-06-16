@@ -374,7 +374,6 @@ func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
 
 	for i, v := range statusdata {
 		v.Replies = replymap[v.Status.ID]
-		fmt.Println(v.Status.ID, replymap[v.Status.ID], v.Replies)
 
 		if id := statuses[i].InReplyToID; id != nil {
 			no := nomap[*id]
@@ -667,7 +666,6 @@ func (s *service) UserPage(c *client, id string, pageType string,
 	}
 
 	cdata := s.cdata(c, user.DisplayName+" @"+user.Acct, 0, 0, "")
-	fmt.Println("following", user.Pleroma.Relationship.Following)
 	data := &renderer.UserData{
 		User:         user,
 		IsCurrent:    isCurrent,
