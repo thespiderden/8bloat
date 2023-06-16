@@ -10,7 +10,7 @@ import (
 	"bloat/model"
 )
 
-type config struct {
+type Config struct {
 	ListenAddress  string
 	ClientName     string
 	ClientScope    string
@@ -20,7 +20,7 @@ type config struct {
 	LogFile        string
 }
 
-func (c *config) IsValid() bool {
+func (c *Config) IsValid() bool {
 	if len(c.ListenAddress) < 1 ||
 		len(c.ClientName) < 1 ||
 		len(c.ClientScope) < 1 ||
@@ -30,8 +30,8 @@ func (c *config) IsValid() bool {
 	return true
 }
 
-func Parse(r io.Reader) (c *config, err error) {
-	c = new(config)
+func Parse(r io.Reader) (c *Config, err error) {
+	c = new(Config)
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
@@ -95,7 +95,7 @@ func Parse(r io.Reader) (c *config, err error) {
 	return
 }
 
-func ParseFiles(files []string) (c *config, err error) {
+func ParseFiles(files []string) (c *Config, err error) {
 	var lastErr error
 	for _, file := range files {
 		f, err := os.Open(file)

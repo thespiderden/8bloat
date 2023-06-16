@@ -17,7 +17,7 @@ import (
 //go:embed templates/* static/*
 var embedFS embed.FS
 
-var configFiles = []string{"bloat.conf", "/etc/bloat.conf"}
+var defaultConfigs = []string{"bloat.conf", "/etc/bloat.conf"}
 
 func errExit(err error) {
 	fmt.Fprintln(os.Stderr, err.Error())
@@ -25,18 +25,26 @@ func errExit(err error) {
 }
 
 func main() {
-	configFile := flag.String("f", "", "config file")
+	configFile := flag.String("f", "", `config file, use a dash for stdin`)
 	flag.Parse()
 
-	if len(*configFile) > 0 {
-		configFiles = []string{*configFile}
-	}
-	config, err := config.ParseFiles(configFiles)
-	if err != nil {
-		errExit(err)
+	var conf *config.Config
+	var err error
+
+	switch *configFile {
+	case "-":
+		conf, err = config.Parse(os.Stdin)
+		if err != nil {
+			errExit(err)
+		}
+	default:
+		conf, err = config.ParseFiles(defaultConfigs)
+		if err != nil {
+			errExit(err)
+		}
 	}
 
-	if !config.IsValid() {
+	if !conf.IsValid() {
 		errExit(errors.New("invalid config"))
 	}
 
@@ -47,10 +55,10 @@ func main() {
 	}
 
 	var logger *log.Logger
-	if len(config.LogFile) < 1 {
+	if len(conf.LogFile) < 1 {
 		logger = log.New(os.Stdout, "", log.LstdFlags)
 	} else {
-		lf, err := os.OpenFile(config.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o644)
+		lf, err := os.OpenFile(conf.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o644)
 		if err != nil {
 			errExit(err)
 		}
@@ -58,13 +66,13 @@ func main() {
 		logger = log.New(lf, "", log.LstdFlags)
 	}
 
-	s := service.NewService(config.ClientName, config.ClientScope,
-		config.ClientWebsite, config.SingleInstance,
-		config.PostFormats, renderer)
+	s := service.NewService(conf.ClientName, conf.ClientScope,
+		conf.ClientWebsite, conf.SingleInstance,
+		conf.PostFormats, renderer)
 	handler := service.NewHandler(s, logger, embedFS)
 
-	logger.Println("listening on", config.ListenAddress)
-	err = http.ListenAndServe(config.ListenAddress, handler)
+	logger.Println("listening on", conf.ListenAddress)
+	err = http.ListenAndServe(conf.ListenAddress, handler)
 	if err != nil {
 		errExit(err)
 	}
