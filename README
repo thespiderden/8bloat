@@ -30,6 +30,18 @@ frontend address.
 
 == INSTALLATION ==
 
+8bloat supports the go install command.
+
+$ PATH=$PATH:$home/go/bin
+$ go install spiderden.org/8b@latest
+
+If you want to take it out for a spin, this command will run the client on your
+machine at http://localhost:8080.
+
+8b -wc | 8b -f -
+
+Alternatively, you may build it yourself.
+
 1. Get the source
 -----------------
 Get the source code by running
@@ -44,6 +56,7 @@ https://git.sr.ht/~webb/8bloat/refs
 Install Go from your system's package manager or from https://golang.org/dl.
 Then run make to compile the source.
 
+$ cd 8bloat
 $ make
 $ doas make install
 
