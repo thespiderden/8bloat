@@ -9,9 +9,9 @@ import (
 	"net/url"
 	"strings"
 
-	"bloat/model"
-	"bloat/renderer"
-	"bloat/util"
+	"spiderden.org/8b/model"
+	"spiderden.org/8b/renderer"
+	"spiderden.org/8b/util"
 
 	"spiderden.org/masta"
 

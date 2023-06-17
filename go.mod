@@ -1,4 +1,4 @@
-module bloat
+module spiderden.org/8b
 
 require (
 	github.com/gorilla/mux v1.7.3

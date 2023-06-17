@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"bloat/model"
-	"bloat/renderer"
+	"spiderden.org/8b/model"
+	"spiderden.org/8b/renderer"
 
 	"spiderden.org/masta"
 )

@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"bloat/model"
+	"spiderden.org/8b/model"
 )
 
 type Config struct {

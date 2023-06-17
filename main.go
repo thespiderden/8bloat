@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"os"
 
-	"bloat/config"
-	"bloat/renderer"
-	"bloat/service"
+	"spiderden.org/8b/config"
+	"spiderden.org/8b/renderer"
+	"spiderden.org/8b/service"
 )
 
 //go:embed templates/* static/*

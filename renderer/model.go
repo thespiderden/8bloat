@@ -1,7 +1,7 @@
 package renderer
 
 import (
-	"bloat/model"
+	"spiderden.org/8b/model"
 
 	"spiderden.org/masta"
 )

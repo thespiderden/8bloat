@@ -19,7 +19,7 @@ $ make
 
 Edit the default config file. See the bloat.conf file for more details.
 
-$ ed 8bloat.conf
+$ ed bloat.conf
 
 Run the binary
 
@@ -34,10 +34,10 @@ frontend address.
 -----------------
 Get the source code by running
 
-$ git clone https://git.sr.ht/~webb/bloat 8bloat
+$ git clone https://git.sr.ht/~webb/8bloat
 
 You can also download the latest source tarball from the refs page:
-https://git.sr.ht/~webb/bloat/refs
+https://git.sr.ht/~webb/8bloat/refs
 
 2. Build and install
 --------------------
