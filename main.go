@@ -17,6 +17,9 @@ import (
 //go:embed templates/* static/*
 var embedFS embed.FS
 
+//go:embed bloat.conf
+var defaultConfig []byte
+
 var defaultConfigs = []string{"bloat.conf", "/etc/bloat.conf"}
 
 func errExit(err error) {
@@ -26,7 +29,22 @@ func errExit(err error) {
 
 func main() {
 	configFile := flag.String("f", "", `config file, use a dash for stdin`)
+	configStdout := flag.Bool("wc", false, `write a sample configuration file to stdout`)
+
 	flag.Parse()
+
+	if *configStdout && *configFile != "" {
+		fmt.Fprintln(os.Stderr, "cannot use -f and -wc at the same time")
+		os.Exit(1)
+	}
+
+	if *configStdout {
+		_, err := os.Stdout.Write(defaultConfig)
+		if err != nil {
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
 
 	var conf *config.Config
 	var err error
