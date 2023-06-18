@@ -94,7 +94,8 @@ func (s *service) SigninPage(c *client) (err error) {
 
 func (s *service) RootPage(c *client) (err error) {
 	data := &renderer.RootData{
-		Title: s.cname,
+		Title:     s.cname,
+		CustomCSS: c.s.Settings.CSS,
 	}
 	return s.renderer.Render(c.rctx, c.w, renderer.RootPage, data)
 }

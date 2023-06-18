@@ -50,7 +50,8 @@ type SigninData struct {
 }
 
 type RootData struct {
-	Title string
+	Title     string
+	CustomCSS string
 }
 
 type TimelineData struct {
