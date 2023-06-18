@@ -81,7 +81,7 @@
 			<div class="status-reply-container">
 				{{if .InReplyToID}}
 				<a class="status-reply-to-link" href="{{if not .ShowReplies}}/thread/{{.InReplyToID}}{{end}}#status-{{.InReplyToID}}"> 
-					 in reply to {{if .InReplyToNo}}#{{.InReplyToNo}}{{end}} {{if .Pleroma.InReplyToAccountAcct}}@{{.Pleroma.InReplyToAccountAcct}}{{else if not .IDNumbers}}{{.InReplyToID}}{{end}}
+					 in reply to {{if .InReplyToNo}}#{{.InReplyToNo}}{{end}} {{if and (.Pleroma) (.Pleroma.InReplyToAccountAcct)}}@{{.Pleroma.InReplyToAccountAcct}}{{else if not .InReplyToNo}}a post{{end}}
 				</a>
 				{{if .Replies}} <span class="status-reply-info-divider"> - </span> {{end}}
 				{{end}}
@@ -245,7 +245,7 @@
 						</a>
 					</form>
 				</div>
-				{{ if .Pleroma.EmojiReactions }}
+				{{ if and (.Pleroma) (.Pleroma.EmojiReactions) }}
 				<div class="status-action">
 				<a class="status-reactions" href="/reactions/{{.ID}}" title="click to see the the list">reactions</a>
 				</div>
