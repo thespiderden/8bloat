@@ -103,6 +103,7 @@
 			<a href="/user/{{.User.ID}}"> statuses ({{.User.StatusesCount}}) </a> - 
 			<a href="/user/{{.User.ID}}/following"> following ({{.User.FollowingCount}}) </a> - 
 			<a href="/user/{{.User.ID}}/followers"> followers ({{.User.FollowersCount}}) </a> - 
+			<a href="/user/{{.User.ID}}/pinned"> pinned </a> - 
 			<a href="/user/{{.User.ID}}/media"> media </a>
 		</div>
 		{{if .IsCurrent}}
@@ -166,6 +167,14 @@
 
 {{else if eq .Type "likes"}}
 <div class="page-title"> Likes </div>
+{{range .Statuses}}
+{{template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
+{{else}}
+<div class="no-data-found">No data found</div>
+{{end}}
+
+{{else if eq .Type "pinned"}}
+<div class="page-title"> Pinned </div>
 {{range .Statuses}}
 {{template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{else}}

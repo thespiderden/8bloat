@@ -585,6 +585,12 @@ func (s *service) UserPage(c *client, id string, pageType string, maxID string, 
 			nextLink = fmt.Sprintf("/user/%s/followers?max_id=%s",
 				id, pg.MaxID)
 		}
+
+	case "pinned":
+		statuses, err = c.GetAccountPinnedStatuses(c.ctx, id)
+		if err != nil {
+			return
+		}
 	case "media":
 		statuses, err = c.GetAcctStatuses(c.ctx, id, masta.AcctStatusOpts{
 			OnlyMedia:  true,
@@ -979,6 +985,16 @@ func (s *service) UnRetweet(c *client, id string) (count int64, err error) {
 		return
 	}
 	count = st.ReblogsCount
+	return
+}
+
+func (s *service) Pin(c *client, id string) (err error) {
+	_, err = c.Pin(c.ctx, id)
+	return
+}
+
+func (s *service) Unpin(c *client, id string) (err error) {
+	_, err = c.Unpin(c.ctx, id)
 	return
 }
 

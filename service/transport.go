@@ -550,6 +550,34 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 		return nil
 	}, CSRF, HTML)
 
+	pin := handle(func(c *client) error {
+		id := mux.Vars(c.r)["id"]
+		rid := c.r.FormValue("retweeted_by_id")
+		err := s.Pin(c, id)
+		if err != nil {
+			return err
+		}
+		if len(rid) > 0 {
+			id = rid
+		}
+		c.redirect(c.r.FormValue("referrer") + "#status-" + id)
+		return nil
+	}, CSRF, HTML)
+
+	unpin := handle(func(c *client) error {
+		id := mux.Vars(c.r)["id"]
+		rid := c.r.FormValue("retweeted_by_id")
+		err := s.Unpin(c, id)
+		if err != nil {
+			return err
+		}
+		if len(rid) > 0 {
+			id = rid
+		}
+		c.redirect(c.r.FormValue("referrer") + "#status-" + id)
+		return nil
+	}, CSRF, HTML)
+
 	filter := handle(func(c *client) error {
 		phrase := c.r.FormValue("phrase")
 		wholeWord := c.r.FormValue("whole_word") == "true"
@@ -723,6 +751,8 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	r.HandleFunc("/delete/{id}", delete).Methods(http.MethodPost)
 	r.HandleFunc("/notifications/read", readNotifications).Methods(http.MethodPost)
 	r.HandleFunc("/bookmark/{id}", bookmark).Methods(http.MethodPost)
+	r.HandleFunc("/pin/{id}", pin).Methods(http.MethodPost)
+	r.HandleFunc("/unpin/{id}", unpin).Methods(http.MethodPost)
 	r.HandleFunc("/unbookmark/{id}", unBookmark).Methods(http.MethodPost)
 	r.HandleFunc("/filter", filter).Methods(http.MethodPost)
 	r.HandleFunc("/unfilter/{id}", unFilter).Methods(http.MethodPost)

@@ -51,6 +51,21 @@
 							<input type="submit" value="mute" class="btn-link more-link">
 						</form>
 						{{end}}
+						{{if eq $.Ctx.UserID .Account.ID}}
+							{{if .Pinned}}
+								<form action="/unpin/{{.ID}}" method="post" target="_self">
+								<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+								<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+								<input type="submit" value="unpin" class="btn-link more-link">
+							</form>
+							{{else}}
+								<form action="/pin/{{.ID}}" method="post" target="_self">
+								<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+								<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+								<input type="submit" value="pin" class="btn-link more-link">
+							</form>
+							{{end}}
+						{{end}}
 						{{if .Bookmarked}}
 						<form action="/unbookmark/{{.ID}}" method="post" target="_self">
 							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
