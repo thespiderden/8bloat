@@ -130,7 +130,8 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 		id := mux.Vars(c.r)["id"]
 		q := c.r.URL.Query()
 		reply := q.Get("reply")
-		return s.ThreadPage(c, id, len(reply) > 1)
+		edit := q.Get("edit")
+		return s.ThreadPage(c, id, len(reply) > 1, len(edit) > 1)
 	}, SESSION, HTML)
 
 	quickReplyPage := handle(func(c *client) error {
@@ -254,6 +255,27 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 			location = c.r.FormValue("referrer")
 		}
 		c.redirect(location)
+		return nil
+	}, CSRF, HTML)
+
+	edit := handle(func(c *client) error {
+		originalID := c.r.FormValue("id")
+		content := c.r.FormValue("content")
+		replyToID := c.r.FormValue("reply_to_id")
+		format := c.r.FormValue("format")
+		visibility := c.r.FormValue("visibility")
+		subjectHeader := c.r.FormValue("subject")
+		isNSFW := c.r.FormValue("is_nsfw") == "true"
+		files := c.r.MultipartForm.File["attachments"]
+		alt := c.r.Form["alt_text"]
+		mediaIDs := c.r.Form["media_ids"]
+
+		_, err := s.Edit(c, originalID, content, replyToID, format, visibility, subjectHeader, isNSFW, files, mediaIDs, alt)
+		if err != nil {
+			return err
+		}
+
+		c.redirect("/thread/" + originalID + "#post-" + originalID)
 		return nil
 	}, CSRF, HTML)
 
@@ -730,6 +752,7 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	r.HandleFunc("/signin", signin).Methods(http.MethodPost)
 	r.HandleFunc("/oauth_callback", oauthCallback).Methods(http.MethodGet)
 	r.HandleFunc("/post", post).Methods(http.MethodPost)
+	r.HandleFunc("/edit", edit).Methods(http.MethodPost)
 	r.HandleFunc("/like/{id}", like).Methods(http.MethodPost)
 	r.HandleFunc("/unlike/{id}", unlike).Methods(http.MethodPost)
 	r.HandleFunc("/retweet/{id}", retweet).Methods(http.MethodPost)

@@ -52,6 +52,7 @@
 						</form>
 						{{end}}
 						{{if eq $.Ctx.UserID .Account.ID}}
+							<a class="more-link" href="/thread/{{.ID}}?edit=true#status-{{.ID}}">edit</a>
 							{{if .Pinned}}
 								<form action="/unpin/{{.ID}}" method="post" target="_self">
 								<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
