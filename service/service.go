@@ -987,9 +987,10 @@ func (s *service) Edit(c *client, oid string, content string, replyToID string,
 		}
 	} else if len(alt) <= len(mediaIDs) {
 		for i, v := range alt {
+			v := v
 			editedAttachments = append(editedAttachments, masta.MediaAttribute{
 				ID:          mediaIDs[i],
-				Description: v,
+				Description: &v,
 			})
 		}
 	}
