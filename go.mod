@@ -6,6 +6,4 @@ require (
 	spiderden.org/masta v0.0.0-20230708172643-d57e4b4352d5
 )
 
-replace spiderden.org/masta => ../go-mastadon
-
 go 1.16
