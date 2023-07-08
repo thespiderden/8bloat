@@ -287,7 +287,7 @@ func (s *service) ListRemoveUser(c *client, id string, uid string) (err error) {
 	return c.RemoveFromList(c.ctx, id, uid)
 }
 
-func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
+func (s *service) ThreadPage(c *client, id string, reply bool, edit bool) (err error) {
 	var pctx model.PostContext
 
 	status, err := c.GetStatus(c.ctx, id)
@@ -325,6 +325,22 @@ func (s *service) ThreadPage(c *client, id string, reply bool) (err error) {
 				ReplyContent:       content,
 				ReplySubjectHeader: status.SpoilerText,
 				ForceVisibility:    isDirect,
+			},
+			UserAgent: ua.Parse(c.r.UserAgent()),
+		}
+	} else if edit {
+		source, err := c.GetStatusSource(c.ctx, id)
+		if err != nil {
+			return err
+		}
+
+		pctx = model.PostContext{
+			DefaultVisibility: status.Visibility,
+			DefaultFormat:     source.ContentType,
+			Formats:           s.postFormats,
+			EditContext: &model.EditContext{
+				Source: source,
+				Status: status,
 			},
 			UserAgent: ua.Parse(c.r.UserAgent()),
 		}
@@ -947,6 +963,54 @@ func (s *service) Post(c *client, content string, replyToID string,
 	if err != nil {
 		return
 	}
+	return st.ID, nil
+}
+
+func (s *service) Edit(c *client, oid string, content string, replyToID string,
+	format string, visibility string, subjectHeader string, isNSFW bool,
+	files []*multipart.FileHeader, mediaIDs []string, alt []string,
+) (id string, err error) {
+	var editedAttachments []masta.MediaAttribute
+	if len(files) != 0 {
+		mediaIDs = []string{}
+		for _, f := range files {
+			var reader io.Reader
+			reader, err = f.Open()
+			if err != nil {
+				return
+			}
+			a, err := c.UploadMediaFromReader(c.ctx, reader)
+			if err != nil {
+				return "", err
+			}
+			mediaIDs = append(mediaIDs, a.ID)
+		}
+	} else if len(alt) <= len(mediaIDs) {
+		for i, v := range alt {
+			v := v
+			editedAttachments = append(editedAttachments, masta.MediaAttribute{
+				ID:          mediaIDs[i],
+				Description: &v,
+			})
+		}
+	}
+
+	tweet := &masta.Toot{
+		Status:              content,
+		InReplyToID:         replyToID,
+		MediaIDs:            mediaIDs,
+		EditMediaAttributes: editedAttachments,
+		ContentType:         format,
+		Visibility:          visibility,
+		SpoilerText:         subjectHeader,
+		Sensitive:           isNSFW,
+	}
+
+	st, err := c.CompatUpdateStatus(c.ctx, tweet, oid)
+	if err != nil {
+		return
+	}
+
 	return st.ID, nil
 }
 

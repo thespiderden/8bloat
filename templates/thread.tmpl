@@ -7,8 +7,11 @@
 
 {{range .Statuses}}
 
+{{if and $s.PostContext.EditContext (eq .ID $s.PostContext.EditContext.Status.ID)}}
+{{template "postform.tmpl" (WithContext $s.PostContext $.Ctx)}}
+{{else}}
 {{template "status.tmpl" (WithContext . $.Ctx)}}
-{{if $s.PostContext.ReplyContext}}{{if eq .ID $s.PostContext.ReplyContext.InReplyToID}}
+{{if and $s.PostContext.ReplyContext (eq .ID $s.PostContext.ReplyContext.InReplyToID)}}
 {{template "postform.tmpl" (WithContext $s.PostContext $.Ctx)}}
 {{end}}{{end}}
 

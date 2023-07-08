@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	ua "github.com/mileusna/useragent"
+	"spiderden.org/masta"
 )
 
 type PostFormat struct {
@@ -15,8 +16,14 @@ type PostContext struct {
 	DefaultVisibility string
 	DefaultFormat     string
 	ReplyContext      *ReplyContext
+	EditContext       *EditContext
 	Formats           []PostFormat
 	UserAgent         ua.UserAgent
+}
+
+type EditContext struct {
+	Source *masta.Source
+	Status *masta.Status
 }
 
 type ReplyContext struct {
