@@ -970,6 +970,7 @@ func (s *service) Edit(c *client, oid string, content string, replyToID string,
 	format string, visibility string, subjectHeader string, isNSFW bool,
 	files []*multipart.FileHeader, mediaIDs []string, alt []string,
 ) (id string, err error) {
+	var editedAttachments []masta.MediaAttribute
 	if len(files) != 0 {
 		mediaIDs = []string{}
 		for _, f := range files {
@@ -986,29 +987,29 @@ func (s *service) Edit(c *client, oid string, content string, replyToID string,
 		}
 	} else if len(alt) <= len(mediaIDs) {
 		for i, v := range alt {
-			_, err = c.UpdateMedia(c.ctx, mediaIDs[i], masta.MediaUpdate{
+			editedAttachments = append(editedAttachments, masta.MediaAttribute{
+				ID:          mediaIDs[i],
 				Description: v,
 			})
-			if err != nil {
-				return
-			}
 		}
 	}
 
 	tweet := &masta.Toot{
-		Status:      content,
-		InReplyToID: replyToID,
-		MediaIDs:    mediaIDs,
-		ContentType: format,
-		Visibility:  visibility,
-		SpoilerText: subjectHeader,
-		Sensitive:   isNSFW,
+		Status:              content,
+		InReplyToID:         replyToID,
+		MediaIDs:            mediaIDs,
+		EditMediaAttributes: editedAttachments,
+		ContentType:         format,
+		Visibility:          visibility,
+		SpoilerText:         subjectHeader,
+		Sensitive:           isNSFW,
 	}
 
-	st, err := c.UpdateStatus(c.ctx, tweet, oid)
+	st, err := c.CompatUpdateStatus(c.ctx, tweet, oid)
 	if err != nil {
 		return
 	}
+
 	return st.ID, nil
 }
 

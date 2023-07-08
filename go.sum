@@ -6,5 +6,5 @@ github.com/mileusna/useragent v1.1.0 h1:OWu/SiD0PQKLK//ifevEcK6srDWijAGKNufxEc8I
 github.com/mileusna/useragent v1.1.0/go.mod h1:3d8TOmwL/5I8pJjyVDteHtgDGcefrFUX4ccGOMKNYYc=
 github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80 h1:nrZ3ySNYwJbSpD6ce9duiP+QkD3JuLCcWkdaehUS/3Y=
 github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80/go.mod h1:iFyPdL66DjUD96XmzVL3ZntbzcflLnznH0fr99w5VqE=
-spiderden.org/masta v0.0.0-20230619040834-d8114fd22a41 h1:LmowBVqXWuKeOo5k35Ve5B5dmbu1dYkC6vzVaCC8JuY=
-spiderden.org/masta v0.0.0-20230619040834-d8114fd22a41/go.mod h1:w0WWG8SJS+oZJ5pzTopcL8RygpPqtEXlbn2N1hMaSOo=
+spiderden.org/masta v0.0.0-20230708002806-12cfefa5aa6f h1:M5CBpTZyN5uk4+pxwbnGFXR6Zm1kT2VsQ4MVFy9RmLI=
+spiderden.org/masta v0.0.0-20230708002806-12cfefa5aa6f/go.mod h1:w0WWG8SJS+oZJ5pzTopcL8RygpPqtEXlbn2N1hMaSOo=
