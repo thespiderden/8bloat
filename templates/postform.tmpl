@@ -49,7 +49,7 @@
 			</select>
 		</span>
 		<span class="post-form-field">
-			<input type="checkbox" id="nsfw-checkbox" name="is_nsfw" value="true" accesskey="N" title="NSFW (N)">
+			<input type="checkbox" id="nsfw-checkbox" name="is_nsfw" value="true" accesskey="N" title="NSFW (N)" {{if and (.EditContext) (.EditContext.Status.Sensitive)}}checked{{end}}>
 			<label for="nsfw-checkbox"> NSFW </label>
 		</span>
 	</div>
