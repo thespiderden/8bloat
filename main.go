@@ -55,8 +55,18 @@ func main() {
 		if err != nil {
 			errExit(err)
 		}
-	default:
+	case "":
 		conf, err = config.ParseFiles(defaultConfigs)
+		if err != nil {
+			errExit(err)
+		}
+	default:
+		file, err := os.Open(*configFile)
+		if err != nil {
+			errExit(err)
+		}
+
+		conf, err = config.Parse(file)
 		if err != nil {
 			errExit(err)
 		}
