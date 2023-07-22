@@ -19,9 +19,9 @@
 		</div>
 		{{if not .IsCurrent}}
 		<div>
-			<span> {{if .User.Pleroma.Relationship.FollowedBy}} follows you - {{end}} </span>  
-			{{if .User.Pleroma.Relationship.BlockedBy}} blocks you - {{end}}
-			{{if .User.Pleroma.Relationship.Following}} 
+			<span> {{if .Relationship.FollowedBy}} follows you - {{end}} </span>  
+			{{if .Relationship.BlockedBy}} blocks you - {{end}}
+			{{if .Relationship.Following}} 
 			<form class="d-inline" action="/unfollow/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
@@ -34,7 +34,7 @@
 				<input type="submit" value="{{if .User.Pleroma.Relationship.Requested}}resend request{{else}}follow{{end}}" class="btn-link">
 			</form>
 			{{end}}
-			{{if .User.Pleroma.Relationship.Requested}}
+			{{if .Relationship.Requested}}
 			-
 			<form class="d-inline" action="/unfollow/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
@@ -43,7 +43,7 @@
 			</form>
 			{{end}}
 			-
-			{{if .User.Pleroma.Relationship.Subscribing}}
+			{{if .Relationship.Subscribing}}
 			<form class="d-inline" action="/unsubscribe/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
@@ -58,7 +58,7 @@
 			{{end}}
 		</div>
 		<div>
-			{{if .User.Pleroma.Relationship.Blocking}}
+			{{if .Relationship.Blocking}}
 			<form class="d-inline" action="/unblock/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
@@ -72,7 +72,7 @@
 			</form>
 			{{end}}
 			-
-			{{if .User.Pleroma.Relationship.Muting}}
+			{{if .Relationship.Muting}}
 			<form class="d-inline" action="/unmute/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
@@ -81,9 +81,9 @@
 			{{else}}
 			<a href="/mute/{{.User.ID}}"> mute </a>
 			{{end}}
-			{{if .User.Pleroma.Relationship.Following}} 
+			{{if .Relationship.Following}} 
 			-
-			{{if .User.Pleroma.Relationship.ShowingReblogs}}
+			{{if .Relationship.ShowingReblogs}}
 			<form class="d-inline" action="/follow/{{.User.ID}}?reblogs=false" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
