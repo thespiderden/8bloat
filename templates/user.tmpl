@@ -31,7 +31,7 @@
 			<form class="d-inline" action="/follow/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-				<input type="submit" value="{{if .User.Pleroma.Relationship.Requested}}resend request{{else}}follow{{end}}" class="btn-link">
+				<input type="submit" value="{{if .Relationship.Requested}}resend request{{else}}follow{{end}}" class="btn-link">
 			</form>
 			{{end}}
 			{{if .Relationship.Requested}}
