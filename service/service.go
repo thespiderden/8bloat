@@ -31,11 +31,12 @@ type service struct {
 	instance    string
 	postFormats []model.PostFormat
 	renderer    renderer.Renderer
+	assetstamp  string
 }
 
 func NewService(cname string, cscope string, cwebsite string,
 	instance string, postFormats []model.PostFormat,
-	renderer renderer.Renderer,
+	renderer renderer.Renderer, assetstamp string,
 ) *service {
 	return &service{
 		cname:       cname,
@@ -44,6 +45,7 @@ func NewService(cname string, cscope string, cwebsite string,
 		instance:    instance,
 		postFormats: postFormats,
 		renderer:    renderer,
+		assetstamp:  assetstamp,
 	}
 }
 
@@ -55,6 +57,7 @@ func (s *service) cdata(c *client, title string, count int, rinterval int,
 		Count:           count,
 		RefreshInterval: rinterval,
 		Target:          target,
+		AssetStamp:      s.assetstamp,
 	}
 	if c != nil && c.s.IsLoggedIn() {
 		data.CSRFToken = c.s.CSRFToken
@@ -94,8 +97,9 @@ func (s *service) SigninPage(c *client) (err error) {
 
 func (s *service) RootPage(c *client) (err error) {
 	data := &renderer.RootData{
-		Title:     s.cname,
-		CustomCSS: c.s.Settings.CSS,
+		Title:      s.cname,
+		CustomCSS:  c.s.Settings.CSS,
+		AssetStamp: s.assetstamp,
 	}
 	return s.renderer.Render(c.rctx, c.w, renderer.RootPage, data)
 }

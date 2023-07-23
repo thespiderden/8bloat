@@ -2,10 +2,13 @@ package config
 
 import (
 	"bufio"
+	"encoding/base64"
+	"encoding/binary"
 	"errors"
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"spiderden.org/8b/model"
 )
@@ -18,6 +21,7 @@ type Config struct {
 	SingleInstance string
 	PostFormats    []model.PostFormat
 	LogFile        string
+	AssetStamp     string
 }
 
 func (c *Config) IsValid() bool {
@@ -87,6 +91,15 @@ func Parse(r io.Reader) (c *Config, err error) {
 			c.PostFormats = formats
 		case "log_file":
 			c.LogFile = val
+		case "asset_stamp":
+			if val == "random" {
+				b := make([]byte, 8)
+				binary.LittleEndian.PutUint64(b, uint64(time.Now().Unix()))
+				val = "." + base64.RawStdEncoding.EncodeToString(b)
+			}
+
+			c.AssetStamp = val
+
 		default:
 			return nil, errors.New("invalid config key " + key)
 		}

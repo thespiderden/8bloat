@@ -26,6 +26,7 @@ type CommonData struct {
 	Count           int
 	RefreshInterval int
 	Target          string
+	AssetStamp      string
 }
 
 type NavData struct {
@@ -50,8 +51,9 @@ type SigninData struct {
 }
 
 type RootData struct {
-	Title     string
-	CustomCSS string
+	Title      string
+	CustomCSS  string
+	AssetStamp string
 }
 
 type TimelineData struct {

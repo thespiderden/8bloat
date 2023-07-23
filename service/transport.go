@@ -24,7 +24,7 @@ const (
 	CSRF
 )
 
-func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
+func NewHandler(s *service, logger *log.Logger, assetfs fs.FS) http.Handler {
 	r := mux.NewRouter()
 
 	writeError := func(c *client, err error, t int, retry bool) {
@@ -62,6 +62,8 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 				ct = "application/json"
 			}
 			c.w.Header().Add("Content-Type", ct)
+
+			c.w.Header().Set("Cache-Control", "private")
 
 			err = c.authenticate(at)
 			if err != nil {
@@ -791,7 +793,12 @@ func NewHandler(s *service, logger *log.Logger, staticfs fs.FS) http.Handler {
 	r.HandleFunc("/fluoride/unlike/{id}", fUnlike).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/retweet/{id}", fRetweet).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/unretweet/{id}", fUnretweet).Methods(http.MethodPost)
-	r.PathPrefix("/static").Handler(http.FileServer(http.FS(staticfs)))
+	r.PathPrefix("/static").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "public, max-age=31556952")
+		fserve := http.FileServer(http.FS(&staticfs{underlying: assetfs, assetstamp: s.assetstamp}))
+		fserve.ServeHTTP(w, r)
+	},
+	)
 
 	return r
 }

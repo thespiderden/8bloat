@@ -44,4 +44,5 @@ export:
 	cd $(TMPDIR); git checkout $(REF); go mod vendor; go mod tidy
 	rm -rf $(TMPDIR)/.git
 	sed -i '/# ExportRemove/,$$d' $(TMPDIR)/Makefile
+	sed -i 's/asset_stamp=random/asset_stamp=-$(REF)/g' $(TMPDIR)/bloat.conf
 	tar -cvf 8bloat-$(REF)-src.tar -C $(TMPDIR)/ .

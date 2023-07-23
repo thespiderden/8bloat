@@ -5,7 +5,7 @@
 	{{if .CustomCSS}}
 	<link rel="stylesheet" href="{{.CustomCSS}}">
 	{{end}}
-	<link rel="stylesheet" href="/static/style.css">
+	<link rel="stylesheet" href="/static/style.css{{.AssetStamp}}">
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
 	<link rel="icon" type="image/png" href="/static/favicon.png">
 	<title>{{.Title}}</title>
