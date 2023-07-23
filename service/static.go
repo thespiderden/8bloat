@@ -17,6 +17,7 @@ func (s *staticfs) Open(path string) (fs.File, error) {
 	}
 
 	if stat, _ := f.Stat(); stat.IsDir() {
+		f.Close()
 		return nil, fs.ErrNotExist
 	}
 
