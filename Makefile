@@ -31,12 +31,13 @@ uninstall:
 clean: 
 	rm -f 8b
 	rm -f bloat.gen.conf
+	rm -rf /tmp/8bloat-export-*
 
 # ExportRemove
 # Everything after the above comment will get nuked when running export,
 # since export depends on git commands.
 REF := $(shell ( git describe --tags --exact-match 2>/dev/null || git rev-parse --short HEAD ) | sed 1q )
-TMPDIR = /tmp/8bloat-$(REF)
+TMPDIR = /tmp/8bloat-export-$(REF)
 
 export:
 	rm -rf $(TMPDIR)
