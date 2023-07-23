@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"spiderden.org/8b/model"
@@ -794,7 +795,9 @@ func NewHandler(s *service, logger *log.Logger, assetfs fs.FS) http.Handler {
 	r.HandleFunc("/fluoride/retweet/{id}", fRetweet).Methods(http.MethodPost)
 	r.HandleFunc("/fluoride/unretweet/{id}", fUnretweet).Methods(http.MethodPost)
 	r.PathPrefix("/static").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=31556952")
+		if strings.HasSuffix(r.URL.Path, s.assetstamp) {
+			w.Header().Set("Cache-Control", "public, max-age=31556952")
+		}
 		fserve := http.FileServer(http.FS(&staticfs{underlying: assetfs, assetstamp: s.assetstamp}))
 		fserve.ServeHTTP(w, r)
 	},
