@@ -23,10 +23,6 @@
 	<div class="post-form-content-container">
 		<input id="subject-header-box" type="text" name="subject" class="subject-header-box" cols="34" rows="1" accesskey="h" title="Edit subject header (H)" {{if .EditContext}}value="{{.EditContext.Source.SpoilerText}}"{{else if .ReplyContext}}value="{{.ReplyContext.ReifiedSubjectHeader}}"{{end}}></input>
 		<textarea id="post-content" name="content" class="post-content" cols="34" rows="5" accesskey="E" title="Edit post (E)">{{if .EditContext}}{{.EditContext.Source.Text}}{{else if .ReplyContext}}{{.ReplyContext.ReplyContent}}{{end}}</textarea>
-		{{if and (.UserAgent.IsChrome) (lt .UserAgent.Version "105")}}
-		{{/* https://bugs.chromium.org/p/chromium/issues/detail?id=1339797 */}}
-		<br>
-		{{end}}
 	</div>
 	<div>
 		{{if .Formats}}

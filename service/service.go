@@ -14,8 +14,6 @@ import (
 	"spiderden.org/8b/util"
 
 	"spiderden.org/masta"
-
-	ua "github.com/mileusna/useragent"
 )
 
 var (
@@ -113,7 +111,6 @@ func (s *service) NavPage(c *client) (err error) {
 		DefaultVisibility: c.s.Settings.DefaultVisibility,
 		DefaultFormat:     c.s.Settings.DefaultFormat,
 		Formats:           s.postFormats,
-		UserAgent:         ua.Parse(c.r.UserAgent()),
 	}
 	cdata := s.cdata(c, "nav", 0, 0, "main")
 	data := &renderer.NavData{
@@ -330,7 +327,6 @@ func (s *service) ThreadPage(c *client, id string, reply bool, edit bool) (err e
 				ReplySubjectHeader: status.SpoilerText,
 				ForceVisibility:    isDirect,
 			},
-			UserAgent: ua.Parse(c.r.UserAgent()),
 		}
 	} else if edit {
 		source, err := c.GetStatusSource(c.ctx, id)
@@ -346,7 +342,6 @@ func (s *service) ThreadPage(c *client, id string, reply bool, edit bool) (err e
 				Source: source,
 				Status: status,
 			},
-			UserAgent: ua.Parse(c.r.UserAgent()),
 		}
 	}
 
@@ -455,7 +450,6 @@ func (s *service) QuickReplyPage(c *client, id string) (err error) {
 			ReplySubjectHeader: status.SpoilerText,
 			ForceVisibility:    isDirect,
 		},
-		UserAgent: ua.Parse(c.r.UserAgent()),
 	}
 
 	cdata := s.cdata(c, "post by "+status.Account.DisplayName, 0, 0, "")

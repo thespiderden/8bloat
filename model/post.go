@@ -3,7 +3,6 @@ package model
 import (
 	"strings"
 
-	ua "github.com/mileusna/useragent"
 	"spiderden.org/masta"
 )
 
@@ -18,7 +17,6 @@ type PostContext struct {
 	ReplyContext      *ReplyContext
 	EditContext       *EditContext
 	Formats           []PostFormat
-	UserAgent         ua.UserAgent
 }
 
 type EditContext struct {
