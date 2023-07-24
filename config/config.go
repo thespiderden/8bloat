@@ -92,14 +92,13 @@ func Parse(r io.Reader) (c *Config, err error) {
 		case "log_file":
 			c.LogFile = val
 		case "asset_stamp":
-			if val == "random" {
+			if val == "random" || val == "" {
 				b := make([]byte, 8)
 				binary.LittleEndian.PutUint64(b, uint64(time.Now().Unix()))
 				val = "." + base64.RawStdEncoding.EncodeToString(b)
 			}
 
 			c.AssetStamp = val
-
 		default:
 			return nil, errors.New("invalid config key " + key)
 		}
