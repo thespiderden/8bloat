@@ -1,6 +1,7 @@
 package renderer
 
 import (
+	"bytes"
 	"html/template"
 	"io"
 	"io/fs"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/net/html"
 	"spiderden.org/masta"
 )
 
@@ -55,6 +57,87 @@ func emojiFilter(content string, emojis []masta.Emoji) string {
 	return strings.NewReplacer(replacements...).Replace(content)
 }
 
+// This is to make it so that links always open in a new tab.
+// This isn't meant to be a secure solution, since CSP will
+// catch attempts to open in a frame.
+// TODO: More granular location detection, to allow hosting under
+// a shared domain.
+func linkFilter(content string) string {
+	node, err := html.Parse(bytes.NewBuffer([]byte(content)))
+	if err != nil {
+		// This is not for security, just to avoid annoyance.
+		// A secure solution would return an error.
+		return content
+	}
+
+	var walk func(node *html.Node)
+	walk = func(node *html.Node) {
+		if node.Type == html.ElementNode && node.Data == "a" {
+			var reli int = -1
+			var hrefi int = -1
+			var targeti int = -1
+			for i, v := range node.Attr {
+				if v.Key == "rel" {
+					if reli == -1 {
+						reli = i
+					} else {
+						node.Attr[i].Val = ""
+					}
+				}
+
+				if v.Key == "href" {
+					if hrefi == -1 {
+						hrefi = i
+					} else {
+						node.Attr[i].Val = ""
+					}
+				}
+
+				if v.Key == "target" {
+					if hrefi == -1 {
+						hrefi = i
+					} else {
+						node.Attr[i].Val = ""
+					}
+				}
+			}
+
+			if hrefi != -1 {
+				href := node.Attr[hrefi].Val
+				if !strings.HasPrefix(href, "/") {
+					if reli != -1 {
+						node.Attr[reli].Val = "noreferer noopener"
+					} else {
+						node.Attr = append(node.Attr, html.Attribute{Key: "rel", Val: "noreferer noopener"})
+					}
+
+					if targeti != -1 {
+						node.Attr[targeti].Val = "_blank"
+					} else {
+						node.Attr = append(node.Attr, html.Attribute{Key: "target", Val: "_blank"})
+					}
+				}
+			}
+		}
+
+		for c := node.FirstChild; c != nil; c = c.NextSibling {
+			walk(c)
+		}
+	}
+
+	walk(node)
+
+	buf := &bytes.Buffer{}
+	err = html.Render(buf, node)
+	if err != nil {
+		// This is not for security, just to avoid annoyance.
+		// A secure solution would return an error.
+		return content
+	}
+
+	return buf.String()
+}
+
 var quoteRE = regexp.MustCompile("(?mU)(^|> *|\n)(&gt;.*)(<br|$)")
 
 func statusContentFilter(content string, emojis []masta.Emoji, mentions []masta.Mention) string {
@@ -66,7 +149,7 @@ func statusContentFilter(content string, emojis []masta.Emoji, mentions []masta.
 	for _, m := range mentions {
 		replacements = append(replacements, `"`+m.URL+`"`, `"/user/`+m.ID+`" title="@`+m.Acct+`"`)
 	}
-	return strings.NewReplacer(replacements...).Replace(content)
+	return linkFilter(strings.NewReplacer(replacements...).Replace(content))
 }
 
 func displayInteractionCount(c int64) string {
