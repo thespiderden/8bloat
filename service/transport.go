@@ -66,7 +66,7 @@ func NewHandler(s *service, logger *log.Logger, assetfs fs.FS) http.Handler {
 
 			c.w.Header().Set("Cache-Control", "private")
 			c.w.Header().Set("Content-Security-Policy",
-				"default-src "+s.cwebsite+"/; "+
+				"default-src "+s.cwebsite+"/;"+
 					"script-src "+s.cwebsite+"/static/;"+
 					"img-src *;"+
 					"media-src *",
