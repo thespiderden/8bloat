@@ -803,7 +803,7 @@ func NewHandler(s *service, logger *log.Logger, assetfs fs.FS) http.Handler {
 	r.HandleFunc("/fluoride/unretweet/{id}", fUnretweet).Methods(http.MethodPost)
 	r.PathPrefix("/static").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasSuffix(r.URL.Path, s.assetstamp) {
-			w.Header().Set("Cache-Control", "public, max-age=31556952")
+			w.Header().Set("Cache-Control", "public, immutable, max-age=31556952, stale-while-revalidate=31556952")
 		}
 		fserve := http.FileServer(http.FS(&staticfs{underlying: assetfs, assetstamp: s.assetstamp}))
 		fserve.ServeHTTP(w, r)
