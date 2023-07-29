@@ -1,6 +1,9 @@
 package service
 
 import (
+	"bytes"
+	"encoding/base64"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
@@ -9,12 +12,17 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/bwmarrin/snowflake"
 	"spiderden.org/8b/model"
 	"spiderden.org/8b/renderer"
 	"spiderden.org/8b/util"
 
 	"spiderden.org/masta"
 )
+
+func init() {
+	snowflake.Epoch = 16599604880000
+}
 
 var (
 	errInvalidArgument  = errors.New("invalid argument")
@@ -30,12 +38,26 @@ type service struct {
 	postFormats []model.PostFormat
 	renderer    renderer.Renderer
 	assetstamp  string
+	node        *snowflake.Node
 }
 
 func NewService(cname string, cscope string, cwebsite string,
 	instance string, postFormats []model.PostFormat,
-	renderer renderer.Renderer, assetstamp string,
+	renderer renderer.Renderer, assetstamp string, nodeno int,
 ) *service {
+	node, err := snowflake.NewNode(int64(nodeno))
+	if err != nil {
+		panic(err)
+	}
+
+	// random for backwards compatibility
+	if assetstamp == "random" || assetstamp == "snowflake" {
+		// We do this to get shorter IDs that don't include empty bytes.
+		idSlice := &bytes.Buffer{}
+		binary.Write(idSlice, binary.LittleEndian, node.Generate())
+		assetstamp = "." + base64.RawURLEncoding.EncodeToString(idSlice.Bytes())
+	}
+
 	return &service{
 		cname:       cname,
 		cscope:      cscope,
@@ -44,6 +66,7 @@ func NewService(cname string, cscope string, cwebsite string,
 		postFormats: postFormats,
 		renderer:    renderer,
 		assetstamp:  assetstamp,
+		node:        node,
 	}
 }
 

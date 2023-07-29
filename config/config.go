@@ -2,13 +2,11 @@ package config
 
 import (
 	"bufio"
-	"encoding/base64"
-	"encoding/binary"
 	"errors"
 	"io"
 	"os"
+	"strconv"
 	"strings"
-	"time"
 
 	"spiderden.org/8b/model"
 )
@@ -22,6 +20,7 @@ type Config struct {
 	PostFormats    []model.PostFormat
 	LogFile        string
 	AssetStamp     string
+	SFNodeID       int
 }
 
 func (c *Config) IsValid() bool {
@@ -92,13 +91,18 @@ func Parse(r io.Reader) (c *Config, err error) {
 		case "log_file":
 			c.LogFile = val
 		case "asset_stamp":
-			if val == "random" || val == "" {
-				b := make([]byte, 8)
-				binary.LittleEndian.PutUint64(b, uint64(time.Now().Unix()))
-				val = "." + base64.RawStdEncoding.EncodeToString(b)
+			c.AssetStamp = val // Defer this to service.NewService
+		case "snowflake_node_id":
+			if val == "" {
+				return
 			}
 
-			c.AssetStamp = val
+			no, err := strconv.Atoi(val)
+			if err != nil {
+				return nil, errors.New("invalid config key: " + val)
+			}
+
+			c.SFNodeID = no
 		default:
 			return nil, errors.New("invalid config key " + key)
 		}

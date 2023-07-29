@@ -96,7 +96,7 @@ func main() {
 
 	s := service.NewService(conf.ClientName, conf.ClientScope,
 		conf.ClientWebsite, conf.SingleInstance,
-		conf.PostFormats, renderer, conf.AssetStamp)
+		conf.PostFormats, renderer, conf.AssetStamp, conf.SFNodeID)
 	handler := service.NewHandler(s, logger, embedFS)
 
 	logger.Println("listening on", conf.ListenAddress)
