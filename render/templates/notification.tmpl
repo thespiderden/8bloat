@@ -3,23 +3,22 @@
 <div class="page-title-container">
 	<span class="page-title">
 		Notifications
-		{{if and (not $.Ctx.Settings.AntiDopamineMode) (gt .UnmarkedCount 0)}}
+		{{- if and (not $.Ctx.Settings.AntiDopamineMode) (gt .UnmarkedCount 0)}}
 			({{.UnmarkedCount }})
-		{{end}}
+		{{- end}}
 	</span>
 	<a class="page-refresh" href="/notifications" target="_self" accesskey="R" title="Refresh (R)">refresh</a>
-	{{if .ReadID}}
+	{{- if .ReadID}}
 	<form class="notification-read" action="/notifications/read?max_id={{.ReadID}}" method="post" target="_self">
 		<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 		<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 		<input type="submit" value="read" class="btn-link" accesskey="C" title="Clear unread notifications (C)">
 	</form>
-	{{end}}
+	{{- end}}
 </div>
-
-{{range .Notifications}}
+{{- range .Notifications}}
 <div class="notification-container {{.Type}} {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
-	{{if eq .Type "follow"}}
+	{{- if eq .Type "follow"}}
 	<div class="notification-follow-container">
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
@@ -38,8 +37,7 @@
 			</div>
 		</div>
 	</div>
-
-	{{else if eq .Type "follow_request"}}
+	{{- else if eq .Type "follow_request"}}
 	<div class="notification-follow-container">
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
@@ -69,11 +67,9 @@
 			</form>
 		</div>
 	</div>
-
-	{{else if eq .Type "mention"}}
-	{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
-
-	{{else if eq .Type "reblog"}}
+	{{- else if eq .Type "mention"}}
+	{{- template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
+	{{- else if eq .Type "reblog"}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
 			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
@@ -85,9 +81,8 @@
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
-	{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
-
-	{{else if eq .Type "favourite"}}
+	{{- template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
+	{{- else if eq .Type "favourite"}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
 			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
@@ -99,9 +94,8 @@
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
-	{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
-
-	{{else if eq .Type "pleroma:emoji_reaction"}}
+	{{- template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
+	{{- else if eq .Type "pleroma:emoji_reaction"}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
 			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
@@ -113,9 +107,8 @@
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
-	{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
-
-	{{else}}
+	{{- template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
+	{{- else}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
 			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
@@ -127,16 +120,14 @@
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
-	{{if .Status}}{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}{{end}}
-	{{end}}
+	{{- if .Status}}{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}{{end}}
+	{{- end}}
 </div>
-{{end}}
-
+{{- end}}
 <div class="pagination">
 	{{if .NextLink}}
 		<a href="{{.NextLink}}" target="_self">[next]</a>
 	{{end}}
 </div>
-
-{{template "footer.tmpl"}}
-{{end}}
+{{- template "footer.tmpl"}}
+{{- end}}

@@ -1,12 +1,10 @@
-{{with .Data}}
-{{template "header.tmpl" $.Ctx}}
+{{- with .Data}}
+{{- template "header.tmpl" $.Ctx}}
 <div class="page-title"> Reactions </div>
-
-{{ range .Reactions }}
-{{ $number := len .Accounts }}
+{{- range .Reactions }}
+{{- $number := len .Accounts }}
 <div class="reaction-list-title">{{.Emoji}} ({{$number}})</div>
-{{template "userlist.tmpl" (WithContext .Accounts $.Ctx)}}
-{{end}}
-
-{{template "footer.tmpl"}}
-{{end}}
+{{- template "userlist.tmpl" (WithContext .Accounts $.Ctx)}}
+{{- end}}
+{{- template "footer.tmpl"}}
+{{- end}}

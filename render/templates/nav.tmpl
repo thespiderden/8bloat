@@ -1,5 +1,5 @@
-{{with .Data}}
-{{template "header.tmpl" $.Ctx}}
+{{- with .Data}}
+{{- template "header.tmpl" $.Ctx}}
 <div class="user-info">
 	<div class="user-info-img-container">
 		<a class="img-link" href="/timeline/home" title="Home (1)">
@@ -33,8 +33,7 @@
 		</div>
 	</div>
 </div>
+{{- template "postform.tmpl" (WithContext .PostContext $.Ctx)}}
 
-{{template "postform.tmpl" (WithContext .PostContext $.Ctx)}}
-
-{{template "footer.tmpl"}}
-{{end}}
+{{- template "footer.tmpl"}}
+{{- end}}

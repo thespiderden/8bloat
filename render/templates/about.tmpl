@@ -1,6 +1,5 @@
-{{with .Data}}
-{{template "header.tmpl" .Ctx}}
-
+{{- with .Data}}
+{{- template "header.tmpl" .Ctx}}
 <div class="page-title"> About 8bloat </div>
 <div>
 	<p>
@@ -18,7 +17,6 @@
 		<a href="https://freesoftwareextremist.com/r" target="_blank">@r@freesoftwareextremist.com</a>.
 	</P>
 </div>
-
 <div class="page-title"> Keyboard shortcuts </div>
 <div>
 	<table class="keyboard-shortcuts">
@@ -112,6 +110,5 @@
 		which is generally <kbd>Alt</kbd> + <kbd>Shift</kbd>.
 	</p>
 </div>
-
-{{template "footer.tmpl"}}
-{{end}}
+{{- template "footer.tmpl"}}
+{{- end}}

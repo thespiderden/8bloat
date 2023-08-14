@@ -1,10 +1,9 @@
-{{with .Data}}
-{{template "header.tmpl" .Ctx}}
+{{- with .Data}}
+{{- template "header.tmpl" .Ctx}}
 <div class="page-title"> Filters </div>
-
-{{if .Filters}}
+{{- if .Filters}}
 <table class="filters">
-	{{range .Filters}}
+	{{- range .Filters}}
 	<tr>
 		<td> {{.Phrase}}{{if not .WholeWord}}*{{end}} </td>
 		<td> 
@@ -15,12 +14,11 @@
 			</form>
 		</td>
 	</tr>
-	{{end}}
+	{{- end}}
 </table>
-{{else}}
+{{- else}}
 	<div class="filters"> No filters added </div>
-{{end}}
-
+{{- end}}
 <div class="page-title"> Add filter </div>
 <form action="/filter" method="POST">
 	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
@@ -35,6 +33,5 @@
 	</span>
 	<button type="submit"> Add </button>
 </form>
-
-{{template "footer.tmpl"}}
-{{end}}
+{{- template "footer.tmpl"}}
+{{- end}}

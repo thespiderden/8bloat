@@ -1,9 +1,8 @@
-{{template "header.tmpl" $.Ctx}}
+{{- template "header.tmpl" $.Ctx}}
 <div class="page-title"> 8bloat </div>
 <div class="signin-desc">
 	A web client for <a href="https://pleroma.social" target="_blank">Mastadon Network</a>.
 </div>
-
 <form class="signin-form" action="/signin" method="post">
 	Enter the domain name of your instance to continue
 	<br/>
@@ -11,11 +10,9 @@
 	<br/>
 	<button type="submit"> Signin </button>
 </form>
-
 <p>
 	See
 	<a href="https://sr.ht/~webb/8bloat" target="_blank">sr.ht/~webb/8bloat</a>
 	for more details.
-</P>
-
-{{template "footer.tmpl"}}
+</p>
+{{- template "footer.tmpl"}}

@@ -1,20 +1,17 @@
-{{with $s := .Data}}
-{{template "header.tmpl" $.Ctx}}
+{{- with $s := .Data}}
+{{- template "header.tmpl" $.Ctx}}
 <div class="page-title-container">
 	<span class="page-title"> Thread </span>
 	<a class="page-refresh" href="{{$.Ctx.Referrer}}" accesskey="T" title="Refresh (T)">refresh</a>
 </div>
-
-{{range .Statuses}}
-{{if and $s.PostContext.EditContext (eq .ID $s.PostContext.EditContext.Status.ID)}}
-{{template "postform.tmpl" (WithContext $s.PostContext $.Ctx)}}
-{{else}}
-{{template "status.tmpl" (WithContext . $.Ctx)}}
-{{if and $s.PostContext.ReplyContext (eq .ID $s.PostContext.ReplyContext.InReplyToID)}}
-{{template "postform.tmpl" (WithContext $s.PostContext $.Ctx)}}
-{{end}}{{end}}
-
-{{end}}
-
-{{template "footer.tmpl"}}
-{{end}}
+{{- range .Statuses}}
+{{- if and $s.PostContext.EditContext (eq .ID $s.PostContext.EditContext.Status.ID)}}
+{{- template "postform.tmpl" (WithContext $s.PostContext $.Ctx)}}
+{{- else}}
+{{- template "status.tmpl" (WithContext . $.Ctx)}}
+{{- if and $s.PostContext.ReplyContext (eq .ID $s.PostContext.ReplyContext.InReplyToID)}}
+{{- template "postform.tmpl" (WithContext $s.PostContext $.Ctx)}}
+{{- end}}{{- end}}
+{{- end}}
+{{- template "footer.tmpl"}}
+{{- end}}

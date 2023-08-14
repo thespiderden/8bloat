@@ -1,6 +1,6 @@
-{{with .Data}}
+{{- with .Data}}
 <div>
-	{{range .}}
+	{{- range .}}
 	<div class="user-list-item">
 		<div class="user-list-profile-img">
 			<a class="img-link" href="/user/{{.ID}}">
@@ -27,10 +27,10 @@
 			</form>
 		</div>
 	</div>
-	{{else}}
+	{{- else}}
 	<div class="no-data-found">No data found</div>
-	{{end}}
+	{{- end}}
 </div>
-{{else}}
+{{- else}}
 <div class="no-data-found">No data found</div>
-{{end}}
+{{- end}}

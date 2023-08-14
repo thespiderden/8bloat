@@ -1,10 +1,10 @@
-{{with .Data}}
+{{- with .Data}}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
 <head>
-	{{if and .Settings .Settings.CSS}}
+	{{- if and .Settings .Settings.CSS}}
 	<link rel="stylesheet" href="{{.Settings.CSS}}">
-	{{end}}
+	{{- end}}
 	<link rel="stylesheet" href="/static/style.css{{AssetStamp}}">
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
 	<link rel="icon" type="image/png" href="/static/favicon.png">

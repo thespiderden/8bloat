@@ -1,5 +1,5 @@
-{{with .Data}}
-{{template "header.tmpl" $.Ctx}}
+{{- with .Data}}
+{{- template "header.tmpl" $.Ctx}}
 <div class="page-title"> Mute {{.User.Acct}} </div>
 
 <form action="/mute/{{.User.ID}}" method="POST">
@@ -24,6 +24,5 @@
 	</div>
 	<button type="submit"> Mute </button>
 </form>
-
-{{template "footer.tmpl"}}
-{{end}}
+{{- template "footer.tmpl"}}
+{{- end}}

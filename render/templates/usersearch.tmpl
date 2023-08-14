@@ -1,7 +1,6 @@
-{{with .Data}}
-{{template "header.tmpl" $.Ctx}}
+{{- with .Data}}
+{{- template "header.tmpl" $.Ctx}}
 <div class="page-title"> Search {{EmojiFilter (HTML .User.DisplayName) .User.Emojis | Raw}}'s statuses </div>
-
 <form class="search-form" action="/usersearch/{{.User.ID}}" method="GET">
 	<span class="post-form-field">
 		<label for="query"> Query </label>
@@ -9,18 +8,15 @@
 	</span>
 	<button type="submit"> Search </button>
 </form>
-
-{{range .Statuses}}
-{{template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
-{{else}}
-{{if .Q}}<div class="no-data-found">No data found</div>{{end}}
-{{end}}
-
+{{- range .Statuses}}
+{{- template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
+{{- else}}
+{{- if .Q}}<div class="no-data-found">No data found</div>{{end}}
+{{- end}}
 <div class="pagination">
-	{{if .NextLink}}
+	{{- if .NextLink}}
 		<a href="{{.NextLink}}">[next]</a>
-	{{end}}
+	{{- end}}
 </div>
-
-{{template "footer.tmpl"}}
-{{end}}
+{{- template "footer.tmpl"}}
+{{- end}}

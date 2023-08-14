@@ -1,8 +1,7 @@
-{{with .Data}}
-{{template "header.tmpl" $.Ctx}}
+{{- with .Data}}
+{{- template "header.tmpl" $.Ctx}}
 <div class="page-title"> Lists </div>
-
-{{range .Lists}}
+{{- range .Lists}}
 <div>
 	<a href="/timeline/list?list={{.ID}}"> {{.Title}} timeline </a> 
 	-
@@ -16,10 +15,9 @@
 		<button type="submit" class="btn-link"> delete </button>
 	</form>
 </div>
-{{else}}
+{{- else}}
 <div class="no-data-found">No data found</div>
-{{end}}
-
+{{- end}}
 <div class="page-title"> Add list </div>
 <form action="/list" method="POST">
 	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
@@ -30,6 +28,5 @@
 	</span>
 	<button type="submit"> Add </button>
 </form>
-
-{{template "footer.tmpl"}}
-{{end}}
+{{- template "footer.tmpl"}}
+{{- end}}

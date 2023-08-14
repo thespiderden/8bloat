@@ -1,21 +1,20 @@
-{{with .Data}}
-{{template "header.tmpl" $.Ctx}}
+{{- with .Data}}
+{{- template "header.tmpl" $.Ctx}}
 <div class="page-title"> Settings </div>
-
 <form id="settings-form" action="/settings" method="POST">
 	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-	{{if .PostFormats}}
+	{{- if .PostFormats}}
 	<div class="settings-form-field">
 		<label for="post-format"> Default format </label>
-		{{$defFormat := .Settings.DefaultFormat}}
+		{{- $defFormat := .Settings.DefaultFormat}}
 		<select id="post-format" name="format">
-			{{range .PostFormats}} 
+			{{- range .PostFormats}} 
 				<option value="{{.Type}}" {{if eq $defFormat .Type}}selected{{end}}>{{.Name}}</option> 
-			{{end}}
+			{{- end}}
 		</select>
 	</div>
-	{{end}}
+	{{- end}}
 	<div class="settings-form-field">
 		<label for="visibility"> Default scope </label>
 		<select id="visibility" name="visibility">
@@ -79,6 +78,5 @@
 	</div>
 	<button type="submit"> Save </button>
 </form>
-
-{{template "footer.tmpl"}}
-{{end}}
+{{- template "footer.tmpl"}}
+{{- end}}
