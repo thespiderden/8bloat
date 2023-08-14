@@ -853,7 +853,7 @@ func handleUnretweet(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleVote, http.MethodGet, "/vote/{id}") }
+func init() { reg(handleVote, http.MethodPost, "/vote/{id}") }
 func handleVote(t *Transaction) error {
 	statusID := t.R.FormValue("status_id")
 	choices := t.R.PostForm["choices"]
