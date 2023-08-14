@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"spiderden.org/8b/conf"
 	"spiderden.org/8b/render"
@@ -644,9 +643,6 @@ func handleOAuthCallback(t *Transaction) error {
 	if len(code) < 1 {
 		return errInvalidArgument
 	}
-
-	spew.Config.MaxDepth = 2
-	spew.Dump(t)
 
 	t.Client = masta.NewClient(&masta.Config{
 		Server:       "https://" + t.Session.Instance,
