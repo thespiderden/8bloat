@@ -1,0 +1,117 @@
+{{with .Data}}
+{{template "header.tmpl" .Ctx}}
+
+<div class="page-title"> About 8bloat </div>
+<div>
+	<p>
+		A web client for the <a href="https://pleroma.social" target="_blank">Mastadon Network</a>.
+	</p>
+	<p>
+		The source code is released under the
+		<a href="https://www.gnu.org/licenses/agpl-3.0.txt" target="_blank">AGPLv3</a> 
+		and is available on 
+		<a href="https://git.sr.ht/~webb/bloat" target="_blank">SourceHut</a>.
+		<br>
+		Based on
+		<a href="https://git.freesoftwareextremist.com/bloat" target="_blank">bloat</a> 
+		by 
+		<a href="https://freesoftwareextremist.com/r" target="_blank">@r@freesoftwareextremist.com</a>.
+	</P>
+</div>
+
+<div class="page-title"> Keyboard shortcuts </div>
+<div>
+	<table class="keyboard-shortcuts">
+		<tr>
+			<td> User profile </td>
+			<td> <kbd>0</kbd> </td>
+		</tr>
+		<tr>
+			<td> Home timeline </td>
+			<td> <kbd>1</kbd> </td>
+		</tr>
+		<tr>
+			<td> Direct timeline </td>
+			<td> <kbd>2</kbd> </td>
+		</tr>
+		<tr>
+			<td> Local timeline </td>
+			<td> <kbd>3</kbd> </td>
+		</tr>
+		<tr>
+			<td> The Whole Known Network </td>
+			<td> <kbd>4</kbd> </td>
+		</tr>
+		<tr>
+			<td> Remote timeline </td>
+			<td> <kbd>5</kbd> </td>
+		</tr>
+		<tr>
+			<td> Search </td>
+			<td> <kbd>6</kbd> </td>
+		</tr>
+		<tr>
+			<td> Lists </td>
+			<td> <kbd>7</kbd> </td>
+		</tr>
+		<tr>
+			<td> Settings </td>
+			<td> <kbd>8</kbd> </td>
+		</tr>
+		<tr>
+			<td> About </td>
+			<td> <kbd>9</kbd> </td>
+		</tr>
+		<tr>
+			<td> Emoji list </td>
+			<td> <kbd>L</kbd> </td>
+		</tr>
+		<tr>
+			<td> Edit post </td>
+			<td> <kbd>E</kbd> </td>
+		</tr>
+		<tr>
+			<td> Edit subject header </td>
+			<td> <kbd>H</kbd> </td>
+		</tr>
+		<tr>
+			<td> Post format </td>
+			<td> <kbd>F</kbd> </td>
+		</tr>
+		<tr>
+			<td> Post scope </td>
+			<td> <kbd>S</kbd> </td>
+		</tr>
+		<tr>
+			<td> Post NSFW </td>
+			<td> <kbd>N</kbd> </td>
+		</tr>
+		<tr>
+			<td> Post attachments </td>
+			<td> <kbd>A</kbd> </td>
+		</tr>
+		<tr>
+			<td> Submit post </td>
+			<td> <kbd>P</kbd> </td>
+		</tr>
+		<tr>
+			<td> Refresh notifications </td>
+			<td> <kbd>R</kbd> </td>
+		</tr>
+		<tr>
+			<td> Read notifications </td>
+			<td> <kbd>C</kbd> </td>
+		</tr>
+		<tr>
+			<td> Refresh timeline/thread page </td>
+			<td> <kbd>T</kbd> </td>
+		</tr>
+	</table>
+	<p>
+		You can activate the shortcuts by pressing the associated key with your browser's <a href="https://en.wikipedia.org/wiki/Access_key#Access_in_different_browsers" target="_blank">accesskey modifier</a>, 
+		which is generally <kbd>Alt</kbd> + <kbd>Shift</kbd>.
+	</p>
+</div>
+
+{{template "footer.tmpl"}}
+{{end}}

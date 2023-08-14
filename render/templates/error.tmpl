@@ -1,0 +1,16 @@
+{{with .Data}}
+{{template "header.tmpl" $.Ctx}}
+<div class="page-title"> Error </div>
+<div class="error-text"> {{.Err}} </div>
+<div>
+	<a href="/timeline/home">home</a>
+	{{if .Retry}}
+	<a href="{{$.Ctx.Referrer}}">retry</a>
+	{{end}}
+	{{if .SessionErr}}
+	<a href="/signin" target="_top">signin</a>
+	{{end}}
+</div>
+
+{{template "footer.tmpl"}}
+{{end}}
