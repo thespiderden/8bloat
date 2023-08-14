@@ -5,18 +5,21 @@ package conf
 
 import (
 	"bufio"
+	"bytes"
 	_ "embed"
+	"encoding/base64"
+	"encoding/binary"
 	"errors"
 	"flag"
 	"io"
 	"io/fs"
 	"log"
 	"os"
-	"os/signal"
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
+
+	"github.com/bwmarrin/snowflake"
 )
 
 var lock sync.RWMutex
@@ -50,6 +53,18 @@ var DataFS fs.FS
 
 //go:embed bloat.conf
 var defaultConfig []byte
+
+var Node *snowflake.Node
+
+func init() {
+	snowflake.Epoch = 1665230888000
+}
+
+func ShortID() string {
+	idSlice := &bytes.Buffer{}
+	binary.Write(idSlice, binary.LittleEndian, Node.Generate())
+	return base64.RawURLEncoding.EncodeToString(idSlice.Bytes())
+}
 
 func init() {
 	flag.Parse()
@@ -98,40 +113,6 @@ func init() {
 	if err != nil {
 		log.Fatal("error parsing config:", err)
 	}
-}
-
-func init() {
-	sigch := make(chan os.Signal, 1)
-	signal.Notify(sigch, syscall.SIGHUP)
-
-	go func() {
-		for {
-			<-sigch
-			if file == "-" {
-				log.Println("recieved sighup, but config is from stdin and cannot be reloaded")
-				continue
-			}
-
-			f, err := os.Open(file)
-			if err != nil {
-				log.Println("recieved sighup, error while opening file:", err)
-				continue
-			}
-
-			lock.RLock()
-
-			err = readConf(f)
-			f.Close()
-			if err != nil {
-				lock.RUnlock()
-				log.Println("recieved sighup, error while parsing and applying config: ", err)
-				continue
-			}
-
-			lock.RUnlock()
-			log.Println("recieved sighup, reloaded config")
-		}
-	}()
 }
 
 func readConf(reader io.Reader) error {
@@ -198,7 +179,13 @@ func readConf(reader io.Reader) error {
 				defer log.SetOutput(f)
 			}
 		case "asset_stamp":
-			AssetStamp = val // Defer this to service.NewService
+			if val == "snowflake" || val == "random" {
+				defer func() {
+					AssetStamp = "." + ShortID()
+				}()
+			} else {
+				AssetStamp = val
+			}
 		case "snowflake_node_id":
 			var no int
 			if val != "" {
@@ -209,7 +196,12 @@ func readConf(reader io.Reader) error {
 				}
 			}
 
-			SFNodeID = no
+			node, err := snowflake.NewNode(int64(no))
+			if err != nil {
+				return err
+			}
+
+			Node = node
 		default:
 			return errors.New("unknown config key " + key)
 		}
