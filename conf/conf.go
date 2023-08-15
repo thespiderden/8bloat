@@ -66,6 +66,8 @@ func ShortID() string {
 	return base64.RawURLEncoding.EncodeToString(idSlice.Bytes())
 }
 
+var closeLog func()
+
 func init() {
 	flag.Parse()
 
@@ -116,6 +118,7 @@ func init() {
 }
 
 func readConf(reader io.Reader) error {
+	Node = nil
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
@@ -170,16 +173,24 @@ func readConf(reader io.Reader) error {
 			}
 			PostFormats = formats
 		case "log_file":
+			if closeLog != nil {
+				closeLog()
+			}
+
 			if val != "" {
 				f, err := os.Open(val)
 				if err != nil {
 					return err
 				}
 
+				closeLog = func() { f.Close() }
 				defer log.SetOutput(f)
+			} else {
+				log.SetOutput(os.Stdout)
+				closeLog = nil
 			}
 		case "asset_stamp":
-			if val == "snowflake" || val == "random" {
+			if val == "snowflake" || val == "random" || val == "" {
 				defer func() {
 					AssetStamp = "." + ShortID()
 				}()
@@ -192,7 +203,7 @@ func readConf(reader io.Reader) error {
 				var err error
 				no, err = strconv.Atoi(val)
 				if err != nil {
-					log.Fatal("invalid config key: " + val)
+					return errors.New("invalid config key: " + val)
 				}
 			}
 
@@ -204,6 +215,14 @@ func readConf(reader io.Reader) error {
 			Node = node
 		default:
 			return errors.New("unknown config key " + key)
+		}
+
+		if Node == nil {
+			var err error
+			Node, err = snowflake.NewNode(0)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 
