@@ -1371,7 +1371,7 @@ var assetfs = &staticfs{
 
 var fserve = http.FileServer(http.FS(assetfs))
 
-func init() { reg(handleStatic, http.MethodGet, "/static/{asset}", noType) }
+func init() { reg(handleStatic, http.MethodGet, "/static/{asset}", noType, noAuth) }
 func handleStatic(t *Transaction) error {
 	asset := t.Vars["asset"]
 	if strings.HasSuffix(asset, t.Conf.AssetStamp) {
