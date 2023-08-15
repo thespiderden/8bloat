@@ -16,12 +16,12 @@ func init() {
 	go func() {
 		for {
 			<-sigch
-			if file == "-" {
+			if *file == "-" {
 				log.Println("recieved sighup, but config is from stdin and cannot be reloaded")
 				continue
 			}
 
-			f, err := os.Open(file)
+			f, err := os.Open(*file)
 			if err != nil {
 				log.Println("recieved sighup, error while opening file:", err)
 				continue

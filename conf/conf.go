@@ -69,12 +69,12 @@ func ShortID() string {
 func init() {
 	flag.Parse()
 
-	if writeConf && file != "" {
+	if *writeConf && (*file != "") {
 		log.Fatal("cannot use -f and -wc at the same time")
 		os.Exit(1)
 	}
 
-	if file == "-" {
+	if *file == "-" {
 		_, err := os.Stdout.Write(defaultConfig)
 		if err != nil {
 			os.Exit(1)
@@ -82,7 +82,7 @@ func init() {
 		os.Exit(0)
 	}
 
-	if file == "" {
+	if *file == "" {
 		var path string
 		for _, path = range []string{"8bloat.conf", "/etc/8bloat.conf", "bloat.conf", "/etc/bloat.conf"} {
 			stat, err := os.Stat(path)
@@ -94,17 +94,17 @@ func init() {
 			}
 
 			if !stat.IsDir() {
-				file = path
+				file = &path
 				break
 			}
 		}
 
-		if file == "" {
+		if *file == "" {
 			log.Fatal("exhausted default config search, please specify your own")
 		}
 	}
 
-	file, err := os.Open(file)
+	file, err := os.Open(*file)
 	if err != nil {
 		log.Fatal(err)
 	}
