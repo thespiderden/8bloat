@@ -1,13 +1,25 @@
-//go:build linux || freebsd || plan9 || openbsd || netbsd || solaris || macos
-
 package conf
 
 import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 )
+
+var (
+	changedChs     []chan Configuration
+	changedChsLock sync.RWMutex
+)
+
+func Changed() chan Configuration {
+	changed := make(chan Configuration)
+	changedChsLock.RLock()
+	changedChs = append(changedChs, changed)
+	changedChsLock.RUnlock()
+	return changed
+}
 
 func init() {
 	sigch := make(chan os.Signal, 1)
@@ -32,6 +44,13 @@ func init() {
 				log.Println("recieved sighup, error while parsing and applying config:", err)
 				continue
 			}
+
+			changedChsLock.Lock()
+			conf := Get()
+			for _, v := range changedChs {
+				v <- *conf
+			}
+			changedChsLock.Unlock()
 
 			log.Println("recieved sighup, reloaded config")
 		}

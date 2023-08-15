@@ -20,14 +20,32 @@ func StartAndListen(ctx context.Context) error {
 		Handler: router,
 	}
 
+	confch := conf.Changed()
+
 	errch := make(chan error)
 	go func() { errch <- server.ListenAndServe() }()
 
-	select {
-	case err := <-errch:
-		return err
-	case <-ctx.Done():
-		server.Shutdown(context.Background())
-		return nil
+	for {
+		select {
+		case err := <-errch:
+			return err
+		case <-ctx.Done():
+			server.Shutdown(context.Background())
+			return nil
+		case conf := <-confch:
+			server.Shutdown(context.Background())
+
+			select {
+			case <-errch:
+			default:
+			}
+
+			server = &http.Server{
+				Addr:    conf.ListenAddress,
+				Handler: router,
+			}
+
+			go func() { errch <- server.ListenAndServe() }()
+		}
 	}
 }
