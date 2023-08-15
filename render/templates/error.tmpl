@@ -5,7 +5,7 @@
 <div>
 	<a href="/timeline/home">home</a>
 	{{- if .Retry}}
-	<- a href="{{$.Ctx.Referrer}}">retry</a>
+	<a href="{{$.Ctx.Referrer}}">retry</a>
 	{{- end}}
 	{{- if .SessionErr}}
 	<a href="/signin" target="_top">signin</a>

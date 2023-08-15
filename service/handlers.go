@@ -311,7 +311,7 @@ func handleQuickReply(t *Transaction) error {
 	var parent *masta.Status
 
 	if status.InReplyToID != nil {
-		parent, err = t.GetStatus(t.Ctx, *status.InReplyToAccountID)
+		parent, err = t.GetStatus(t.Ctx, *status.InReplyToID)
 		if err != nil {
 			return err
 		}
