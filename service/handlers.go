@@ -399,15 +399,14 @@ func handleUser(t *Transaction) error {
 
 	var isAccounts bool
 
-	acct, rel, err := t.Client.GetAccountWithRelationship(t.Ctx, id)
+	acct, rel, err := t.GetAccountWithRelationship(t.Ctx, id)
 	if err != nil {
 		return err
 	}
 
-	isCurrent := t.Session.UserID == rel.ID
-
 	rPageType := render.UserPageStatuses
 
+	selected := true
 	switch pageType {
 	case "":
 		statuses, err = t.GetAcctStatuses(t.Ctx, id, masta.AcctStatusOpts{
@@ -445,14 +444,13 @@ func handleUser(t *Transaction) error {
 		if err != nil {
 			return err
 		}
+	default:
+		selected = false
 	}
 
-	neither := len(statuses) == 0 && len(users) == 0
-	if neither && !isCurrent {
+	if !selected && t.Session.UserID != rel.ID {
 		return errInvalidArgument
-	}
-
-	if neither {
+	} else if !selected {
 		switch pageType {
 		case "bookmarks":
 			rPageType = render.UserPageBookmarks

@@ -290,15 +290,23 @@ func UserPage[up userPageEntry](rctx *Context, user *masta.Account, rel *masta.R
 		Relationship: rel,
 	}
 
-	if pg := rctx.Pagination; pg != nil {
-		data.NextLink = fmt.Sprintf("/user/%s/%s?max_id=%s", page, pg.MinID, pg.MaxID)
-	}
-
+	next := false
 	switch d := interface{}(pdata).(type) {
 	case []*masta.Status:
+		if int64(len(d)) == conf.MaxPagination {
+			next = true
+		}
 		data.Statuses = d
 	case []*masta.Account:
 		data.Users = d
+	}
+
+	if pg := rctx.Pagination; next && (pg != nil) && pg.MaxID != "" {
+		var p string
+		if page != "statuses" {
+			p = "/" + string(page)
+		}
+		data.NextLink = fmt.Sprintf("/user/%s%s?max_id=%s", user.ID, p, pg.MaxID)
 	}
 
 	return render(rctx, UserPageTmpl, data)
