@@ -6,14 +6,14 @@ PREFIX=/usr/local
 BINPATH=$(PREFIX)/bin
 
 
-GOSRC=main.go		\
-	config/*.go 	\
-	model/*.go	\
-	renderer/*.go 	\
-	service/*.go 	\
-	util/*.go 	\
+GOSRC=main.go         \
+	conf/*.go         \
+	conf/bloat.conf   \
+	render/*.go       \
+	service/static/*  \
+	service/*.go 	  \
 
-TMPLSRC=templates/*.tmpl
+TMPLSRC=render/templates/*.tmpl
 
 all: 8bloat
 
