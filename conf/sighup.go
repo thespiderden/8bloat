@@ -45,6 +45,8 @@ func init() {
 				continue
 			}
 
+			f.Close()
+
 			changedChsLock.Lock()
 			conf := Get()
 			for _, v := range changedChs {
