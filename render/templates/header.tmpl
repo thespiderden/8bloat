@@ -24,5 +24,8 @@
 	{{- if .Settings.CSS}}
 	<style>{{RawCSS .Settings.CSS}}</style>
 	{{- end}}
+	{{- if .Title}}
+	<title>{{.Title}}</title>
+	{{- end}}
 </head>
 <body {{if .Settings.DarkMode}}class="dark"{{end}}>

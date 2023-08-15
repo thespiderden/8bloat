@@ -3,6 +3,7 @@ package render
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"spiderden.org/8b/conf"
 	"spiderden.org/masta"
@@ -64,6 +65,8 @@ func RootPage(rctx *Context) (err error) {
 }
 
 func ThreadPage(rctx *Context, status *masta.Status, context *masta.Context, mutate bool, src *masta.Source) (err error) {
+	rctx.title = "thread // 8bloat"
+
 	var pctx PostContext
 
 	// If we are mutating, and there is no source status, then
@@ -170,10 +173,12 @@ func ThreadPage(rctx *Context, status *masta.Status, context *masta.Context, mut
 // there's too many transport-level details and too little
 // data reshuffling for the templating.
 func TimelinePage(rctx *Context, data *TimelineData) error {
+	rctx.title = strings.ToLower(data.Title) + " // 8bloat"
 	return render(rctx, TimelinePageTmpl, data)
 }
 
 func QuickReplyPage(rctx *Context, replyee *masta.Status, parent *masta.Status) (err error) {
+	rctx.title = "quickreply // 8bloat"
 	var content string
 	if rctx.UserID != replyee.Account.ID {
 		content += "@" + replyee.Account.Acct + " "
@@ -215,6 +220,7 @@ func QuickReplyPage(rctx *Context, replyee *masta.Status, parent *masta.Status) 
 }
 
 func LikedByPage(rctx *Context, likers []*masta.Account) (err error) {
+	rctx.title = "post likes // 8bloat"
 	data := &LikedByData{
 		Users: likers,
 	}
@@ -222,6 +228,7 @@ func LikedByPage(rctx *Context, likers []*masta.Account) (err error) {
 }
 
 func RetweetedByPage(rctx *Context, retweeters []*masta.Account) (err error) {
+	rctx.title = "post retweets // 8bloat"
 	data := &RetweetedByData{
 		Users: retweeters,
 	}
@@ -229,6 +236,7 @@ func RetweetedByPage(rctx *Context, retweeters []*masta.Account) (err error) {
 }
 
 func ReactionsPage(rctx *Context, reactions []masta.EmojiReaction) (err error) {
+	rctx.title = "post reactions // 8bloat"
 	data := &ReactionsData{
 		Reactions: reactions,
 	}
@@ -237,6 +245,7 @@ func ReactionsPage(rctx *Context, reactions []masta.EmojiReaction) (err error) {
 }
 
 func NotificationPage(rctx *Context, notifs []*masta.Notification) (err error) {
+	rctx.title = "notifications // 8bloat"
 	data := &NotificationData{
 		Notifications: notifs,
 	}
@@ -309,10 +318,17 @@ func UserPage[up userPageEntry](rctx *Context, user *masta.Account, rel *masta.R
 		data.NextLink = fmt.Sprintf("/user/%s%s?max_id=%s", user.ID, p, pg.MaxID)
 	}
 
+	titleparen := ""
+	if page != UserPageStatuses {
+		titleparen = "(" + data.Type + ") "
+	}
+	rctx.title = "@" + user.Acct + " " + titleparen + "// 8bloat"
+
 	return render(rctx, UserPageTmpl, data)
 }
 
 func UserSearchPage(rctx *Context, offset int, res *masta.Results, acct *masta.Account, query string) (err error) {
+	rctx.title = "@" + acct.Acct + " (search) // 8bloat"
 	if len(res.Statuses) == conf.MaxPagination {
 		rctx.next = fmt.Sprintf("/usersearch/%s?q=%s&offset=%d", acct.ID, query, offset+conf.MaxPagination)
 	}
@@ -327,22 +343,26 @@ func UserSearchPage(rctx *Context, offset int, res *masta.Results, acct *masta.A
 }
 
 func MutePage(rctx *Context, acct *masta.Account) (err error) {
+	rctx.title = "@" + acct.Acct + " (mute) // 8bloat"
 	return render(rctx, MutePageTmpl, &MuteData{
 		User: acct,
 	})
 }
 
 func AboutPage(rctx *Context) (err error) {
+	rctx.title = "about // 8bloat"
 	return render(rctx, AboutPageTmpl, nil)
 }
 
 func EmojiPage(rctx *Context, ems []*masta.Emoji) (err error) {
+	rctx.title = "emoji // 8bloat"
 	return render(rctx, EmojiPageTmpl, &EmojiData{
 		Emojis: ems,
 	})
 }
 
 func SearchPage(rctx *Context, results *masta.Results, q string, qType string, offset int) (err error) {
+	rctx.title = "search // 8bloat"
 	var nextLink string
 
 	if (qType == "accounts" && len(results.Accounts) == 20) ||
@@ -363,6 +383,7 @@ func SearchPage(rctx *Context, results *masta.Results, q string, qType string, o
 }
 
 func SettingsPage(rctx *Context) (err error) {
+	rctx.title = "settings // 8bloat"
 	return render(rctx, SettingsPageTmpl, &SettingsData{
 		Settings:    &rctx.Settings,
 		PostFormats: rctx.Conf.PostFormats,
@@ -370,12 +391,14 @@ func SettingsPage(rctx *Context) (err error) {
 }
 
 func FiltersPage(rctx *Context, filters []*masta.Filter) (err error) {
+	rctx.title = "filters // 8bloat"
 	return render(rctx, FiltersPageTmpl, &FiltersData{
 		Filters: filters,
 	})
 }
 
 func ErrorPage(rctx *Context, err error, retry bool) error {
+	rctx.title = "error // 8bloat"
 	var errStr string
 	var sessionErr bool
 	if err != nil {

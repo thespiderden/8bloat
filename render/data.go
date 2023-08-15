@@ -41,7 +41,7 @@ func (c *Context) Target() string {
 }
 
 func (c *Context) Title() string {
-	return c.target
+	return c.title
 }
 
 type NavData struct {

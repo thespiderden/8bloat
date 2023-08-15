@@ -8,7 +8,7 @@
 	<link rel="stylesheet" href="/static/style.css{{.Conf.AssetStamp}}">
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
 	<link rel="icon" type="image/png" href="/static/favicon.png">
-	<title>{{.Title}}</title>
+	<title>{{$.Ctx.Title}}</title>
 </head>
 <frameset cols="424px,*" {{if .Settings.DarkMode}}class="dark"{{end}}>
 	<frameset rows="316px,*"{{if .Settings.DarkMode}}class="dark"{{end}}>
