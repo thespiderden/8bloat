@@ -5,7 +5,7 @@
 	{{- if and .Settings .Settings.CSS}}
 	<link rel="stylesheet" href="{{.Settings.CSS}}">
 	{{- end}}
-	<link rel="stylesheet" href="/static/style.css{{AssetStamp}}">
+	<link rel="stylesheet" href="/static/style.css{{.Conf.AssetStamp}}">
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
 	<link rel="icon" type="image/png" href="/static/favicon.png">
 	<title>{{.Title}}</title>

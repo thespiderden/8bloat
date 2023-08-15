@@ -38,6 +38,7 @@ func (h handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Ctx:  r.Context(),
 		W:    w,
 		R:    r,
+		Conf: conf.Get(),
 		Vars: mux.Vars(r),
 		Qry:  make(map[string]string, len(r.URL.Query())),
 	}
@@ -64,6 +65,8 @@ func (h handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "text/html; charset=utf-8")
 	}
 
+	conf := conf.Get()
+
 	t.W.Header().Set("Cache-Control", "private")
 	t.W.Header().Set("Content-Security-Policy",
 		"default-src "+conf.ClientWebsite+"/;"+
@@ -74,13 +77,11 @@ func (h handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.W.Header().Set("Referer-Policy", "same-origin")
 
 	if t.Session != nil {
+		t.Rctx.Conf = conf
 		t.Rctx.UserID = t.Session.UserID
 		t.Rctx.Settings = t.Session.Settings
 		t.Rctx.CSRFToken = t.Session.CSRFToken
 	}
-
-	conf.Lock()
-	defer conf.Unlock()
 
 	err = h.f(t)
 	if err != nil {
@@ -153,7 +154,7 @@ func handleNav(t *Transaction) error {
 
 func init() { reg(handleSigninGet, http.MethodGet, "/signin", noAuth) }
 func handleSigninGet(t *Transaction) error {
-	instance, single := singleInstance()
+	instance, single := t.Conf.SingleInstance()
 	if !single {
 		return render.SigninPage(t.Rctx)
 	}
@@ -648,7 +649,7 @@ func handleOAuthCallback(t *Transaction) error {
 		ClientSecret: t.Session.ClientSecret,
 	})
 
-	err := t.AuthenticateToken(t.Ctx, code, conf.ClientWebsite+"/oauth_callback")
+	err := t.AuthenticateToken(t.Ctx, code, t.Conf.ClientWebsite+"/oauth_callback")
 	if err != nil {
 		return err
 	}
@@ -1373,7 +1374,7 @@ var fserve = http.FileServer(http.FS(assetfs))
 func init() { reg(handleStatic, http.MethodGet, "/static/{asset}", noType) }
 func handleStatic(t *Transaction) error {
 	asset := t.Vars["asset"]
-	if strings.HasSuffix(asset, conf.AssetStamp) {
+	if strings.HasSuffix(asset, t.Conf.AssetStamp) {
 		t.W.Header().Set("Cache-Control", "public, immutable, max-age=31556952, stale-while-revalidate=31556952")
 	}
 

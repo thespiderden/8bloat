@@ -19,6 +19,7 @@ type Transaction struct {
 	*masta.Client
 	W       http.ResponseWriter
 	R       *http.Request
+	Conf    *conf.Configuration
 	Session *Session
 	Ctx     context.Context
 	Rctx    *render.Context
@@ -130,7 +131,7 @@ func (t *Transaction) authenticate(am authMode) (err error) {
 	return
 }
 
-func newSession(c *Transaction, instance string) (rurl string, sess *Session, err error) {
+func newSession(t *Transaction, instance string) (rurl string, sess *Session, err error) {
 	var instanceURL string
 	if strings.HasPrefix(instance, "https://") {
 		instanceURL = instance
@@ -148,12 +149,12 @@ func newSession(c *Transaction, instance string) (rurl string, sess *Session, er
 		return
 	}
 
-	app, err := masta.RegisterApp(c.Ctx, &masta.AppConfig{
+	app, err := masta.RegisterApp(t.Ctx, &masta.AppConfig{
 		Server:       instanceURL,
-		ClientName:   conf.ClientName,
-		Scopes:       conf.ClientScope,
-		Website:      conf.ClientWebsite,
-		RedirectURIs: conf.ClientWebsite + "/oauth_callback",
+		ClientName:   t.Conf.ClientName,
+		Scopes:       t.Conf.ClientScope,
+		Website:      t.Conf.ClientWebsite,
+		RedirectURIs: t.Conf.ClientWebsite + "/oauth_callback",
 	})
 	if err != nil {
 		return
@@ -176,7 +177,7 @@ func newSession(c *Transaction, instance string) (rurl string, sess *Session, er
 	q.Set("scope", "read write follow")
 	q.Set("client_id", app.ClientID)
 	q.Set("response_type", "code")
-	q.Set("redirect_uri", conf.ClientWebsite+"/oauth_callback")
+	q.Set("redirect_uri", t.Conf.ClientWebsite+"/oauth_callback")
 	u.RawQuery = q.Encode()
 
 	rurl = instanceURL + u.String()

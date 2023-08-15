@@ -72,7 +72,7 @@ func ThreadPage(rctx *Context, status *masta.Status, context *masta.Context, mut
 		pctx = PostContext{
 			DefaultVisibility: status.Visibility,
 			DefaultFormat:     rctx.Settings.DefaultFormat,
-			Formats:           conf.PostFormats,
+			Formats:           rctx.Conf.PostFormats,
 			EditContext: &EditContext{
 				Source: src,
 				Status: status,
@@ -101,7 +101,7 @@ func ThreadPage(rctx *Context, status *masta.Status, context *masta.Context, mut
 		pctx = PostContext{
 			DefaultVisibility: visibility,
 			DefaultFormat:     rctx.Settings.DefaultFormat,
-			Formats:           conf.PostFormats,
+			Formats:           rctx.Conf.PostFormats,
 			ReplyContext: &ReplyContext{
 				InReplyToID:        status.ID,
 				InReplyToName:      status.Account.Acct,
@@ -195,7 +195,7 @@ func QuickReplyPage(rctx *Context, replyee *masta.Status, parent *masta.Status) 
 	pctx := PostContext{
 		DefaultVisibility: visibility,
 		DefaultFormat:     rctx.Settings.DefaultFormat,
-		Formats:           conf.PostFormats,
+		Formats:           rctx.Conf.PostFormats,
 		ReplyContext: &ReplyContext{
 			InReplyToID:        replyee.ID,
 			InReplyToName:      replyee.Account.Acct,
@@ -365,7 +365,7 @@ func SearchPage(rctx *Context, results *masta.Results, q string, qType string, o
 func SettingsPage(rctx *Context) (err error) {
 	return render(rctx, SettingsPageTmpl, &SettingsData{
 		Settings:    &rctx.Settings,
-		PostFormats: conf.PostFormats,
+		PostFormats: rctx.Conf.PostFormats,
 	})
 }
 

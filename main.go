@@ -14,7 +14,7 @@ func main() {
 	ctx, ctxf := context.WithCancel(context.Background())
 	errch := make(chan error)
 
-	log.Println("starting service on", conf.ListenAddress)
+	log.Println("starting service on", conf.Get().ListenAddress)
 	go func() {
 		errch <- service.StartAndListen(ctx)
 	}()

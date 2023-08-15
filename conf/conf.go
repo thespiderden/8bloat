@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/bwmarrin/snowflake"
 )
@@ -37,36 +38,58 @@ type PostFormat struct {
 	Type string
 }
 
-var (
-	ListenAddress  string
-	ClientName     string
-	ClientScope    string
-	ClientWebsite  string
-	SingleInstance string
-	PostFormats    []PostFormat
-	LogFile        string
-	AssetStamp     string
-	SFNodeID       int
-)
+type Configuration struct {
+	ListenAddress string
+	ClientName    string
+	ClientScope   string
+	ClientWebsite string
+	PostFormats   []PostFormat
+	AssetStamp    string
+	Node          *snowflake.Node
 
-var DataFS fs.FS
+	singleInstance string
+}
 
-//go:embed bloat.conf
-var defaultConfig []byte
+func (c Configuration) SingleInstance() (instance string, ok bool) {
+	if len(c.singleInstance) > 0 {
+		instance = c.singleInstance
+		ok = true
+	}
+	return
+}
 
-var Node *snowflake.Node
+func (c Configuration) shortID() string {
+	idSlice := &bytes.Buffer{}
+	binary.Write(idSlice, binary.LittleEndian, c.Node.Generate())
+	return base64.RawURLEncoding.EncodeToString(idSlice.Bytes())
+}
+
+func ShortID() string {
+	return Get().shortID()
+}
 
 func init() {
 	snowflake.Epoch = 1665230888000
 }
 
-func ShortID() string {
-	idSlice := &bytes.Buffer{}
-	binary.Write(idSlice, binary.LittleEndian, Node.Generate())
-	return base64.RawURLEncoding.EncodeToString(idSlice.Bytes())
+var cfg atomic.Value
+
+func storeConf(c Configuration) {
+	cfg.Store(c)
 }
 
-var closeLog func()
+func Get() *Configuration {
+	conf := cfg.Load()
+	if conf == nil {
+		return nil
+	}
+
+	cfg := conf.(Configuration)
+	return &cfg
+}
+
+//go:embed bloat.conf
+var defaultConfig []byte
 
 func init() {
 	flag.Parse()
@@ -118,7 +141,8 @@ func init() {
 }
 
 func readConf(reader io.Reader) error {
-	Node = nil
+	var conf Configuration
+
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
@@ -142,15 +166,15 @@ func readConf(reader io.Reader) error {
 
 		switch key {
 		case "listen_address":
-			ListenAddress = val
+			conf.ListenAddress = val
 		case "client_name":
-			ClientName = val
+			conf.ClientName = val
 		case "client_scope":
-			ClientScope = val
+			conf.ClientScope = val
 		case "client_website":
-			ClientWebsite = val
+			conf.ClientWebsite = val
 		case "single_instance":
-			SingleInstance = val
+			conf.singleInstance = val
 		case "database_path":
 			// ignore
 		case "post_formats":
@@ -171,32 +195,9 @@ func readConf(reader io.Reader) error {
 					Type: t,
 				})
 			}
-			PostFormats = formats
-		case "log_file":
-			if closeLog != nil {
-				closeLog()
-			}
-
-			if val != "" {
-				f, err := os.Open(val)
-				if err != nil {
-					return err
-				}
-
-				closeLog = func() { f.Close() }
-				defer log.SetOutput(f)
-			} else {
-				log.SetOutput(os.Stdout)
-				closeLog = nil
-			}
+			conf.PostFormats = formats
 		case "asset_stamp":
-			if val == "snowflake" || val == "random" || val == "" {
-				defer func() {
-					AssetStamp = "." + ShortID()
-				}()
-			} else {
-				AssetStamp = val
-			}
+			conf.AssetStamp = val
 		case "snowflake_node_id":
 			var no int
 			if val != "" {
@@ -212,19 +213,25 @@ func readConf(reader io.Reader) error {
 				return err
 			}
 
-			Node = node
+			conf.Node = node
 		default:
 			return errors.New("unknown config key " + key)
 		}
+	}
 
-		if Node == nil {
-			var err error
-			Node, err = snowflake.NewNode(0)
-			if err != nil {
-				panic(err)
-			}
+	if conf.Node == nil {
+		var err error
+		conf.Node, err = snowflake.NewNode(0)
+		if err != nil {
+			panic(err)
 		}
 	}
 
+	// random for backwards compatability
+	if conf.AssetStamp == "snowflake" || conf.AssetStamp == "random" || conf.AssetStamp == "" {
+		conf.AssetStamp = "." + conf.shortID()
+	}
+
+	storeConf(conf)
 	return nil
 }

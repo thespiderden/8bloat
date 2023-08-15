@@ -15,6 +15,7 @@ type Context struct {
 	Referrer   string
 	W          io.Writer
 	Pagination *masta.Pagination
+	Conf       *conf.Configuration
 
 	next            string
 	refreshInterval int

@@ -26,6 +26,6 @@ func (s *staticfs) Open(path string) (fs.File, error) {
 }
 
 func (s staticfs) stripPath(path string) string {
-	cut, _ := strings.CutSuffix(path, conf.AssetStamp)
+	cut, _ := strings.CutSuffix(path, conf.Get().AssetStamp)
 	return cut
 }

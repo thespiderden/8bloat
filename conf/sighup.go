@@ -27,17 +27,12 @@ func init() {
 				continue
 			}
 
-			lock.RLock()
-
 			err = readConf(f)
-			f.Close()
 			if err != nil {
-				lock.RUnlock()
 				log.Println("recieved sighup, error while parsing and applying config:", err)
 				continue
 			}
 
-			lock.RUnlock()
 			log.Println("recieved sighup, reloaded config")
 		}
 	}()

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"golang.org/x/net/html"
-	"spiderden.org/8b/conf"
 	"spiderden.org/masta"
 )
 
@@ -31,7 +30,6 @@ var tmpl *template.Template = template.Must(template.New("default").Funcs(
 		"Raw":                     raw,
 		"RawCSS":                  rawCSS,
 		"wrapRawStatus":           wrapRawStatus,
-		"AssetStamp":              func() string { return conf.AssetStamp },
 	}).ParseFS(templateFS, "templates/*.tmpl"),
 )
 
