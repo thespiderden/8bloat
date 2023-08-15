@@ -40,12 +40,11 @@ func init() {
 			}
 
 			err = readConf(f)
+			f.Close()
 			if err != nil {
 				log.Println("recieved sighup, error while parsing and applying config:", err)
 				continue
 			}
-
-			f.Close()
 
 			changedChsLock.Lock()
 			conf := Get()
