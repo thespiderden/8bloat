@@ -1,0 +1,6 @@
+{{- with .Data}}
+{{- template "header.tmpl" $.Ctx}}
+<div class="page-title"> Retweeted By </div>
+{{- template "userlist.tmpl" (WithContext .Users $.Ctx)}}
+{{- template "footer.tmpl"}}
+{{- end}}

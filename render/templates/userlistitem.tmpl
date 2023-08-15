@@ -1,0 +1,15 @@
+{{- with .Data}}
+<div class="user-list-item">
+	<div class="user-list-profile-img">
+		<a class="img-link" href="/user/{{.ID}}">
+			<img class="status-profile-img" src="{{.Avatar}}" title="@{{.Acct}}" alt="avatar" height="48" />
+		</a>
+	</div>
+	<div class="user-list-name">
+		<div class="status-dname"> {{EmojiFilter (HTML .DisplayName) .Emojis | Raw}} </div>
+		<a class="img-link" href="/user/{{.ID}}">
+			<div class="status-uname"> @{{.Acct}} </div>
+		</a>
+	</div>
+</div>
+{{- end}}

@@ -1,0 +1,11 @@
+{{- with .Data}}
+<div>
+	{{- range .}}
+		{{- template "userlistitem.tmpl" (WithContext . $.Ctx)}}
+	{{- else}}
+	<div class="no-data-found">No data found</div>
+	{{- end}}
+</div>
+{{- else}}
+<div class="no-data-found">No data found</div>
+{{- end}}

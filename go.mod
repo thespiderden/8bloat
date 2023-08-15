@@ -7,4 +7,9 @@ require (
 	spiderden.org/masta v0.0.0-20230708172643-d57e4b4352d5
 )
 
-go 1.16
+require (
+	github.com/gorilla/websocket v1.5.0 // indirect
+	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80 // indirect
+)
+
+go 1.18

@@ -1,0 +1,16 @@
+{{- with .Data}}
+{{- template "header.tmpl" .Ctx}}
+<div class="page-title"> Emojis </div>
+<div class="emoji-list-container">
+	{{- range .Emojis}}
+	<div class="emoji-item-container">
+		<div class="emoji-item">
+			<img class="emoji" src="{{.URL}}" alt="{{.ShortCode}}" height="32" loading="lazy" />
+			<span title=":{{.ShortCode}}:" class="emoji-shortcode">:{{.ShortCode}}:</span>
+		</div>
+	</div>
+	{{- end}}
+</div>
+
+{{- template "footer.tmpl"}}
+{{- end}}

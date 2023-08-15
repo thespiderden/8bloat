@@ -1,0 +1,21 @@
+{{- with .Data}}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
+<html>
+<head>
+	{{- if and .Settings .Settings.CSS}}
+	<link rel="stylesheet" href="{{.Settings.CSS}}">
+	{{- end}}
+	<link rel="stylesheet" href="/static/style.css{{.Conf.AssetStamp}}">
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+	<link rel="icon" type="image/png" href="/static/favicon.png">
+	<title>{{$.Ctx.Title}}</title>
+</head>
+<frameset cols="424px,*" {{if .Settings.DarkMode}}class="dark"{{end}}>
+	<frameset rows="316px,*"{{if .Settings.DarkMode}}class="dark"{{end}}>
+		<frame name="nav" src="/nav"{{if .Settings.DarkMode}}class="dark"{{end}}> 
+		<frame name="notification" src="/notifications"{{if .Settings.DarkMode}}class="dark"{{end}}> 
+	</frameset {{if .Settings.DarkMode}}class="dark"{{end}}>
+	<frame name="main" src="/timeline/home" {{if .Settings.DarkMode}}class="dark"{{end}}> 
+</frameset>
+</html>
+{{end}}
