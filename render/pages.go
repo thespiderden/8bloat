@@ -292,7 +292,7 @@ func NotificationPage(rctx *Context, notifs []*masta.Notification) (err error) {
 		data.ReadID = notifs[0].ID
 	}
 
-	if len(notifs) > conf.MaxPagination {
+	if len(notifs) >= conf.MaxPagination {
 		data.NextLink = "/notifications?max_id=" + notifs[len(notifs)-1].ID
 	}
 
