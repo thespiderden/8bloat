@@ -110,6 +110,10 @@ body {
 	margin-right: 16px;
 }
 
+.status-time-history {
+	font-weight: bold;
+} 
+
 .status-action-last {
 	margin-right: 4px;
 }

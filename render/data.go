@@ -102,6 +102,7 @@ type StatusData struct {
 	InReplyToNo *int
 	Replies     []ThreadReplyData
 	ShowReplies bool
+	History     bool
 }
 
 type ThreadReplyData struct {

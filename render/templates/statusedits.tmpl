@@ -1,0 +1,9 @@
+{{- template "header.tmpl" $.Ctx}}
+<div class="page-title-container">
+	<span class="page-title"> Edits </span>
+	<a class="page-refresh" href="{{$.Ctx.Referrer}}" accesskey="T" title="Refresh (T)">refresh</a>
+</div>
+{{- range .Data}}
+{{- template "status.tmpl" WithContext . $.Ctx}}
+{{- end}}
+{{- template "footer.tmpl"}}

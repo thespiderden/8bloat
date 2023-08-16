@@ -15,7 +15,7 @@
 	{{- else}}
 	{{- block "status" (WithContext . $.Ctx)}}
 	{{- with $s := .Data}}
-	<div class="status-container status-{{.ID}}" data-id="{{.ID}}">
+	<div class="status-container status-{{.ID}}{{if .History}} status-history{{end}}" data-id="{{.ID}}">
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
 				<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
@@ -31,6 +31,7 @@
 					<div class="remote-link">
 						{{- if .No}}#{{- .No}}{{- end}} {{ .Visibility}}
 					</div>
+					{{- if not .History}}
 					<div class="more-content">
 						<a class="more-link" href="{{.URL}}" target="_blank">
 							source
@@ -92,6 +93,7 @@
 						</form>
 						{{- end}}
 					</div>
+					{{- end}}
 				</div>
 			</div>
 			<div class="status-reply-container">
@@ -210,6 +212,7 @@
 			</form>
 			{{- end}}
 			<div class="status-action-container"> 
+				{{- if not .History}}
 				<div class="status-action">
 					<a href="/thread/{{.ID}}?reply=true#status-{{.ID}}"> 
 						reply
@@ -261,14 +264,25 @@
 				<div class="status-action">
 				<a class="status-reactions" href="/reactions/{{.ID}}" title="click to see the the list">reactions</a>
 				</div>
-				{{- end }}
+				{{- end}}
+				{{- end}}
 				<div class="status-action status-action-last">
+				{{- if not .History}}
 					<a class="status-time" href="{{if not .ShowReplies}}/thread/{{.ID}}{{end}}#status-{{.ID}}"
-						{{- if $.Ctx.Settings.ThreadInNewTab}}target="_blank"{{end}}> 
-						<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">
-							{{- TimeSince .CreatedAt}}
-						</time> 
+					{{- if $.Ctx.Settings.ThreadInNewTab}}target="_blank"{{end}}>
+				{{- end}} 
+					<time class="status-time status-time-relative{{if .History}} status-time-history{{end}}" datetime="{{FormatTimeRFC3339 .CreatedAt}}" {{if not .History}}title="{{FormatTimeRFC822 .CreatedAt}}"{{end}}>
+						{{- TimeSince .CreatedAt}}
+					</time>
+				{{- if and (not .EditedAt.IsZero) (not .History)}}
+					<a class="status-edits" href="/status/{{.ID}}/edits">*</a>
+				{{- end}}
+				{{- if not .History}}
 					</a>
+				{{- end}}
+				{{- if .History}}
+					<time class="status-time status-time-absolute {{if .History}} status-time-history{{end}}">({{FormatTimeRFC822 .CreatedAt}})</time>
+				{{- end}}
 				</div>
 			</div>
 		</div>

@@ -351,6 +351,21 @@ func handleReactions(t *Transaction) error {
 	return render.ReactionsPage(t.Rctx, reactions)
 }
 
+func init() { reg(handleEdits, http.MethodGet, "/status/{id}/edits") }
+func handleEdits(t *Transaction) error {
+	edits, err := t.GetStatusHistory(t.Ctx, t.Vars["id"])
+	if err != nil {
+		return err
+	}
+
+	current, err := t.GetStatus(t.Ctx, t.Vars["id"])
+	if err != nil {
+		return err
+	}
+
+	return render.EditsPage(t.Rctx, edits, current)
+}
+
 func init() { reg(handleNotifications, http.MethodGet, "/notifications") }
 func handleNotifications(t *Transaction) error {
 	q := t.R.URL.Query()

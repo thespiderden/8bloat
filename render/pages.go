@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"spiderden.org/8b/conf"
 	"spiderden.org/masta"
@@ -31,6 +32,7 @@ const (
 	SettingsPageTmpl     = "settings.tmpl"
 	FiltersPageTmpl      = "filters.tmpl"
 	MutePageTmpl         = "mute.tmpl"
+	StatusEditsTmpl      = "statusedits.tmpl"
 )
 
 func SigninPage(rctx *Context) error {
@@ -242,6 +244,31 @@ func ReactionsPage(rctx *Context, reactions []masta.EmojiReaction) (err error) {
 	}
 
 	return render(rctx, ReactionsPageTmpl, data)
+}
+
+func EditsPage(rctx *Context, history []*masta.StatusHistory, current *masta.Status) error {
+	rctx.title = "post history // 8bloat"
+
+	statuses := make([]*StatusData, len(history))
+	for i, v := range history {
+		statuses[i] = &StatusData{
+			Status: &masta.Status{
+				ID:               current.ID,
+				Poll:             current.Poll,
+				Visibility:       current.Visibility,
+				Account:          v.Account,
+				EditedAt:         time.Time{},
+				CreatedAt:        v.CreatedAt,
+				Content:          v.Content,
+				Sensitive:        v.Sensitive,
+				Emojis:           v.Emojis,
+				MediaAttachments: v.MediaAttachments,
+			},
+			History: true,
+		}
+	}
+
+	return render(rctx, StatusEditsTmpl, statuses)
 }
 
 func NotificationPage(rctx *Context, notifs []*masta.Notification) (err error) {
