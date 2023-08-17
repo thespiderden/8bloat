@@ -78,8 +78,8 @@
 				<input type="submit" value="unmute" class="btn-link">
 			</form>
 			{{- else}}
-			<a href="/mute/{{.User.ID}}"> mute </a>
-			{{end}}
+			<a href="/mute/{{.User.ID}}">mute</a>
+			{{- end}}
 			{{- if .Relationship.Following}} 
 			-
 			{{- if .Relationship.ShowingReblogs}}
@@ -99,23 +99,23 @@
 		</div>
 		{{- end}}
 		<div>
-			<a href="/user/{{.User.ID}}"> statuses ({{.User.StatusesCount}}) </a> - 
-			<a href="/user/{{.User.ID}}/following"> following ({{.User.FollowingCount}}) </a> - 
-			<a href="/user/{{.User.ID}}/followers"> followers ({{.User.FollowersCount}}) </a> - 
-			<a href="/user/{{.User.ID}}/pinned"> pinned </a> - 
-			<a href="/user/{{.User.ID}}/media"> media </a>
+			<a href="/user/{{.User.ID}}">statuses ({{.User.StatusesCount}})</a> - 
+			<a href="/user/{{.User.ID}}/following">following ({{.User.FollowingCount}})</a> - 
+			<a href="/user/{{.User.ID}}/followers">followers ({{.User.FollowersCount}})</a> - 
+			<a href="/user/{{.User.ID}}/pinned">pinned</a> - 
+			<a href="/user/{{.User.ID}}/media">media</a>
 		</div>
 		{{- if .IsCurrent}}
 		<div>
-			<a href="/user/{{.User.ID}}/bookmarks"> bookmarks </a>
-			- <a href="/user/{{.User.ID}}/likes"> likes </a>
-			- <a href="/user/{{.User.ID}}/mutes"> mutes </a>
-			- <a href="/user/{{.User.ID}}/blocks"> blocks </a>
+			<a href="/user/{{.User.ID}}/bookmarks">bookmarks</a>
+			- <a href="/user/{{.User.ID}}/likes">likes</a>
+			- <a href="/user/{{.User.ID}}/mutes">mutes</a>
+			- <a href="/user/{{.User.ID}}/blocks">blocks</a>
 			{{if .User.Locked}}- <a href="/user/{{.User.ID}}/requests"> requests </a>{{end}}
 		</div>
 		{{- end}}
 		<div>
-			<a href="/usersearch/{{.User.ID}}"> search statuses </a>
+			<a href="/usersearch/{{.User.ID}}">search statuses</a>
 			{{if .IsCurrent}} - <a href="/filters"> filters </a> {{end}}
 		</div>
 	</div>

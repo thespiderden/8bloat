@@ -6,9 +6,7 @@
 			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="24" />
 		</a>
 		<bdi class="status-dname"> {{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}} </bdi>
-		<a href="/user/{{.Account.ID}}"> 
-			<span class="status-uname"> @{{.Account.Acct}} </span> 
-		</a>
+		<a href="/user/{{.Account.ID}}" class="status-dname">@{{.Account.Acct}}</a>
 		retweeted
 	</div>
 	{{- template "status" (WithContext (wrapRawStatus .Reblog) $.Ctx)}}
@@ -24,12 +22,12 @@
 		<div class="status"> 
 			<div class="status-name">
 				<bdi class="status-dname"> {{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}} </bdi>
-				<a href="/user/{{.Account.ID}}">
-					<span class="status-uname"> @{{.Account.Acct}} </span>
-				</a>
+				<a class="status-uname" href="/user/{{.Account.ID}}">@{{.Account.Acct}}</a>
 				<div class="more-container">
 					<div class="remote-link">
+						<span class="more-text">
 						{{- if .No}}#{{- .No}}{{- end}} {{ .Visibility}}
+						</span>
 					</div>
 					{{- if not .History}}
 					<div class="more-content">
@@ -274,11 +272,11 @@
 					<time class="status-time status-time-relative{{if .History}} status-time-history{{end}}" datetime="{{FormatTimeRFC3339 .CreatedAt}}" {{if not .History}}title="{{FormatTimeRFC822 .CreatedAt}}"{{end}}>
 						{{- TimeSince .CreatedAt}}
 					</time>
-				{{- if and (not .EditedAt.IsZero) (not .History)}}
-					<a class="status-edits" href="/status/{{.ID}}/edits">*</a>
-				{{- end}}
 				{{- if not .History}}
 					</a>
+				{{- end}}
+				{{- if and (not .EditedAt.IsZero) (not .History)}}
+					<a class="status-edits" href="/status/{{.ID}}/edits">*</a>
 				{{- end}}
 				{{- if .History}}
 					<time class="status-time status-time-absolute {{if .History}} status-time-history{{end}}">({{FormatTimeRFC822 .CreatedAt}})</time>

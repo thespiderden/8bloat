@@ -2,6 +2,20 @@ body {
 	background-color: #d2d2d2;
 }
 
+a, .btn-link {
+	text-underline-position: from-font;
+	color: #464acc;
+}
+
+input[type=submit] {
+	text-underline-position: from-font;
+	text-decoration: underline;
+}
+
+.nav-button:link {
+	text-decoration: none;
+}
+
 .status-container-container {
 	margin: 0 -4px 12px -4px;
 	padding: 4px;
@@ -107,6 +121,7 @@ body {
 .status-action {
 	display: inline-block;
 	margin-right: 16px;
+	text-underline-position: under;
 }
 
 .status-time-history {
@@ -123,10 +138,6 @@ body {
 
 .status-action a {
 	display: inline-block;
-}
-
-.status-action * {
-	vertical-align: middle;
 }
 
 .status-action a.status-time {
@@ -170,6 +181,7 @@ body {
 }
 
 .retweet-info .status-dname {
+	font-weight: normal;
 	margin-left: 4px;
 }
 
@@ -210,6 +222,7 @@ textarea {
 }
 
 .pagination a {
+	text-decoration: none;
 	margin: 0 8px;
 	font-size: 13pt;
 }
@@ -396,21 +409,21 @@ textarea {
 	font-size: inherit;
 }
 
-a, .btn-link {
-	color: #464acc;
-	text-decoration: none;
-}
-
 a:hover,
 .btn-link:hover {
 	color: #8387bf;
 }
 
 .status-visibility {
-	margin-left: 4px;
 	display: inline-block;
 	color: #222222;
 	font-size: 8pt;
+}
+
+.more-text {
+	text-underline-position: under;
+	text-decoration-thickness: from-font;
+	text-decoration: underline dotted;
 }
 
 .remote-link {
