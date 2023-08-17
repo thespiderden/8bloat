@@ -25,7 +25,7 @@
 				<a class="status-uname" href="/user/{{.Account.ID}}">@{{.Account.Acct}}</a>
 				<div class="more-container">
 					<div class="remote-link">
-						<span class="more-text">
+						<span class="more-text {{if not .History}}hover-menu{{end}}">
 						{{- if .No}}#{{- .No}}{{- end}} {{ .Visibility}}
 						</span>
 					</div>

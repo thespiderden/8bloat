@@ -420,7 +420,7 @@ a:hover,
 	font-size: 8pt;
 }
 
-.more-text {
+.hover-menu {
 	text-underline-position: under;
 	text-decoration-thickness: from-font;
 	text-decoration: underline dotted;
