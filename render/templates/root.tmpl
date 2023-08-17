@@ -3,11 +3,11 @@
 <html>
 <head>
 	{{- if and .Settings .Settings.CSS}}
-	<style>{{.Settings.CSS}}</style>
+	<link rel="stylesheet" href="/session/css?stamp={{.Settings.Stamp}}">
 	{{- end}}
-	<link rel="stylesheet" href="/static/style.css{{.Conf.AssetStamp}}">
+	<link rel="stylesheet" href="/static/style.css?stamp={{.Conf.AssetStamp}}">
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-	<link rel="icon" type="image/png" href="/static/favicon.png">
+	<link rel="icon" type="image/png" href="/static/favicon.png?stamp={{.Conf.AssetStamp}}">
 	<title>{{$.Ctx.Title}}</title>
 </head>
 <frameset cols="424px,*" {{if .Settings.DarkMode}}class="dark"{{end}}>

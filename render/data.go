@@ -223,6 +223,7 @@ type Settings struct {
 	AntiDopamineMode      bool   `json:"adm,omitempty"`
 	HideUnsupportedNotifs bool   `json:"hun,omitempty"`
 	CSS                   string `json:"css,omitempty"`
+	Stamp                 string `json:"stamp,omitempty"`
 }
 
 func NewSettings() *Settings {

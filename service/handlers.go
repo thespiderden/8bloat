@@ -70,7 +70,7 @@ func (h handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.W.Header().Set("Cache-Control", "private")
 	t.W.Header().Set("Content-Security-Policy",
 		"default-src "+conf.ClientWebsite+"/;"+
-			"style-src "+conf.ClientWebsite+" 'unsafe-inline';"+
+			"style-src "+conf.ClientWebsite+"/session/css "+conf.ClientWebsite+"/static/;"+
 			"script-src "+conf.ClientWebsite+"/static/;"+
 			"img-src *;"+
 			"media-src *",
@@ -1040,6 +1040,7 @@ func handleSetSettings(t *Transaction) error {
 		AntiDopamineMode:      antiDopamineMode,
 		HideUnsupportedNotifs: hideUnsupportedNotifs,
 		CSS:                   css,
+		Stamp:                 conf.ShortID(),
 	}
 
 	switch settings.NotificationInterval {
@@ -1378,6 +1379,23 @@ func handleFluorideUnretweet(t *Transaction) error {
 	return t.writeJson(count)
 }
 
+func init() { reg(handleUserCSS, http.MethodGet, "/session/css", noType) }
+func handleUserCSS(t *Transaction) error {
+	stamp := t.Qry["stamp"]
+	if stamp != "" && stamp != t.Session.Settings.Stamp {
+		t.W.WriteHeader(http.StatusNotFound)
+		return nil
+	}
+
+	if stamp != "" {
+		t.W.Header().Set("Cache-Control", "public, immutable, max-age=31556952, stale-while-revalidate=31556952")
+	}
+
+	t.W.Header().Set("Content-Type", "text/css")
+	t.W.Write([]byte(t.Session.Settings.CSS))
+	return nil
+}
+
 //go:embed static/*
 var embedfs embed.FS
 
@@ -1389,8 +1407,8 @@ var fserve = http.FileServer(http.FS(assetfs))
 
 func init() { reg(handleStatic, http.MethodGet, "/static/{asset}", noType, noAuth) }
 func handleStatic(t *Transaction) error {
-	asset := t.Vars["asset"]
-	if strings.HasSuffix(asset, t.Conf.AssetStamp) {
+	stamp := t.Qry["stamp"]
+	if stamp != "" && stamp == t.Conf.AssetStamp {
 		t.W.Header().Set("Cache-Control", "public, immutable, max-age=31556952, stale-while-revalidate=31556952")
 	}
 

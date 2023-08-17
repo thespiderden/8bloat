@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset='utf-8'>
-	<link rel="icon" type="image/png" href="/static/favicon.png{{.Conf.AssetStamp}}">
+	<link rel="icon" type="image/png" href="/static/favicon.png?stamp={{.Conf.AssetStamp}}">
 	<meta content='width=device-width, initial-scale=1' name='viewport'>
 	{{- if .Target}}
 	<base href="" target="{{.Target}}">
@@ -17,12 +17,12 @@
 	<meta http-equiv="refresh" content="{{.RefreshInterval}}">
 	{{- end}}
 	<title> {{if gt .Count 0}}({{.Count}}){{end}} {{.Title}} </title>
-	<link rel="stylesheet" href="/static/style.css{{.Conf.AssetStamp}}">
+	<link rel="stylesheet" href="/static/style.css?stamp={{.Conf.AssetStamp}}">
 	{{- if .Settings.FluorideMode}}
-	<script src="/static/fluoride.js{{.Conf.AssetStamp}}"></script>
+	<script src="/static/fluoride.js?stamp={{.Conf.AssetStamp}}"></script>
 	{{- end}}
 	{{- if .Settings.CSS}}
-	<style>{{RawCSS .Settings.CSS}}</style>
+	<link rel="stylesheet" href="/session/css?stamp={{.Settings.Stamp}}">
 	{{- end}}
 	{{- if .Title}}
 	<title>{{.Title}}</title>
