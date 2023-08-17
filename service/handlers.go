@@ -70,6 +70,7 @@ func (h handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.W.Header().Set("Cache-Control", "private")
 	t.W.Header().Set("Content-Security-Policy",
 		"default-src "+conf.ClientWebsite+"/;"+
+			"style-src "+conf.ClientWebsite+" 'unsafe-inline';"+
 			"script-src "+conf.ClientWebsite+"/static/;"+
 			"img-src *;"+
 			"media-src *",

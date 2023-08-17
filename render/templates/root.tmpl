@@ -3,7 +3,7 @@
 <html>
 <head>
 	{{- if and .Settings .Settings.CSS}}
-	<link rel="stylesheet" href="{{.Settings.CSS}}">
+	<style>{{.Settings.CSS}}</style>
 	{{- end}}
 	<link rel="stylesheet" href="/static/style.css{{.Conf.AssetStamp}}">
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
