@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/julienschmidt/httprouter"
 	"spiderden.org/8b/conf"
 	"spiderden.org/8b/render"
 	"spiderden.org/masta"
@@ -22,7 +23,7 @@ const (
 	noType
 )
 
-var router = mux.NewRouter()
+var router = httprouter.New()
 
 type handle struct {
 	meth   string
@@ -34,12 +35,14 @@ type handle struct {
 func (h handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var err error
 
+	vars := httprouter.ParamsFromContext(r.Context())
+
 	t := &Transaction{
 		Ctx:  r.Context(),
 		W:    w,
 		R:    r,
 		Conf: conf.Get(),
-		Vars: mux.Vars(r),
+		Vars: make(map[string]string, len(vars)),
 		Qry:  make(map[string]string, len(r.URL.Query())),
 	}
 
@@ -50,6 +53,10 @@ func (h handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if eerr != nil {
 			log.Println("error responding with error page:", err, eerr)
 		}
+	}
+
+	for _, v := range vars {
+		t.Vars[v.Key] = v.Value
 	}
 
 	for k, v := range r.URL.Query() {
@@ -128,7 +135,7 @@ func reg(h handler, meth string, path string, opts ...int) {
 
 	handle.f = h
 
-	router.Methods(meth).Path(path).Handler(handle)
+	router.Handler(meth, path, handle)
 }
 
 type handler func(t *Transaction) error
@@ -170,7 +177,7 @@ func handleSigninGet(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleTimeline, http.MethodGet, "/timeline/{type}") }
+func init() { reg(handleTimeline, http.MethodGet, "/timeline/:type") }
 func handleTimeline(t *Transaction) error {
 	tType := t.Vars["type"]
 	instance := t.Qry["instance"]
@@ -277,7 +284,7 @@ func handleDefaultTimeline(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleThread, http.MethodGet, "/thread/{id}") }
+func init() { reg(handleThread, http.MethodGet, "/thread/:id") }
 func handleThread(t *Transaction) error {
 	reply := len(t.Qry["reply"]) > 0
 	edit := len(t.Qry["edit"]) > 0
@@ -303,7 +310,7 @@ func handleThread(t *Transaction) error {
 	return render.ThreadPage(t.Rctx, status, context, (edit || reply), src)
 }
 
-func init() { reg(handleQuickReply, http.MethodGet, "/quickreply/{id}") }
+func init() { reg(handleQuickReply, http.MethodGet, "/quickreply/:id") }
 func handleQuickReply(t *Transaction) error {
 	status, err := t.GetStatus(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -322,7 +329,7 @@ func handleQuickReply(t *Transaction) error {
 	return render.QuickReplyPage(t.Rctx, status, parent)
 }
 
-func init() { reg(handleLikedBy, http.MethodGet, "/likedby/{id}") }
+func init() { reg(handleLikedBy, http.MethodGet, "/likedby/:id") }
 func handleLikedBy(t *Transaction) error {
 	accts, err := t.GetFavouritedBy(t.Ctx, t.Vars["id"], nil)
 	if err != nil {
@@ -332,7 +339,7 @@ func handleLikedBy(t *Transaction) error {
 	return render.LikedByPage(t.Rctx, accts)
 }
 
-func init() { reg(handleRetweetedBy, http.MethodGet, "/retweetedby/{id}") }
+func init() { reg(handleRetweetedBy, http.MethodGet, "/retweetedby/:id") }
 func handleRetweetedBy(t *Transaction) error {
 	accts, err := t.GetRebloggedBy(t.Ctx, t.Vars["id"], nil)
 	if err != nil {
@@ -342,7 +349,7 @@ func handleRetweetedBy(t *Transaction) error {
 	return render.RetweetedByPage(t.Rctx, accts)
 }
 
-func init() { reg(handleReactions, http.MethodGet, "/reactions/{id}") }
+func init() { reg(handleReactions, http.MethodGet, "/reactions/:id") }
 func handleReactions(t *Transaction) error {
 	reactions, err := t.PlGetReactions(t.Ctx, t.Vars["id"], false)
 	if err != nil {
@@ -352,7 +359,7 @@ func handleReactions(t *Transaction) error {
 	return render.ReactionsPage(t.Rctx, reactions)
 }
 
-func init() { reg(handleEdits, http.MethodGet, "/status/{id}/edits") }
+func init() { reg(handleEdits, http.MethodGet, "/status/:id/edits") }
 func handleEdits(t *Transaction) error {
 	edits, err := t.GetStatusHistory(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -396,8 +403,8 @@ func handleNotifications(t *Transaction) error {
 	return render.NotificationPage(t.Rctx, notifs)
 }
 
-func init() { reg(handleUser, http.MethodGet, "/user/{id}") }
-func init() { reg(handleUser, http.MethodGet, "/user/{id}/{type}") }
+func init() { reg(handleUser, http.MethodGet, "/user/:id") }
+func init() { reg(handleUser, http.MethodGet, "/user/:id/:type") }
 func handleUser(t *Transaction) error {
 	var statuses []*masta.Status
 	var users []*masta.Account
@@ -519,7 +526,7 @@ func handleUser(t *Transaction) error {
 	return render.UserPage(t.Rctx, acct, rel, statuses, rPageType)
 }
 
-func init() { reg(handleUserSearch, http.MethodGet, "/usersearch/{id}") }
+func init() { reg(handleUserSearch, http.MethodGet, "/usersearch/:id") }
 func handleUserSearch(t *Transaction) error {
 	id := mux.Vars(t.R)["id"]
 	q := t.R.URL.Query()
@@ -554,7 +561,7 @@ func handleUserSearch(t *Transaction) error {
 	return render.UserSearchPage(t.Rctx, offset, results, user, sq)
 }
 
-func init() { reg(handleMutes, http.MethodGet, "/mute/{id}") }
+func init() { reg(handleMutes, http.MethodGet, "/mute/:id") }
 func handleMutes(t *Transaction) error {
 	id := mux.Vars(t.R)["id"]
 	notifications, _ := strconv.ParseBool(t.R.FormValue("notifications"))
@@ -799,7 +806,7 @@ func handleEdit(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleLike, http.MethodPost, "/like/{id}") }
+func init() { reg(handleLike, http.MethodPost, "/like/:id") }
 func handleLike(t *Transaction) error {
 	id := t.Vars["id"]
 	rid := t.R.FormValue("retweeted_by_id")
@@ -815,7 +822,7 @@ func handleLike(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleUnlike, http.MethodPost, "/unlike/{id}") }
+func init() { reg(handleUnlike, http.MethodPost, "/unlike/:id") }
 func handleUnlike(t *Transaction) error {
 	id := t.Vars["id"]
 	rid := t.R.FormValue("retweeted_by_id")
@@ -831,7 +838,7 @@ func handleUnlike(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleRetweet, http.MethodPost, "/retweet/{id}") }
+func init() { reg(handleRetweet, http.MethodPost, "/retweet/:id") }
 func handleRetweet(t *Transaction) error {
 	id := t.Vars["id"]
 	rid := t.R.FormValue("retweeted_by_id")
@@ -849,7 +856,7 @@ func handleRetweet(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleUnretweet, http.MethodPost, "/unretweet/{id}") }
+func init() { reg(handleUnretweet, http.MethodPost, "/unretweet/:id") }
 func handleUnretweet(t *Transaction) error {
 	id := t.Vars["id"]
 	rid := t.R.FormValue("retweeted_by_id")
@@ -868,7 +875,7 @@ func handleUnretweet(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleVote, http.MethodPost, "/vote/{id}") }
+func init() { reg(handleVote, http.MethodPost, "/vote/:id") }
 func handleVote(t *Transaction) error {
 	statusID := t.R.FormValue("status_id")
 	choices := t.R.PostForm["choices"]
@@ -891,7 +898,7 @@ func handleVote(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleFollow, http.MethodPost, "/follow/{id}") }
+func init() { reg(handleFollow, http.MethodPost, "/follow/:id") }
 func handleFollow(t *Transaction) error {
 	_, err := t.AccountFollow(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -902,7 +909,7 @@ func handleFollow(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleUnfollow, http.MethodPost, "/unfollow/{id}") }
+func init() { reg(handleUnfollow, http.MethodPost, "/unfollow/:id") }
 func handleUnfollow(t *Transaction) error {
 	_, err := t.AccountUnfollow(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -913,7 +920,7 @@ func handleUnfollow(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleAccept, http.MethodPost, "/accept/{id}") }
+func init() { reg(handleAccept, http.MethodPost, "/accept/:id") }
 func handleAccept(t *Transaction) error {
 	err := t.FollowRequestAuthorize(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -924,7 +931,7 @@ func handleAccept(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleReject, http.MethodPost, "/reject/{id}") }
+func init() { reg(handleReject, http.MethodPost, "/reject/:id") }
 func handleReject(t *Transaction) error {
 	err := t.FollowRequestReject(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -935,7 +942,7 @@ func handleReject(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleMute, http.MethodPost, "/mute/{id}") }
+func init() { reg(handleMute, http.MethodPost, "/mute/:id") }
 func handleMute(t *Transaction) error {
 	notifs, _ := strconv.ParseBool(t.R.FormValue("notifications"))
 
@@ -957,7 +964,7 @@ func handleMute(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleUnmute, http.MethodPost, "/unmute/{id}") }
+func init() { reg(handleUnmute, http.MethodPost, "/unmute/:id") }
 func handleUnmute(t *Transaction) error {
 	_, err := t.AccountUnmute(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -968,7 +975,7 @@ func handleUnmute(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleBlock, http.MethodPost, "/block/{id}") }
+func init() { reg(handleBlock, http.MethodPost, "/block/:id") }
 func handleBlock(t *Transaction) error {
 	_, err := t.AccountBlock(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -979,7 +986,7 @@ func handleBlock(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleUnblock, http.MethodPost, "/unblock/{id}") }
+func init() { reg(handleUnblock, http.MethodPost, "/unblock/:id") }
 func handleUnblock(t *Transaction) error {
 	_, err := t.AccountUnblock(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -990,7 +997,7 @@ func handleUnblock(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleSubscribe, http.MethodPost, "/subscribe/{id}") }
+func init() { reg(handleSubscribe, http.MethodPost, "/subscribe/:id") }
 func handleSubscribe(t *Transaction) error {
 	_, err := t.PlAccountSubscribe(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -1001,7 +1008,7 @@ func handleSubscribe(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleUnsubscribe, http.MethodPost, "/unsubscribe/{id}") }
+func init() { reg(handleUnsubscribe, http.MethodPost, "/unsubscribe/:id") }
 func handleUnsubscribe(t *Transaction) error {
 	_, err := t.PlAccountUnsubscribe(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -1063,7 +1070,7 @@ func handleSetSettings(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleMuteConversation, http.MethodPost, "/muteconv/{id}") }
+func init() { reg(handleMuteConversation, http.MethodPost, "/muteconv/:id") }
 func handleMuteConversation(t *Transaction) error {
 	_, err := t.MuteConversation(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -1074,7 +1081,7 @@ func handleMuteConversation(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleUnmuteConversation, http.MethodPost, "/unmuteconv/{id}") }
+func init() { reg(handleUnmuteConversation, http.MethodPost, "/unmuteconv/:id") }
 func handleUnmuteConversation(t *Transaction) error {
 	_, err := t.UnmuteConversation(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -1085,7 +1092,7 @@ func handleUnmuteConversation(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleDelete, http.MethodPost, "/delete/{id}") }
+func init() { reg(handleDelete, http.MethodPost, "/delete/:id") }
 func handleDelete(t *Transaction) error {
 	err := t.DeleteStatus(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -1106,7 +1113,7 @@ func handleReadNotifications(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleBookmark, http.MethodPost, "/bookmark/{id}") }
+func init() { reg(handleBookmark, http.MethodPost, "/bookmark/:id") }
 func handleBookmark(t *Transaction) error {
 	id := mux.Vars(t.R)["id"]
 	rid := t.R.FormValue("retweeted_by_id")
@@ -1124,7 +1131,7 @@ func handleBookmark(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleUnbookmark, http.MethodPost, "/unbookmark/{id}") }
+func init() { reg(handleUnbookmark, http.MethodPost, "/unbookmark/:id") }
 func handleUnbookmark(t *Transaction) error {
 	id := mux.Vars(t.R)["id"]
 	rid := t.R.FormValue("retweeted_by_id")
@@ -1142,7 +1149,7 @@ func handleUnbookmark(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handlePin, http.MethodPost, "/pin/{id}") }
+func init() { reg(handlePin, http.MethodPost, "/pin/:id") }
 func handlePin(t *Transaction) error {
 	id := t.Vars["id"]
 
@@ -1161,7 +1168,7 @@ func handlePin(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleUnpin, http.MethodPost, "/unpin/{id}") }
+func init() { reg(handleUnpin, http.MethodPost, "/unpin/:id") }
 func handleUnpin(t *Transaction) error {
 	id := t.Vars["id"]
 
@@ -1197,7 +1204,7 @@ func handleFilter(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleUnfilter, http.MethodPost, "/unfilter/{id}") }
+func init() { reg(handleUnfilter, http.MethodPost, "/unfilter/:id") }
 func handleUnfilter(t *Transaction) error {
 	err := t.DeleteFilter(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -1231,7 +1238,7 @@ func handleAddList(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleRemoveList, http.MethodPost, "/list/{id}/remove") }
+func init() { reg(handleRemoveList, http.MethodPost, "/list/:id/remove") }
 func handleRemoveList(t *Transaction) error {
 	err := t.DeleteList(t.Ctx, t.Vars["id"])
 	if err != nil {
@@ -1241,7 +1248,7 @@ func handleRemoveList(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleRenameList, http.MethodPost, "/list/{id}/rename") }
+func init() { reg(handleRenameList, http.MethodPost, "/list/:id/rename") }
 func handleRenameList(t *Transaction) error {
 	title := t.R.FormValue("title")
 
@@ -1254,7 +1261,7 @@ func handleRenameList(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleList, http.MethodGet, "/list/{id}") }
+func init() { reg(handleList, http.MethodGet, "/list/:id") }
 func handleList(t *Transaction) error {
 	id := t.Vars["id"]
 	q := t.Qry["q"]
@@ -1315,7 +1322,7 @@ func handleList(t *Transaction) error {
 	return render.ListPage(t.Rctx, data)
 }
 
-func init() { reg(handleListAddUser, http.MethodPost, "/list/{id}/adduser") }
+func init() { reg(handleListAddUser, http.MethodPost, "/list/:id/adduser") }
 func handleListAddUser(t *Transaction) error {
 	err := t.AddToList(t.Ctx, t.Vars["id"], t.Qry["uid"])
 	if err != nil {
@@ -1326,7 +1333,7 @@ func handleListAddUser(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleListRemoveUser, http.MethodPost, "/list/{id}/removeuser") }
+func init() { reg(handleListRemoveUser, http.MethodPost, "/list/:id/removeuser") }
 func handleListRemoveUser(t *Transaction) error {
 	err := t.RemoveFromList(t.Ctx, t.Vars["id"], t.Qry["uid"])
 	if err != nil {
@@ -1345,7 +1352,7 @@ func handleSignout(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleFluorideLike, http.MethodPost, "/fluoride/like/{id}", noType) }
+func init() { reg(handleFluorideLike, http.MethodPost, "/fluoride/like/:id", noType) }
 func handleFluorideLike(t *Transaction) error {
 	t.W.Header().Set("Content-Type", "application/json")
 
@@ -1357,7 +1364,7 @@ func handleFluorideLike(t *Transaction) error {
 	return t.writeJson(st.FavouritesCount)
 }
 
-func init() { reg(handleFluorideRetweet, http.MethodPost, "/fluoride/retweet/{id}", noType) }
+func init() { reg(handleFluorideRetweet, http.MethodPost, "/fluoride/retweet/:id", noType) }
 func handleFluorideRetweet(t *Transaction) error {
 	t.W.Header().Set("Content-Type", "application/json")
 	st, err := t.Reblog(t.Ctx, t.Vars["id"])
@@ -1368,7 +1375,7 @@ func handleFluorideRetweet(t *Transaction) error {
 	return t.writeJson(st.ReblogsCount)
 }
 
-func init() { reg(handleFluorideUnretweet, http.MethodPost, "/fluoride/unretweet/{id}", noType) }
+func init() { reg(handleFluorideUnretweet, http.MethodPost, "/fluoride/unretweet/:id", noType) }
 func handleFluorideUnretweet(t *Transaction) error {
 	t.W.Header().Set("Content-Type", "application/json")
 	count, err := t.Unreblog(t.Ctx, t.Vars["id"])
@@ -1405,7 +1412,7 @@ var assetfs = &staticfs{
 
 var fserve = http.FileServer(http.FS(assetfs))
 
-func init() { reg(handleStatic, http.MethodGet, "/static/{asset}", noType, noAuth) }
+func init() { reg(handleStatic, http.MethodGet, "/static/:asset", noType, noAuth) }
 func handleStatic(t *Transaction) error {
 	stamp := t.Qry["stamp"]
 	if stamp != "" && stamp == t.Conf.AssetStamp {
