@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/julienschmidt/httprouter"
 	"spiderden.org/8b/conf"
 	"spiderden.org/8b/render"
@@ -528,7 +527,7 @@ func handleUser(t *Transaction) error {
 
 func init() { reg(handleUserSearch, http.MethodGet, "/usersearch/:id") }
 func handleUserSearch(t *Transaction) error {
-	id := mux.Vars(t.R)["id"]
+	id := t.Vars["id"]
 	q := t.R.URL.Query()
 	sq := q.Get("q")
 	offset, _ := strconv.Atoi(q.Get("offset"))
@@ -563,7 +562,7 @@ func handleUserSearch(t *Transaction) error {
 
 func init() { reg(handleMutes, http.MethodGet, "/mute/:id") }
 func handleMutes(t *Transaction) error {
-	id := mux.Vars(t.R)["id"]
+	id := t.Vars["id"]
 	notifications, _ := strconv.ParseBool(t.R.FormValue("notifications"))
 	duration, err := strconv.ParseInt(t.R.FormValue("duration"), 10, 64)
 	if err != nil {
@@ -1115,7 +1114,7 @@ func handleReadNotifications(t *Transaction) error {
 
 func init() { reg(handleBookmark, http.MethodPost, "/bookmark/:id") }
 func handleBookmark(t *Transaction) error {
-	id := mux.Vars(t.R)["id"]
+	id := t.Vars["id"]
 	rid := t.R.FormValue("retweeted_by_id")
 
 	_, err := t.Bookmark(t.Ctx, id)
@@ -1133,7 +1132,7 @@ func handleBookmark(t *Transaction) error {
 
 func init() { reg(handleUnbookmark, http.MethodPost, "/unbookmark/:id") }
 func handleUnbookmark(t *Transaction) error {
-	id := mux.Vars(t.R)["id"]
+	id := t.Vars["id"]
 	rid := t.R.FormValue("retweeted_by_id")
 
 	_, err := t.Unbookmark(t.Ctx, id)
