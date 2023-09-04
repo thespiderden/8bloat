@@ -136,12 +136,20 @@ func init() {
 		os.Exit(1)
 	}
 
-	if *file == "-" {
+	if *writeConf {
 		_, err := os.Stdout.Write(defaultConfig)
 		if err != nil {
 			os.Exit(1)
 		}
 		os.Exit(0)
+	}
+
+	if *file == "-" {
+		if err := readConf(os.Stdin); err != nil {
+			log.Fatal(err)
+		}
+
+		return
 	}
 
 	if *file == "" {
