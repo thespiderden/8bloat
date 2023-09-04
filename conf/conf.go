@@ -15,6 +15,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -24,6 +25,41 @@ import (
 )
 
 var lock sync.RWMutex
+
+var version string = "devel"
+
+func init() {
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		version = "unknown"
+	}
+
+	var vers string
+	var modified bool
+
+	for _, v := range info.Settings {
+		switch v.Key {
+		case "vcs.revision":
+			vers = v.Value
+		case "vcs.modified":
+			modified = (v.Value == "true")
+		}
+	}
+
+	if vers == "" {
+		return
+	}
+
+	version = vers
+
+	if modified {
+		version += "*"
+	}
+}
+
+func Version() string {
+	return version
+}
 
 func Lock() {
 	lock.Lock()
@@ -46,6 +82,7 @@ type Configuration struct {
 	PostFormats   []PostFormat
 	AssetStamp    string
 	Node          *snowflake.Node
+	UserAgent     string
 
 	singleInstance string
 }
@@ -175,6 +212,8 @@ func readConf(reader io.Reader) error {
 			conf.ClientWebsite = val
 		case "single_instance":
 			conf.singleInstance = val
+		case "user_agent":
+			conf.UserAgent = val
 		case "database_path":
 			// ignore
 		case "post_formats":
@@ -225,6 +264,10 @@ func readConf(reader io.Reader) error {
 		if err != nil {
 			panic(err)
 		}
+	}
+
+	if conf.UserAgent == "" {
+		conf.UserAgent = "8bloat/" + version + " (Mastodon client, https://spiderden.org/projects/8bloat)"
 	}
 
 	// random for backwards compatability

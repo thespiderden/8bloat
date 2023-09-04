@@ -120,6 +120,7 @@ func (t *Transaction) authenticate(am authMode) (err error) {
 		AccessToken:  t.Session.AccessToken,
 	})
 
+	t.Client.UserAgent = conf.Get().UserAgent
 	if am != authSessCSRF {
 		return
 	}

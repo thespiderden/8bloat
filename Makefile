@@ -18,7 +18,7 @@ TMPLSRC=render/templates/*.tmpl
 all: 8bloat
 
 8bloat: $(SRC) $(TMPLSRC)
-	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -o 8b main.go
+	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -o 8b
 
 install: 8b
 	mkdir -p $(DESTDIR)$(BINPATH)
