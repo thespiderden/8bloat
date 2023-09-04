@@ -110,5 +110,15 @@
 		which is generally <kbd>Alt</kbd> + <kbd>Shift</kbd>.
 	</p>
 </div>
+
+<div class="page-title"> About this instance </div>
+<ul>
+	<li>Version: {{version}}</li>
+{{- if .Conf.Instance}}
+	<li>Single instance: {{.Conf.Instance}}</li>
+{{- else}}
+	<li>Single instance: disabled</li>
+{{- end}}
+</ul>
 {{- template "footer.tmpl"}}
 {{- end}}

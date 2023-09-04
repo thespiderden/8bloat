@@ -26,12 +26,12 @@ import (
 
 var lock sync.RWMutex
 
-var version string = "devel"
+var version string = "unknown"
 
 func init() {
 	info, ok := debug.ReadBuildInfo()
 	if !ok {
-		version = "unknown"
+		return
 	}
 
 	var vers string
@@ -84,12 +84,12 @@ type Configuration struct {
 	Node          *snowflake.Node
 	UserAgent     string
 
-	singleInstance string
+	Instance string
 }
 
 func (c Configuration) SingleInstance() (instance string, ok bool) {
-	if len(c.singleInstance) > 0 {
-		instance = c.singleInstance
+	if len(c.Instance) > 0 {
+		instance = c.Instance
 		ok = true
 	}
 	return
@@ -211,7 +211,7 @@ func readConf(reader io.Reader) error {
 		case "client_website":
 			conf.ClientWebsite = val
 		case "single_instance":
-			conf.singleInstance = val
+			conf.Instance = val
 		case "user_agent":
 			conf.UserAgent = val
 		case "database_path":
