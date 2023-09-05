@@ -5,10 +5,7 @@ package conf
 
 import (
 	"bufio"
-	"bytes"
 	_ "embed"
-	"encoding/base64"
-	"encoding/binary"
 	"errors"
 	"flag"
 	"io"
@@ -18,15 +15,16 @@ import (
 	"runtime/debug"
 	"strconv"
 	"strings"
-	"sync"
 	"sync/atomic"
 
 	"github.com/bwmarrin/snowflake"
 )
 
-var lock sync.RWMutex
+var version = "unknown"
 
-var version string = "unknown"
+func init() {
+	snowflake.Epoch = 1665230888000
+}
 
 func init() {
 	info, ok := debug.ReadBuildInfo()
@@ -61,14 +59,6 @@ func Version() string {
 	return version
 }
 
-func Lock() {
-	lock.Lock()
-}
-
-func Unlock() {
-	lock.Unlock()
-}
-
 type PostFormat struct {
 	Name string
 	Type string
@@ -81,10 +71,10 @@ type Configuration struct {
 	ClientWebsite string
 	PostFormats   []PostFormat
 	AssetStamp    string
-	Node          *snowflake.Node
 	UserAgent     string
+	Instance      string
 
-	Instance string
+	node int64
 }
 
 func (c Configuration) SingleInstance() (instance string, ok bool) {
@@ -95,25 +85,7 @@ func (c Configuration) SingleInstance() (instance string, ok bool) {
 	return
 }
 
-func (c Configuration) shortID() string {
-	idSlice := &bytes.Buffer{}
-	binary.Write(idSlice, binary.LittleEndian, c.Node.Generate())
-	return base64.RawURLEncoding.EncodeToString(idSlice.Bytes())
-}
-
-func ShortID() string {
-	return Get().shortID()
-}
-
-func init() {
-	snowflake.Epoch = 1665230888000
-}
-
 var cfg atomic.Value
-
-func storeConf(c Configuration) {
-	cfg.Store(c)
-}
 
 func Get() *Configuration {
 	conf := cfg.Load()
@@ -189,6 +161,9 @@ func readConf(reader io.Reader) error {
 	var conf Configuration
 
 	scanner := bufio.NewScanner(reader)
+
+	var nodeno int
+
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 
@@ -246,31 +221,15 @@ func readConf(reader io.Reader) error {
 		case "asset_stamp":
 			conf.AssetStamp = val
 		case "snowflake_node_id":
-			var no int
 			if val != "" {
 				var err error
-				no, err = strconv.Atoi(val)
+				nodeno, err = strconv.Atoi(val)
 				if err != nil {
 					return errors.New("invalid config key: " + val)
 				}
 			}
-
-			node, err := snowflake.NewNode(int64(no))
-			if err != nil {
-				return err
-			}
-
-			conf.Node = node
 		default:
 			return errors.New("unknown config key " + key)
-		}
-	}
-
-	if conf.Node == nil {
-		var err error
-		conf.Node, err = snowflake.NewNode(0)
-		if err != nil {
-			panic(err)
 		}
 	}
 
@@ -278,11 +237,26 @@ func readConf(reader io.Reader) error {
 		conf.UserAgent = "8bloat/" + version + " (Mastodon client, https://spiderden.org/projects/8bloat)"
 	}
 
-	// random for backwards compatability
-	if conf.AssetStamp == "snowflake" || conf.AssetStamp == "random" || conf.AssetStamp == "" {
-		conf.AssetStamp = "." + conf.shortID()
+	currcfg := Get()
+	if node == nil || (currcfg != nil && currcfg.node != conf.node) {
+		nodelock.Lock()
+
+		nnode, err := snowflake.NewNode(int64(nodeno))
+		if err != nil {
+			nodelock.Unlock()
+			return errors.New("error creating snowflake node: " + err.Error())
+		}
+
+		node = nnode
+		nodelock.Unlock()
 	}
 
-	storeConf(conf)
+	// random for backwards compatability
+	if conf.AssetStamp == "snowflake" || conf.AssetStamp == "random" || conf.AssetStamp == "" {
+		conf.AssetStamp = ID()
+	}
+
+	cfg.Store(conf)
+
 	return nil
 }

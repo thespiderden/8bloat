@@ -1046,7 +1046,7 @@ func handleSetSettings(t *Transaction) error {
 		AntiDopamineMode:      antiDopamineMode,
 		HideUnsupportedNotifs: hideUnsupportedNotifs,
 		CSS:                   css,
-		Stamp:                 conf.ShortID(),
+		Stamp:                 conf.ID(),
 	}
 
 	switch settings.NotificationInterval {
