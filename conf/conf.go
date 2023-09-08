@@ -68,7 +68,7 @@ type Configuration struct {
 	ListenAddress string
 	ClientName    string
 	ClientScope   string
-	ClientWebsite string
+	ClientPath    string
 	PostFormats   []PostFormat
 	AssetStamp    string
 	UserAgent     string
@@ -192,7 +192,21 @@ func readConf(reader io.Reader) error {
 		case "client_scope":
 			conf.ClientScope = val
 		case "client_website":
-			conf.ClientWebsite = val
+			// ignore
+		case "client_path":
+			if val == "" {
+				conf.ClientPath = "/"
+			} else {
+				if !strings.HasSuffix("/", val) {
+					val += "/"
+				}
+
+				if !strings.HasPrefix("/", val) {
+					val = "/" + val
+				}
+
+				conf.ClientPath = val
+			}
 		case "single_instance":
 			conf.Instance = val
 		case "user_agent":

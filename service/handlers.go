@@ -2,6 +2,7 @@ package service
 
 import (
 	"embed"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -73,11 +74,29 @@ func (h handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	conf := conf.Get()
 
+	var scheme string
+	if t.R.TLS != nil {
+		scheme = "https://"
+	} else {
+		scheme = "http://"
+	}
+
+	root := scheme + r.Host + conf.ClientPath
+	t.Rctx.Root = root
+
+	rooturl, err := r.URL.Parse(root)
+	if err != nil {
+		eerr := render.ErrorPage(t.Rctx, fmt.Errorf("invalid url"), false)
+		if err != nil {
+			log.Println("error responding with error page:", err, eerr)
+		}
+	}
+
 	t.W.Header().Set("Cache-Control", "private")
 	t.W.Header().Set("Content-Security-Policy",
-		"default-src "+conf.ClientWebsite+"/;"+
-			"style-src "+conf.ClientWebsite+"/session/css "+conf.ClientWebsite+"/static/;"+
-			"script-src "+conf.ClientWebsite+"/static/;"+
+		"default-src "+rooturl.String()+";"+
+			"style-src "+rooturl.JoinPath("session/css").String()+" "+rooturl.JoinPath("static/").String()+";"+
+			"script-src "+rooturl.JoinPath("static/").String()+";"+
 			"img-src *;"+
 			"media-src *",
 	)
@@ -671,7 +690,7 @@ func handleOAuthCallback(t *Transaction) error {
 		ClientSecret: t.Session.ClientSecret,
 	})
 
-	err := t.AuthenticateToken(t.Ctx, code, t.Conf.ClientWebsite+"/oauth_callback")
+	err := t.AuthenticateToken(t.Ctx, code, t.R.URL.Scheme+t.R.Header.Get("Host")+"/oauth_callback")
 	if err != nil {
 		return err
 	}

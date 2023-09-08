@@ -2,6 +2,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
 <head>
+	<base href="{{.Root}}">
 	{{- if and .Settings .Settings.CSS}}
 	<link rel="stylesheet" href="/session/css?stamp={{.Settings.Stamp}}">
 	{{- end}}

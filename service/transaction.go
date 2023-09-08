@@ -150,12 +150,13 @@ func newSession(t *Transaction, instance string) (rurl string, sess *Session, er
 		return
 	}
 
+	site := t.R.URL.Scheme + "://" + t.R.Header.Get("Host")
 	app, err := masta.RegisterApp(t.Ctx, &masta.AppConfig{
 		Server:       instanceURL,
 		ClientName:   t.Conf.ClientName,
 		Scopes:       t.Conf.ClientScope,
-		Website:      t.Conf.ClientWebsite,
-		RedirectURIs: t.Conf.ClientWebsite + "/oauth_callback",
+		Website:      site,
+		RedirectURIs: site + "/oauth_callback",
 	})
 	if err != nil {
 		return
@@ -178,10 +179,10 @@ func newSession(t *Transaction, instance string) (rurl string, sess *Session, er
 	q.Set("scope", "read write follow")
 	q.Set("client_id", app.ClientID)
 	q.Set("response_type", "code")
-	q.Set("redirect_uri", t.Conf.ClientWebsite+"/oauth_callback")
+	q.Set("redirect_uri", site+"/oauth_callback")
 	u.RawQuery = q.Encode()
 
-	rurl = instanceURL + u.String()
+	rurl = site + u.String()
 	return
 }
 
