@@ -665,7 +665,7 @@ func handleOAuthCallback(t *Transaction) error {
 		return errInvalidArgument
 	}
 
-	t.Client = masta.NewClient(&masta.Config{
+	t.Client = newMastaClient(&masta.Config{
 		Server:       "https://" + t.Session.Instance,
 		ClientID:     t.Session.ClientID,
 		ClientSecret: t.Session.ClientSecret,

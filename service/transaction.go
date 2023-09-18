@@ -113,14 +113,13 @@ func (t *Transaction) authenticate(am authMode) (err error) {
 	}
 
 	t.Session = sess
-	t.Client = masta.NewClient(&masta.Config{
+	t.Client = newMastaClient(&masta.Config{
 		Server:       "https://" + t.Session.Instance,
 		ClientID:     t.Session.ClientID,
 		ClientSecret: t.Session.ClientSecret,
 		AccessToken:  t.Session.AccessToken,
 	})
 
-	t.Client.UserAgent = conf.Get().UserAgent
 	if am != authSessCSRF {
 		return
 	}
@@ -151,6 +150,7 @@ func newSession(t *Transaction, instance string) (rurl string, sess *Session, er
 	}
 
 	app, err := masta.RegisterApp(t.Ctx, &masta.AppConfig{
+		Client:       client,
 		Server:       instanceURL,
 		ClientName:   t.Conf.ClientName,
 		Scopes:       t.Conf.ClientScope,

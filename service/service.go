@@ -40,7 +40,9 @@ func StartAndListen(ctx context.Context) error {
 			default:
 			}
 
-			server = &http.Server{
+			client.Timeout = conf.RequestTimeout
+
+			server := &http.Server{
 				Addr:    conf.ListenAddress,
 				Handler: router,
 			}

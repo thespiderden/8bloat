@@ -11,11 +11,13 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"net/http"
 	"os"
 	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/bwmarrin/snowflake"
 )
@@ -65,14 +67,16 @@ type PostFormat struct {
 }
 
 type Configuration struct {
-	ListenAddress string
-	ClientName    string
-	ClientScope   string
-	ClientWebsite string
-	PostFormats   []PostFormat
-	AssetStamp    string
-	UserAgent     string
-	Instance      string
+	ListenAddress  string
+	ClientName     string
+	ClientScope    string
+	ClientWebsite  string
+	PostFormats    []PostFormat
+	AssetStamp     string
+	UserAgent      string
+	Instance       string
+	ResponseLimit  int64
+	RequestTimeout time.Duration
 
 	node int64
 }
@@ -157,6 +161,19 @@ func init() {
 	}
 }
 
+func init() {
+	http.DefaultTransport = &http.Transport{
+		ExpectContinueTimeout: 1 * time.Second,
+		IdleConnTimeout:       3 * time.Second,
+		ForceAttemptHTTP2:     true,
+	}
+
+	http.DefaultClient = &http.Client{
+		Transport: http.DefaultTransport,
+		Timeout:   8 * time.Second,
+	}
+}
+
 func readConf(reader io.Reader) error {
 	var conf Configuration
 
@@ -228,6 +245,28 @@ func readConf(reader io.Reader) error {
 					return errors.New("invalid config key: " + val)
 				}
 			}
+		case "http_client_timeout":
+			if val != "" {
+				var err error
+
+				conf.RequestTimeout, err = time.ParseDuration(val)
+				if err != nil {
+					return err
+				}
+			}
+		case "http_client_response_size_limit":
+			if val != "" {
+				i, err := strconv.Atoi(val)
+				if err != nil {
+					return errors.New("http_client_response_size_limit is not a number")
+				}
+
+				if i < 0 {
+					return errors.New("http_client_response_size_limit cannot be negative")
+				}
+
+				conf.ResponseLimit = int64(i)
+			}
 		default:
 			return errors.New("unknown config key " + key)
 		}
@@ -235,6 +274,14 @@ func readConf(reader io.Reader) error {
 
 	if conf.UserAgent == "" {
 		conf.UserAgent = "8bloat/" + version + " (Mastodon client, https://spiderden.org/projects/8bloat)"
+	}
+
+	if int64(conf.RequestTimeout) == 0 {
+		conf.RequestTimeout = time.Second * 8
+	}
+
+	if conf.ResponseLimit == 0 {
+		conf.ResponseLimit = (1 << (10 * 2)) * 8 // 8MB
 	}
 
 	currcfg := Get()
