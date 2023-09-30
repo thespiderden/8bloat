@@ -32,7 +32,10 @@ var client = http.Client{
 			ExpectContinueTimeout: 1 * time.Second,
 		},
 	},
-	Timeout: 8 * time.Second,
+}
+
+func init() {
+	client.Timeout = conf.Get().RequestTimeout
 }
 
 func newMastaClient(cfg *masta.Config) *masta.Client {
