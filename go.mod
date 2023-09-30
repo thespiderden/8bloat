@@ -12,4 +12,4 @@ require (
 	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80 // indirect
 )
 
-go 1.18
+go 1.20
