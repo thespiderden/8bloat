@@ -1,6 +1,3 @@
 package conf
 
-const (
-	MaxPagination   = 20
-	MaxBodyResponse = 8000000
-)
+const MaxPagination = 20
