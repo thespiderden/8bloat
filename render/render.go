@@ -47,7 +47,8 @@ type TemplateData struct {
 }
 
 func emojiHTML(e masta.Emoji, height string) string {
-	return `<img class="emoji" src="` + e.URL + `" alt=":` + e.ShortCode + `:" title=":` + e.ShortCode + `:" height="` + height + `"/>`
+	esc := template.HTMLEscapeString
+	return `<img class="emoji" src="` + esc(e.URL) + `" alt=":` + esc(e.ShortCode) + `:" title=":` + esc(e.ShortCode) + `:" height="` + esc(height) + `"/>`
 }
 
 func emojiFilter(content string, emojis []masta.Emoji) string {
