@@ -10,7 +10,7 @@ Features
 Requirements
 ------------
 
-- Go 1.16
+- Go 1.20
 - A network connection, if you're building directly from Git.
 
 == BUILDING ==
@@ -72,6 +72,10 @@ most cases, you only need to change the value of "client_website", and
 It is strongly reccomended that you use "single_instance", as 8bloat makes
 the API calls on behalf of the user. This can be used as a means to spam
 instances by using 8bloat as a proxy.
+
+Additionally, you should run 8bloat behind a reverse proxy and configure
+limits if you intend to expose it to the internet. 8bloat does not place 
+limitations between the client and itself.
 
 $ doas cp bloat.gen.conf /etc/bloat.conf
 $ doas ed /etc/bloat.conf
