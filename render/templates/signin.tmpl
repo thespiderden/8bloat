@@ -1,21 +1,20 @@
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title"> 8bloat </div>
-<div class="signin-desc">
-	A web client for <a href="https://pleroma.social" target="_blank">Mastadon Network</a>.
-</div>
-<form class="signin-form" action="/signin" method="post">
-	Enter the domain name of your instance to continue
-	<br/>
-	<input type="text" name="instance" placeholder="example.com" required>
-	<br/>
-	<button type="submit"> Signin </button>
+<h1>8bloat</h1>
+<h2>A web client for the <a href="https://pleroma.social" target="_blank">Mastadon Network</a>.</h2>
+<form action="/signin" method="post">
+	<div class="form-field-s">
+		<label for="instance">Enter the domain name of your instance to continue</label>
+	</div>
+	<div class="form-field-s">
+		<input type="text" name="instance" placeholder="example.com" required>
+	</div>
+	<div class="form-field-s"><button type="submit">Signin</button></div>
 </form>
 <p>
 	See
 	<a href="https://sr.ht/~webb/8bloat" target="_blank">sr.ht/~webb/8bloat</a>
 	for more details.
 </p>
-<p> 
-	Instance version: {{version}}
-</p>
+<h2>About this instance</h2>
+{{- template "aboutinstance.tmpl" $.Ctx.Conf}}
 {{- template "footer.tmpl"}}

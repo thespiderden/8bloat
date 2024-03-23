@@ -1,81 +1,98 @@
 {{with .Data}}
 {{template "header.tmpl" $.Ctx}}
-<div class="page-title-container">
-	<span class="page-title">
+<form action="/notifications/read?max_id={{.ReadID}}" method="post" target="_self">
+	<h1>
 		Notifications
 		{{- if and (not $.Ctx.Settings.AntiDopamineMode) (gt .UnmarkedCount 0)}}
 			({{.UnmarkedCount }})
 		{{- end}}
-	</span>
-	<a class="page-refresh" href="/notifications" target="_self" accesskey="R" title="Refresh (R)">refresh</a>
+	<a class="btn-link page-link" href="/notifications" target="_self" accesskey="R" title="Refresh (R)">refresh</a>
 	{{- if .ReadID}}
-	<form class="notification-read" action="/notifications/read?max_id={{.ReadID}}" method="post" target="_self">
-		<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-		<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-		<input type="submit" value="read" class="btn-link" accesskey="C" title="Clear unread notifications (C)">
-	</form>
+	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+    <input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+	<input type="submit" value="read" class="btn-link page-link" accesskey="C" title="Clear unread notifications (C)">
 	{{- end}}
-</div>
+	</h1>
+</form>
 {{- range .Notifications}}
-<div class="notification-container {{.Type}} {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
+<article class="notification-container {{.Type}} {{if .Pleroma}}{{if not .Pleroma.IsSeen}}unread{{end}}{{end}}">
 	{{- if eq .Type "follow"}}
-	<div class="notification-follow-container">
-		<div class="status-profile-img-container">
+	<div class="user-list-item">
+		<div class="user-list-profile-img">
 			<a class="img-link" href="/user/{{.Account.ID}}">
-				<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="profile-avatar" height="48" />
+				<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="@{{.Account.Acct}}" height="48">
 			</a>
 		</div>
-		<div class="notification-follow">
-			<div class="notification-info-text">
-				<bdi class="status-dname"> {{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}} </bdi>
-				<span class="notification-text"> followed you - 
-					<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
-				</span>
-			</div>
-			<div>
-				<a href="/user/{{.Account.ID}}"> <span class="status-uname"> @{{.Account.Acct}} </span> </a>
-			</div>
+		<div class="user-list-name">
+			<bdi class="status-dname">{{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}}</bdi>
+			followed you - <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time>
+			<br>
+			<a href="/user/{{.Account.ID}}"><span class="status-uname">@{{.Account.Acct}}</span></a>
 		</div>
+		<br class="hidden">
 	</div>
 	{{- else if eq .Type "follow_request"}}
-	<div class="notification-follow-container">
-		<div class="status-profile-img-container">
+	<div class="user-list-item">
+		<div class="user-list-profile-img">
 			<a class="img-link" href="/user/{{.Account.ID}}">
-				<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="profile-avatar" height="48" />
+				<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="@{{.Account.Acct}}" height="48">
 			</a>
 		</div>
-		<div class="notification-follow">
-			<div class="notification-info-text">
-				<bdi class="status-dname"> {{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}} </bdi>
-				<span class="notification-text"> wants to follow you - 
-					<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
-				</span>
+		<div class="user-list-name">
+			<bdi class="status-dname">{{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}}</bdi>
+			wants to follow you -
+			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time>
+			<br>
+			<a href="/user/{{.Account.ID}}"><span class="status-uname">@{{.Account.Acct}}</span></a>
+			<div class="follow-request-actions">
+				<form class="d-inline" action="/accept/{{.Account.ID}}" method="post" target="_self">
+					<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+					<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+					<input type="submit" value="accept" class="btn-link">
+				</form>
+				-
+				<form class="d-inline" action="/reject/{{.Account.ID}}" method="post" target="_self">
+					<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+					<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+					<input type="submit" value="reject" class="btn-link">
+				</form>
 			</div>
-			<div>
-				<a href="/user/{{.Account.ID}}" class="status-uname">@{{.Account.Acct}}</a>
-			</div>
-			<form class="d-inline" action="/accept/{{.Account.ID}}" method="post" target="_self">
-				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-				<input type="submit" value="accept" class="btn-link">
-			</form>
-			-
-			<form class="d-inline" action="/reject/{{.Account.ID}}" method="post" target="_self">
-				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-				<input type="submit" value="reject" class="btn-link">
-			</form>
 		</div>
 	</div>
 	{{- else if eq .Type "mention"}}
+	<div class="retweet-info">
+		{{/* Gotta do some grubbing to figure out if it's for a subscription. */}}
+		{{- $subscribed := false}}
+		{{- if .Pleroma}}
+			{{- $subscribed = true}}
+			{{- if .Status.Mentions}}
+				{{- range .Status.Mentions}}
+					{{- if eq .ID $.Ctx.UserID}}
+						{{- $subscribed = false}}
+						{{- break}}
+					{{- end}}
+				{{- end}}
+			{{- end}}
+		{{- end}}
+		{{- if $subscribed}}
+		<span class="notification-text"> A user you subscribed to posted -
+		{{- else if eq .Status.Visibility "direct"}}
+		<span class="notification-text"> You were mentioned in a direct post -
+		{{- else}}
+    	<span class="notification-text"> You were mentioned -
+    	{{- end}}
+    	    <time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time>
+		</span>
+    </div>
 	{{- template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}
 	{{- else if eq .Type "reblog"}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
+			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="@{{.Account.Acct}}" height="48">
 		</a>
-		<a href="/user/{{.Account.ID}}" class="status-uname">@{{.Account.Acct}}</a>
-		<span class="notification-text"> retweeted your post - 
+		<bdi class="status-dname">{{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}}</bdi>
+		<a href="/user/{{.Account.ID}}"><span class="status-uname">@{{.Account.Acct}}</span></a>
+		<span class="notification-text"> retweeted your post -
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
@@ -83,10 +100,11 @@
 	{{- else if eq .Type "favourite"}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
+			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="@{{.Account.Acct}}" height="48">
 		</a>
-		<a href="/user/{{.Account.ID}}" class="status-uname">@{{.Account.Acct}}</a>
-		<span class="notification-text"> liked your post - 
+		<bdi class="status-dname">{{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}}</bdi>
+		<a href="/user/{{.Account.ID}}"><span class="status-uname">@{{.Account.Acct}}</span></a>
+		<span class="notification-text"> liked your post -
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
@@ -94,9 +112,10 @@
 	{{- else if eq .Type "pleroma:emoji_reaction"}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
+			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="@{{.Account.Acct}}" height="48">
 		</a>
-		<a href="/user/{{.Account.ID}}" class="status-uname">@{{.Account.Acct}}</a>
+		<bdi class="status-dname">{{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}}</bdi>
+		<a href="/user/{{.Account.ID}}"><span class="status-uname">@{{.Account.Acct}}</span></a>
 		<span class="notification-text"> reacted with {{.Emoji}} - 
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
@@ -105,21 +124,21 @@
 	{{- else}}
 	<div class="retweet-info">
 		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
+			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="@{{.Account.Acct}}" height="48">
 		</a>
-		<a href="/user/{{.Account.ID}}" class="status-uname">@{{.Account.Acct}}</a>
+		<bdi class="status-dname">{{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}}</bdi>
 		<span class="notification-text"> {{.Type}} - 
 			<time datetime="{{FormatTimeRFC3339 .CreatedAt}}" title="{{FormatTimeRFC822 .CreatedAt}}">{{TimeSince .CreatedAt}}</time> 
 		</span>
 	</div>
 	{{- if .Status}}{{template "status" (WithContext (wrapRawStatus .Status) $.Ctx)}}{{end}}
 	{{- end}}
-</div>
+</article>
 {{- end}}
-<div class="pagination">
+<nav class="pagination">
 	{{if .NextLink}}
 		<a href="{{.NextLink}}" target="_self">[next]</a>
 	{{end}}
-</div>
+</nav>
 {{- template "footer.tmpl"}}
 {{- end}}

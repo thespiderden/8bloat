@@ -1,7 +1,7 @@
 {{- with .Data}}
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title"> Error </div>
-<div class="error-text"> {{.Err}} </div>
+<h1>Error</h1>
+<p class="error-text">{{.Err}}</p>
 <div>
 	<a href="/timeline/home">home</a>
 	{{- if .Retry}}

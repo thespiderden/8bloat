@@ -1,31 +1,35 @@
 {{- with .Data}}
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title"> Lists </div>
+<h1>Lists</h1>
+{{- if .Lists}}
+<table>
 {{- range .Lists}}
-<div>
-	<a href="/timeline/list?list={{.ID}}"> {{.Title}} timeline </a> 
-	-
-	<form class="d-inline" action="/list/{{.ID}}" method="GET">
-		<button type="submit" class="btn-link"> edit </button>
-	</form>
-	-
-	<form class="d-inline" action="/list/{{.ID}}/remove" method="POST">
-		<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-		<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-		<button type="submit" class="btn-link"> delete </button>
-	</form>
-</div>
-{{- else}}
-<div class="no-data-found">No data found</div>
+	<tr>
+		<td><a href="/timeline/list?list={{.ID}}">{{.Title}} timeline</a></td>
+		<td>
+			<form action="/list/{{.ID}}" method="GET">
+				<button type="submit">Edit</button>
+			</form>
+		</td>
+		<td>
+			<form action="/list/{{.ID}}/remove" method="POST">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+				<button type="submit">Delete</button>
+			</form>
+		</td>
+	</tr>
 {{- end}}
-<div class="page-title"> Add list </div>
+</table>
+{{- else}}
+<p>No data found</p>
+{{- end}}
+<h1>Add list</h1>
 <form action="/list" method="POST">
 	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-	<span class="settings-form-field">
-		<label for="title"> Title </label>
-		<input id="title" name="title" required>
-	</span>
+	<label for="title">Title</label>
+	<input id="title" name="title" required>
 	<button type="submit"> Add </button>
 </form>
 {{- template "footer.tmpl"}}

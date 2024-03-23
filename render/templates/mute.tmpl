@@ -1,16 +1,15 @@
 {{- with .Data}}
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title"> Mute {{.User.Acct}} </div>
-
+<h1>Mute {{.User.Acct}}</h1>
 <form action="/mute/{{.User.ID}}" method="POST">
 	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-	<div class="settings-form-field">
+	<div class="form-field-s">
 		<input id="notifications" name="notifications" type="checkbox" value="true" checked>
-		<label for="notifications"> Mute notifications </label>
+		<label for="notifications">Mute notifications</label>
 	</div>
-	<div class="settings-form-field">
-		<label for="duration"> Auto unmute </label>
+	<div class="form-field-s">
+		<label for="duration">Auto unmute</label>
 		<select id="duration" name="duration">
 			<option value="0" selected>Disabled</option>
 			<option value="300">After 5m</option>
@@ -22,7 +21,7 @@
 			<option value="604800">After 7d</option>
 		</select>
 	</div>
-	<button type="submit"> Mute </button>
+	<button type="submit">Mute</button>
 </form>
 {{- template "footer.tmpl"}}
 {{- end}}

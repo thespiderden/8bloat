@@ -33,6 +33,7 @@ const (
 	FiltersPageTmpl      = "filters.tmpl"
 	MutePageTmpl         = "mute.tmpl"
 	StatusEditsTmpl      = "statusedits.tmpl"
+	ProfilePageTmpl      = "editprofile.tmpl"
 )
 
 func SigninPage(rctx *Context) error {
@@ -57,6 +58,12 @@ func NavPage(rctx *Context, user *masta.Account) (err error) {
 
 	return render(rctx, NavPageTmpl, &NavData{
 		User: user,
+		PostContext: PostContext{
+			Formats:           rctx.Conf.PostFormats,
+			DefaultFormat:     rctx.Settings.DefaultFormat,
+			DefaultVisibility: rctx.Settings.DefaultVisibility,
+			Pleroma:           user.Pleroma != nil,
+		},
 	})
 }
 
@@ -64,6 +71,10 @@ func RootPage(rctx *Context) (err error) {
 	rctx.title = "8bloat"
 
 	return render(rctx, RootPageTmpl, rctx)
+}
+
+func ProfilePage(rctx *Context, acct *masta.Account) (err error) {
+	return render(rctx, ProfilePageTmpl, ProfileData{User: acct})
 }
 
 func ThreadPage(rctx *Context, status *masta.Status, context *masta.Context, mutate bool, src *masta.Source) (err error) {
@@ -78,6 +89,7 @@ func ThreadPage(rctx *Context, status *masta.Status, context *masta.Context, mut
 			DefaultVisibility: status.Visibility,
 			DefaultFormat:     rctx.Settings.DefaultFormat,
 			Formats:           rctx.Conf.PostFormats,
+			Pleroma:           status.Pleroma != nil,
 			EditContext: &EditContext{
 				Source: src,
 				Status: status,
@@ -107,6 +119,7 @@ func ThreadPage(rctx *Context, status *masta.Status, context *masta.Context, mut
 			DefaultVisibility: visibility,
 			DefaultFormat:     rctx.Settings.DefaultFormat,
 			Formats:           rctx.Conf.PostFormats,
+			Pleroma:           status.Pleroma != nil,
 			ReplyContext: &ReplyContext{
 				InReplyToID:        status.ID,
 				InReplyToName:      status.Account.Acct,
@@ -334,6 +347,9 @@ func UserPage[up userPageEntry](rctx *Context, user *masta.Account, rel *masta.R
 		}
 		data.Statuses = d
 	case []*masta.Account:
+		if int64(len(d)) == conf.MaxPagination {
+			next = true
+		}
 		data.Users = d
 	}
 

@@ -4,33 +4,33 @@
 	<div class="user-list-item">
 		<div class="user-list-profile-img">
 			<a class="img-link" href="/user/{{.ID}}">
-				<img class="status-profile-img" src="{{.Avatar}}" title="@{{.Acct}}" alt="avatar" height="48" />
+				<img class="status-profile-img" src="{{.Avatar}}" title="@{{.Acct}}" alt="@{{.Acct}}" height="48">
 			</a>
 		</div>
 		<div class="user-list-name">
-			<div>
-				<div class="status-dname"> {{EmojiFilter (HTML .DisplayName) .Emojis | Raw}} </div>
-				<a class="img-link" href="/user/{{.ID}}">
-					<div class="status-uname"> @{{.Acct}} </div>
-				</a>
+			<bdi class="status-dname">{{EmojiFilter (HTML .DisplayName) .Emojis | Raw}}</bdi>
+			<br>
+			<a class="img-link" href="/user/{{.ID}}"> <div class="status-uname">{{.Acct}}</div> </a>
+			<div class="follow-request-actions">
+				<form class="d-inline" action="/accept/{{.ID}}" method="post" target="_self">
+					<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+					<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+					<input type="submit" value="accept" class="btn-link">
+				</form>
+				-
+				<form class="d-inline" action="/reject/{{.ID}}" method="post" target="_self">
+					<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+					<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+					<input type="submit" value="reject" class="btn-link">
+				</form>
 			</div>
-			<form class="d-inline" action="/accept/{{.ID}}" method="post" target="_self">
-				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-				<input type="submit" value="accept" class="btn-link">
-			</form>
-			-
-			<form class="d-inline" action="/reject/{{.ID}}" method="post" target="_self">
-				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
-				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-				<input type="submit" value="reject" class="btn-link">
-			</form>
 		</div>
 	</div>
+	<br class="hidden">
 	{{- else}}
 	<div class="no-data-found">No data found</div>
 	{{- end}}
 </div>
 {{- else}}
-<div class="no-data-found">No data found</div>
+<p>No data found</p>
 {{- end}}

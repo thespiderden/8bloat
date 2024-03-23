@@ -1,34 +1,35 @@
 {{- with .Data}}
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title"> Search </div>
-<form class="search-form" action="/search" method="GET">
-	<span class="post-form-field">
-		<label for="query"> Query </label>
-		<input id="query" name="q" value="{{.Q}}">
-	</span>
-	<span class="post-form-field">
-		<label for="type"> Type </label>
-		<select id="type" name="type">
-			<option value="statuses" {{if eq .Type "statuses"}}selected{{end}}>Statuses</option>
-			<option value="accounts" {{if eq .Type "accounts"}}selected{{end}}>Accounts</option>
-		</select>
-	</span>
-	<button type="submit"> Search </button>
+<h1>Search</h1>
+<form action="/search" method="GET">
+	<p>
+		<label>
+			Query <input type="text" name="q" value="{{.Q}}">
+		</label>
+		<label>
+			Type
+			<select name="type">
+				<option value="statuses" {{if eq .Type "statuses"}}selected{{end}}>Statuses</option>
+				<option value="accounts" {{if eq .Type "accounts"}}selected{{end}}>Accounts</option>
+			</select>
+		</label>
+		<button type="submit">Search</button>
+	</p>
 </form>
 {{- if eq .Type "statuses"}}
 {{- range .Statuses}}
 {{- template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{- else}}
-{{- if .Q}}<div class="no-data-found">No data found</div>{{end}}
+{{- if .Q}}<p>No data found</p>{{end}}
 {{- end}}
 {{- end}}
 {{- if eq .Type "accounts"}}
 {{- template "userlist.tmpl" (WithContext .Users $.Ctx)}}
 {{- end}}
-<div class="pagination">
+<nav class="pagination">
 	{{- if .NextLink}}
 		<a href="{{.NextLink}}">[next]</a>
 	{{- end}}
-</div>
+</nav>
 {{- template "footer.tmpl"}}
 {{- end}}

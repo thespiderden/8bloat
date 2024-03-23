@@ -16,7 +16,8 @@
 	{{- if .RefreshInterval}}
 	<meta http-equiv="refresh" content="{{.RefreshInterval}}">
 	{{- end}}
-	<title> {{if gt .Count 0}}({{.Count}}){{end}} {{.Title}} </title>
+	{{- if .Settings.DarkMode}}<meta name="color-scheme" content="dark">{{end}}
+	<title>{{if gt .Count 0}}({{.Count}}){{end}} {{.Title}}</title>
 	<link rel="stylesheet" href="/static/style.css?stamp={{.Conf.AssetStamp}}">
 	{{- if .Settings.FluorideMode}}
 	<script src="/static/fluoride.js?stamp={{.Conf.AssetStamp}}"></script>

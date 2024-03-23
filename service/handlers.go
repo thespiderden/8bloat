@@ -2,6 +2,7 @@ package service
 
 import (
 	"embed"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -560,27 +561,6 @@ func handleUserSearch(t *Transaction) error {
 	return render.UserSearchPage(t.Rctx, offset, results, user, sq)
 }
 
-func init() { reg(handleMutes, http.MethodGet, "/mute/:id") }
-func handleMutes(t *Transaction) error {
-	id := t.Vars["id"]
-	notifications, _ := strconv.ParseBool(t.R.FormValue("notifications"))
-	duration, err := strconv.ParseInt(t.R.FormValue("duration"), 10, 64)
-	if err != nil {
-		return err
-	}
-
-	_, err = t.AccountMuteWith(t.Ctx, id, masta.AccountMuteOpts{
-		Notifications: notifications,
-		Duration:      duration,
-	})
-	if err != nil {
-		return err
-	}
-
-	t.redirect("/user/" + id)
-	return nil
-}
-
 func init() { reg(handleAbout, http.MethodGet, "/about") }
 func handleAbout(t *Transaction) error {
 	return render.AboutPage(t.Rctx)
@@ -941,8 +921,18 @@ func handleReject(t *Transaction) error {
 	return nil
 }
 
-func init() { reg(handleMute, http.MethodPost, "/mute/:id") }
-func handleMute(t *Transaction) error {
+func init() { reg(handleMuteGet, http.MethodGet, "/mute/:id") }
+func handleMuteGet(t *Transaction) error {
+	acct, err := t.GetAccount(t.Ctx, t.Vars["id"])
+	if err != nil {
+		return err
+	}
+
+	return render.MutePage(t.Rctx, acct)
+}
+
+func init() { reg(handleMutePost, http.MethodPost, "/mute/:id") }
+func handleMutePost(t *Transaction) error {
 	notifs, _ := strconv.ParseBool(t.R.FormValue("notifications"))
 
 	duration, err := strconv.ParseInt(t.R.FormValue("duration"), 10, 64)
@@ -1011,6 +1001,24 @@ func init() { reg(handleUnsubscribe, http.MethodPost, "/unsubscribe/:id") }
 func handleUnsubscribe(t *Transaction) error {
 	_, err := t.PlAccountUnsubscribe(t.Ctx, t.Vars["id"])
 	if err != nil {
+		return err
+	}
+
+	t.redirect(t.R.FormValue("referrer"))
+	return nil
+}
+
+func init() { reg(handleRemoveFollower, http.MethodPost, "/removefollower/:id") }
+func handleRemoveFollower(t *Transaction) error {
+	_, err := t.AccountRemoveFollower(t.Ctx, t.Vars["id"])
+	if err != nil {
+		if aerr := err.(*masta.APIError); aerr != nil {
+			// Pleroma might sometimes not let you remove a follower if it's mandated by the instance.
+			if aerr.Code == 404 {
+				t.redirect(t.R.FormValue("referrer"))
+				return nil
+			}
+		}
 		return err
 	}
 
@@ -1145,6 +1153,114 @@ func handleUnbookmark(t *Transaction) error {
 	}
 
 	t.redirect(t.R.FormValue("referrer") + "#status-" + id)
+	return nil
+}
+
+func init() { reg(handleProfilePage, http.MethodGet, "/profile") }
+func init() { reg(handleProfilePage, http.MethodPost, "/profile") }
+func handleProfilePage(t *Transaction) error {
+	if t.R.Method == "GET" {
+		acct, err := t.GetAccountCurrentUser(t.Ctx)
+		if err != nil {
+			return err
+		}
+
+		return render.ProfilePage(t.Rctx, acct)
+	}
+
+	name := t.R.FormValue("name")
+	bio := t.R.FormValue("bio")
+	bot := t.R.FormValue("bot") == "true"
+
+	var fields []masta.Field
+	for i := 0; i < 16; i++ {
+		if t.R.FormValue(fmt.Sprintf("field-delete-%d", i)) == "true" {
+			continue
+		}
+		k := t.R.FormValue(fmt.Sprintf("field-key-%d", i))
+		if len(k) == 0 {
+			continue
+		}
+		v := t.R.FormValue(fmt.Sprintf("field-value-%d", i))
+		f := masta.Field{Name: k, Value: v}
+		fields = append(fields, f)
+	}
+
+	newk := t.R.FormValue("field-new-key")
+	if len(newk) != 0 {
+		newv := t.R.FormValue("field-new-value")
+		fields = append(fields, masta.Field{Name: newk, Value: newv})
+	}
+
+	locked := t.R.FormValue("locked") == "true"
+
+	tertiary := func(key string) *bool {
+		if val := t.R.FormValue(key); val == "ignore" {
+			return nil
+		} else {
+			t := val == "true"
+			return &t
+		}
+	}
+
+	indexable := tertiary("noindex")
+	if indexable != nil {
+		*indexable = !*indexable
+	}
+
+	profile := &masta.Profile{
+		DisplayName:          &name,
+		Note:                 &bio,
+		Fields:               &fields,
+		Locked:               &locked,
+		Bot:                  &bot,
+		Indexable:            indexable,
+		Discoverable:         tertiary("discoverable"),
+		HideCollections:      tertiary("hide-collections"),
+		PlHideFavorites:      tertiary("hide-favourites"),
+		PlHideFollowers:      tertiary("hide-followers"),
+		PlHideFollowersCount: tertiary("hide-followers-count"),
+		PlHideFollows:        tertiary("hide-follows"),
+		PlHideFollowsCount:   tertiary("hide-follows-count"),
+	}
+
+	if t.R.FormValue("profile-img-delete") == "true" {
+		profile.Avatar = masta.EmptyFile()
+	} else if f := t.R.MultipartForm.File["avatar"]; len(f) > 0 {
+		profile.Avatar = &masta.File{}
+		profile.Avatar.Name = f[0].Filename
+
+		c, err := f[0].Open()
+		if err != nil {
+			return err
+		}
+
+		defer c.Close()
+
+		profile.Avatar.Content = c
+	}
+	if t.R.FormValue("profile-banner-delete") == "true" {
+		profile.Header = masta.EmptyFile()
+	} else if f := t.R.MultipartForm.File["banner"]; len(f) > 0 {
+		profile.Header = &masta.File{}
+		profile.Header.Name = f[0].Filename
+
+		c, err := f[0].Open()
+		if err != nil {
+			return err
+		}
+
+		defer c.Close()
+
+		profile.Header.Content = c
+	}
+
+	_, err := t.AccountUpdate(t.Ctx, profile)
+	if err != nil {
+		return err
+	}
+
+	t.redirect("/profile")
 	return nil
 }
 

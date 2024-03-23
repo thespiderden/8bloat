@@ -185,6 +185,11 @@ type PostContext struct {
 	ReplyContext      *ReplyContext
 	EditContext       *EditContext
 	Formats           []conf.PostFormat
+	Pleroma           bool
+}
+
+type ProfileData struct {
+	User *masta.Account
 }
 
 type EditContext struct {

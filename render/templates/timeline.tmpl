@@ -1,12 +1,9 @@
 {{- with .Data}}
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title-container">
-	<span class="page-title">{{if .Title}} {{.Title}} {{else}} Timeline {{end}}</span>
-	<a class="page-refresh" href="{{$.Ctx.Referrer}}" accesskey="T" title="Refresh (T)">refresh</a>
-</div>
+<h1>{{if .Title}} {{.Title}} {{else}} Timeline {{end}}<a class="page-link" href="{{$.Ctx.Referrer}}" accesskey="T" title="Refresh (T)">refresh</a></h1>
 {{- if eq .Type "remote"}}
-<form class="search-form" action="/timeline/remote" method="GET">
-	<span class="post-form-field">
+<form action="/timeline/remote" method="GET">
+	<span>
 		<label for="instance"> Instance </label>
 		<input id="instance" name="instance" value="{{.Instance}}">
 	</span>
@@ -16,13 +13,13 @@
 {{- range .Statuses}}
 {{- template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx) }}
 {{- end}}
-<div class="pagination">
+<nav class="pagination">
 	{{- if .PrevLink}}
 		<a href="{{.PrevLink}}">[prev]</a>
 	{{- end}}
 	{{- if .NextLink}}
 		<a href="{{.NextLink}}">[next]</a>
 	{{- end}}
-</div>
+</nav>
 {{- template "footer.tmpl"}}
 {{- end}}

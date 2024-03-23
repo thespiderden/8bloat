@@ -1,6 +1,6 @@
 {{- with .Data}}
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title"> User </div>
+<h1>User</h1>
 <div class="user-info-container">
 <div>
 	<div class="user-profile-img-container">
@@ -41,19 +41,21 @@
 				<input type="submit" value="cancel request" class="btn-link">
 			</form>
 			{{- end}}
+			{{- if .User.Pleroma}}
 			-
-			{{- if .Relationship.Subscribing}}
+				{{- if .Relationship.Subscribing}}
 			<form class="d-inline" action="/unsubscribe/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="unsubscribe" class="btn-link">
 			</form>
-			{{- else}}
+				{{- else}}
 			<form class="d-inline" action="/subscribe/{{.User.ID}}" method="post">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="submit" value="subscribe" class="btn-link">
 			</form>
+				{{- end}}
 			{{- end}}
 		</div>
 		<div>
@@ -79,6 +81,14 @@
 			</form>
 			{{- else}}
 			<a href="/mute/{{.User.ID}}">mute</a>
+			{{- end}}
+			{{- if .Relationship.FollowedBy}}
+			-
+			<form class="d-inline" action="/removefollower/{{.User.ID}}" method="post">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+				<input type="submit" value="remove from followers" class="btn-link">
+			</form>
 			{{- end}}
 			{{- if .Relationship.Following}} 
 			-
@@ -119,7 +129,7 @@
 			{{if .IsCurrent}} - <a href="/filters"> filters </a> {{end}}
 		</div>
 	</div>
-	<div class="user-profile-decription">
+	<div class="user-profile-description">
 	{{- EmojiFilter .User.Note .User.Emojis | Raw}}
 	</div>
 	{{- if .User.Fields}}
@@ -132,60 +142,132 @@
 </div>
 </div>
 {{- if eq .Type "statuses"}}
-<div class="page-title"> Statuses </div>
+<h1>Statuses</h1>
 {{- range .Statuses}}
 {{- template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{- else}}
-<div class="no-data-found">No data found</div>
+<p>No data Found</p>
 {{- end}}
 {{- else if eq .Type "following"}}
-<div class="page-title"> Following </div>
-{{- template "userlist.tmpl" (WithContext .Users $.Ctx)}}
+<h1>Following</h1>
+{{- if .Users}}
+<table>
+	{{- range .Users}}
+	<tr>
+		<td>{{template "userlistitem.tmpl" (WithContext . $.Ctx)}}</td>
+		{{- if $.Data.IsCurrent}}
+		<td>
+			<form class="user-list-action" action="/unfollow/{{.ID}}" method="POST">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+				<button type="submit">Unfollow</button>
+			</form>
+		</td>
+		{{end}}
+	</tr>
+	{{- end}}
+</table>
+{{- else}}
+<p>No data found</p>
+{{- end}}
 {{- else if eq .Type "followers"}}
-<div class="page-title"> Followers </div>
-{{- template "userlist.tmpl" (WithContext .Users $.Ctx)}}
+<h1>Followers</h1>
+{{- if .Users}}
+<table>
+	{{- range .Users}}
+	<tr>
+		{{- if $.Data.IsCurrent}}
+		<td>{{template "userlistitem.tmpl" (WithContext . $.Ctx)}}</td>
+		<td>
+			<form class="user-list-action" action="/removefollower/{{.ID}}" method="POST">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+				<button type="submit">Remove</button>
+			</form>
+		</td>
+		{{- end}}
+	</tr>
+	{{- end}}
+</table>
+{{- else}}
+<p>No data found</p>
+{{- end}}
 {{- else if eq .Type "media"}}
-<div class="page-title"> Statuses with media </div>
+<h1>Statuses with media</h1>
 {{- range .Statuses}}
 {{- template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{- else}}
-<div class="no-data-found">No data found</div>
+<p>No data found</p>
 {{- end}}
 {{- else if eq .Type "bookmarks"}}
-<div class="page-title"> Bookmarks </div>
+<h1>Bookmarks</h1>
 {{- range .Statuses}}
 {{- template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{- else}}
-<div class="no-data-found">No data found</div>
+<p>No data found</p>
 {{- end}}
 {{- else if eq .Type "likes"}}
-<div class="page-title"> Likes </div>
+<h1>Likes</h1>
 {{- range .Statuses}}
 {{- template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{- else}}
-<div class="no-data-found">No data found</div>
+<p>No data found</p>
 {{- end}}
 {{- else if eq .Type "pinned"}}
-<div class="page-title"> Pinned </div>
+<h1>Pinned</h1>
 {{- range .Statuses}}
 {{- template "status.tmpl" (WithContext (wrapRawStatus .) $.Ctx)}}
 {{- else}}
-<div class="no-data-found">No data found</div>
+<p>No data found</p>
 {{- end}}
 {{- else if eq .Type "mutes"}}
-<div class="page-title"> Mutes </div>
-{{- template "userlist.tmpl" (WithContext .Users $.Ctx)}}
+<h1>Mutes</h1>
+{{- if .Users}}
+<table>
+	{{- range .Users}}
+	<tr>
+		<td>{{template "userlistitem.tmpl" (WithContext . $.Ctx)}}</td>
+		<td>
+			<form class="user-list-action" action="/unmute/{{.ID}}" method="POST">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+				<button type="submit">Unmute</button>
+			</form>
+		</td>
+	</tr>
+	{{- end}}
+</table>
+{{- else}}
+<p>No data found</p>
+{{- end}}
 {{- else if eq .Type "blocks"}}
-<div class="page-title"> Blocks </div>
-{{- template "userlist.tmpl" (WithContext .Users $.Ctx)}}
+<h1>Blocks</h1>
+	{{- if .Users}}
+<table>
+		{{- range .Users}}
+	<tr>
+		<td>{{template "userlistitem.tmpl" (WithContext . $.Ctx)}}</td>
+		<td>
+			<form class="user-list-action" action="/unblock/{{.ID}}" method="POST">
+				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+				<button type="submit">Unblock</button>
+			</form>
+		</td>
+	</tr>
+		{{- end}}
+</table>
+	{{- else}}
+<p>No data found</p>
+{{- end}}
 {{- else if eq .Type "requests"}}
-<div class="page-title"> Follow requests </div>
+<h1>Follow requests</h1>
 {{- template "requestlist.tmpl" (WithContext .Users $.Ctx)}}
 {{- end}}
-<div class="pagination">
+<nav class="pagination">
 	{{- if .NextLink}}
 		<a href="{{.NextLink}}">[next]</a>
 	{{- end}}
-</div>
+</nav>
 {{- template "footer.tmpl"}}
 {{- end}}

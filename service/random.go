@@ -16,10 +16,6 @@ func NewRandID(n int) (string, error) {
 	return enc.EncodeToString(data), nil
 }
 
-func NewSessionID() (string, error) {
-	return NewRandID(24)
-}
-
 func NewCSRFToken() (string, error) {
 	return NewRandID(24)
 }

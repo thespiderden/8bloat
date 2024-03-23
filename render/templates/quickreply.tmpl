@@ -1,6 +1,6 @@
 {{- with $s := .Data}}
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title"> Quick Reply </div>
+<h1>Quick Reply</h1>
 {{- if .Ancestor}}
 {{- template "status.tmpl" (WithContext (wrapRawStatus .Ancestor) $.Ctx)}}
 {{- end}}

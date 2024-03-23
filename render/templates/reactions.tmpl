@@ -1,9 +1,9 @@
 {{- with .Data}}
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title"> Reactions </div>
+<h1>Reactions</h1>
 {{- range .Reactions }}
 {{- $number := len .Accounts }}
-<div class="reaction-list-title">{{.Emoji}} ({{$number}})</div>
+<h2 class="reaction-list-title">{{.Emoji}} ({{$number}})</h2>
 {{- template "userlist.tmpl" (WithContext .Accounts $.Ctx)}}
 {{- end}}
 {{- template "footer.tmpl"}}

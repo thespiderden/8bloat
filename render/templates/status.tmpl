@@ -1,22 +1,24 @@
 {{- with .Data}}
-<div id="status-{{.ID}}" class="status-container-container">
-	{{- if .Reblog}}
-	<div class="retweet-info">
-		<a class="img-link" href="/user/{{.Account.ID}}">
-			<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="24" />
-		</a>
-		<bdi class="status-dname"> {{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}} </bdi>
-		<a href="/user/{{.Account.ID}}" class="status-dname">@{{.Account.Acct}}</a>
-		retweeted
-	</div>
-	{{- template "status" (WithContext (wrapRawStatus .Reblog) $.Ctx)}}
-	{{- else}}
-	{{- block "status" (WithContext . $.Ctx)}}
-	{{- with $s := .Data}}
+{{- if .Reblog}}
+<div class="retweet-container">
+<div class="retweet-info">
+	<a class="img-link" href="/user/{{.Account.ID}}">
+		<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="@{{.Account.Acct}}" height="24">
+	</a>
+	<bdi class="status-dname">{{EmojiFilter (HTML .Account.DisplayName) .Account.Emojis | Raw}}</bdi>
+	<a href="/user/{{.Account.ID}}" class="status-dname">@{{.Account.Acct}}</a>
+	<span>retweeted</span>
+</div>
+{{- template "status" (WithContext (wrapRawStatus .Reblog) $.Ctx)}}
+</div>
+{{- else}}
+{{- block "status" (WithContext . $.Ctx)}}
+{{- with $s := .Data}}
+<article id="status-{{.ID}}" class="status-container-container">
 	<div class="status-container status-{{.ID}}{{if .History}} status-history{{end}}" data-id="{{.ID}}">
 		<div class="status-profile-img-container">
 			<a class="img-link" href="/user/{{.Account.ID}}">
-				<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="avatar" height="48" />
+				<img class="status-profile-img" src="{{.Account.Avatar}}" title="@{{.Account.Acct}}" alt="@{{.Account.Acct}}" height="48">
 			</a>
 		</div>
 		<div class="status"> 
@@ -31,12 +33,8 @@
 					</div>
 					{{- if not .History}}
 					<div class="more-content">
-						<a class="more-link" href="{{.URL}}" target="_blank">
-							source
-						</a>
-						<a class="more-link" href="/quickreply/{{.ID}}#status-{{.ID}}">
-							quickreply
-						</a>
+						<a class="more-link" href="{{.URL}}" target="_blank">source</a>
+						<a class="more-link" href="/quickreply/{{.ID}}#status-{{.ID}}">quickreply</a>
 						{{- if .Muted}}
 						<form action="/unmuteconv/{{.ID}}" method="post" target="_self">
 							<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
@@ -53,13 +51,13 @@
 						{{- if eq $.Ctx.UserID .Account.ID}}
 							<a class="more-link" href="/thread/{{.ID}}?edit=true#status-{{.ID}}">edit</a>
 							{{- if .Pinned}}
-								<form action="/unpin/{{.ID}}" method="post" target="_self">
+							<form action="/unpin/{{.ID}}" method="post" target="_self">
 								<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 								<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 								<input type="submit" value="unpin" class="btn-link more-link">
 							</form>
 							{{- else}}
-								<form action="/pin/{{.ID}}" method="post" target="_self">
+							<form action="/pin/{{.ID}}" method="post" target="_self">
 								<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 								<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 								<input type="submit" value="pin" class="btn-link more-link">
@@ -94,6 +92,7 @@
 					{{- end}}
 				</div>
 			</div>
+			{{if (and .InReplyToID .ShowReplies)}}
 			<div class="status-reply-container">
 				{{- if .InReplyToID}}
 				<a class="status-reply-to-link" href="{{if not .ShowReplies}}/thread/{{.InReplyToID}}{{end}}#status-{{.InReplyToID}}"> 
@@ -108,11 +107,12 @@
 				{{- end}}
 				{{- end}}
 			</div>
+			{{- end}}
 			{{- if (or .Content .SpoilerText)}}
 			<div class="status-content">
 				{{- if .SpoilerText}}
 				<div class="status-subject-header">
-				{{- EmojiFilter (HTML .SpoilerText) .Emojis | Raw}}<br/>
+				{{- EmojiFilter (HTML .SpoilerText) .Emojis | Raw}}<br>
 				</div>
 				{{- end}}
 				<span class="status-content-text">{{StatusContentFilter .Content .Emojis .Mentions | Raw}}</span>
@@ -155,7 +155,7 @@
 				<div class="status-video-container" title="{{.Description}}">
 					<video class="status-video" {{if eq .Type "video"}}controls{{else}}loop autoplay{{end}} height="240">
 						<source src="{{.URL}}">
-						<a href="{{.URL}}" target="_blank"> [video] </a>
+						<a href="{{.URL}}" target="_blank">[video]</a>
 					</video>
 					{{if (and $.Ctx.Settings.MaskNSFW $s.Sensitive)}}
 					<div class="status-nsfw-overlay"></div>
@@ -174,14 +174,14 @@
 			</details>
 			{{- end}}
 			{{- if .Poll}}
-			<form class="poll-form" action="/vote/{{.Poll.ID}}" method="POST" target="_self">
+			<form class="status-poll" action="/vote/{{.Poll.ID}}" method="POST" target="_self">
 				<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 				<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 				<input type="hidden" name="status_id" value="{{$s.ID}}">
 				{{- range $i, $o := .Poll.Options}}
-				<div class="poll-option">
+				<div class="form-field-s">
 					{{- if (or $s.Poll.Expired $s.Poll.Voted)}}
-					<div> {{EmojiFilter (HTML $o.Title) $s.Emojis | Raw}} - {{$o.VotesCount}} votes </div>
+					<div>{{EmojiFilter (HTML $o.Title) $s.Emojis | Raw}} - {{$o.VotesCount}} votes</div>
 					{{- else}}
 					<input type="{{if $s.Poll.Multiple}}checkbox{{else}}radio{{end}}" name="choices" 
 						id="poll-{{$s.ID}}-{{$i}}" value="{{$i}}">
@@ -192,9 +192,11 @@
 				</div>
 				{{- end}}
 				{{- if not (or .Poll.Expired .Poll.Voted)}}
-				<button type="submit"> Vote </button>
+				<div class="form-field-s">
+					<button type="submit">Vote</button>
+				</div>
 				{{- end}}
-				<div class="poll-info">
+				<div>
 					<span>{{.Poll.VotesCount}} votes</span>
 					{{- if .Poll.Expired}}
 					<span> - poll expired </span>
@@ -212,9 +214,7 @@
 			<div class="status-action-container"> 
 				{{- if not .History}}
 				<div class="status-action">
-					<a href="/thread/{{.ID}}?reply=true#status-{{.ID}}"> 
-						reply
-					</a>
+					<a href="/thread/{{.ID}}?reply=true#status-{{.ID}}">reply</a>
 					<a class="status-reply-count" href="/thread/{{.ID}}#status-{{.ID}}" {{if $.Ctx.Settings.ThreadInNewTab}}target="_blank"{{end}}>
 						{{- if and (not $.Ctx.Settings.AntiDopamineMode) .RepliesCount}}
 							({{DisplayInteractionCount .RepliesCount}})
@@ -269,8 +269,7 @@
 					<a class="status-time" href="{{if not .ShowReplies}}/thread/{{.ID}}{{end}}#status-{{.ID}}"
 					{{- if $.Ctx.Settings.ThreadInNewTab}}target="_blank"{{end}}>
 				{{- end}} 
-					<time class="status-time status-time-relative{{if .History}} status-time-history{{end}}" datetime="{{FormatTimeRFC3339 .CreatedAt}}" {{if not .History}}title="{{FormatTimeRFC822 .CreatedAt}}"{{end}}>
-						{{- TimeSince .CreatedAt}}
+					<time class="status-time status-time-relative{{if .History}} status-time-history{{end}}" datetime="{{FormatTimeRFC3339 .CreatedAt}}" {{if not .History}}title="{{FormatTimeRFC822 .CreatedAt}}"{{end}}>{{- TimeSince .CreatedAt}}
 					</time>
 				{{- if not .History}}
 					</a>
@@ -285,8 +284,8 @@
 			</div>
 		</div>
 	</div>
+	</article>
 	{{- end}}
 	{{- end}}
-	{{- end}}
-</div>
+{{- end}}
 {{- end}}

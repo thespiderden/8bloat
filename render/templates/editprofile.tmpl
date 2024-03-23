@@ -1,0 +1,150 @@
+{{- with .Data}}
+{{- template "header.tmpl" $.Ctx}}
+<h1>Edit Profile</h1>
+<form action="/profile" method="POST" enctype="multipart/form-data">
+	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
+	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
+	<h2>Profile Images</h2>
+	<div class="form-field">
+		<div class="block-label">
+			<label for="avatar">Avatar</label>
+		</div>
+		<div class="profile-img-container">
+			<a class="img-link" href="{{.User.Avatar}}" target="_blank">
+				<img class="profile-avatar" src="{{.User.Avatar}}" alt="profile-avatar" height="96">
+			</a>
+		</div>
+	{{- /* We have no reliable way to check if Mastodon supports removing the avatar. */}}
+	{{- if .User.Pleroma}}
+		<div class="block-label">
+			<input id="profile-img-delete" name="profile-img-delete" type="checkbox" value="true">
+			<label for="profile-img-delete">Remove</label>
+		</div>
+	{{end}}
+		<div><input id="avatar" name="avatar" type="file"></div>
+	</div>
+	<br class="hidden">
+	<div class="form-field">
+		<div class="block-label">
+			<label for="banner">Banner</label>
+		</div>
+		<div class="profile-img-container">
+			<a class="img-link" href="{{.User.Header}}" target="_blank">
+				<img class="profile-banner" src="{{.User.Header}}" alt="profile-banner" height="120">
+			</a>
+		</div>
+		<div class="block-label">
+			<input id="profile-banner-delete" name="profile-banner-delete" type="checkbox" value="true">
+			<label for="profile-banner-delete">Remove</label>
+		</div>
+		<input id="banner" name="banner" type="file">
+	</div>
+	<h2>Information</h2>
+	<br class="hidden">
+	<div class="form-field">
+		<div class="block-label"><label for="name">Name</label></div>
+		<div>
+			<input id="name" name="name" type="text" class="input-w" value="{{.User.DisplayName}}">
+			<input id="bot" name="bot" type="checkbox" value="true" {{if .User.Bot}}checked{{end}}>
+			<label for="bot">Bot</label>
+		</div>
+	</div>
+	<br class="hidden">
+	<div class="form-field">
+		<div class="block-label"><label for="bio">Bio</label></div>
+		<textarea id="bio" name="bio" cols="80" rows="8">{{.User.Source.Note}}</textarea>
+	</div>
+	<br class="hidden">
+	<h2>Metadata</h2>
+	<div class="form-field">
+	{{- range $i, $f := .User.Source.Fields}}
+	<div class="form-field">
+		<input id="field-key-{{$i}}" name="field-key-{{$i}}" type="text" class="input-w" value="{{$f.Name}}" placeholder="name">
+		<input id="field-value-{{$i}}" name="field-value-{{$i}}" type="text" class="input-w" value="{{$f.Value}}" placeholder="value">
+		<input id="field-delete-{{$i}}" name="field-delete-{{$i}}" type="checkbox" value="true">
+		<label for="field-delete-{{$i}}">Remove</label>
+	</div>
+	{{- end}}
+	<div class="form-field">
+		<input id="field-new-key" name="field-new-key" type="text" class="input-w" value="" placeholder="key">
+		<input id="field-new-value" name="field-new-value" type="text" class="input-w" value="" placeholder="value">
+	</div>
+	</div>
+	<br class="hidden">
+	<h2>Settings</h2>
+	<div class="form-field">
+		<input id="locked" name="locked" type="checkbox" value="true"{{if .User.Locked}} checked{{end}}>
+		<label for="locked">Require follows to your account to be approved by you</label>
+	</div>
+	{{- /* Hack: NoIndex was added before Indexable, but HideCollections was added
+	on the same version that Indexable was, so we use that as a heuristic.*/}}
+	{{- if and .User.HideCollections .User.NoIndex}}
+    <div class="form-field">
+    	<input id="noindex" name="noindex" type="checkbox" value="true"{{if dbool .User.NoIndex}} checked{{end}}>
+    	<label for="noindex">Opt out of search engine indexing</label>
+    </div>
+    {{- else}}
+    <input name="noindex" type="hidden" value="ignore">
+    {{- end}}
+	{{- if .User.Discoverable}}
+    <div class="form-field">
+    	<input id="discoverable" name="discoverable" type="checkbox" value="true"{{if dbool .User.Discoverable}} checked{{end}}>
+    	<label for="discoverable">Allow account to be shown in the profile directory</label>
+    </div>
+    {{- else}}
+    <input name="discoverable" type="hidden" value="ignore">
+    {{- end}}
+    {{- if .User.HideCollections}}
+    <div class="form-field">
+    	<input id="hide-collections" name="hide-collections" type="checkbox" value="true"{{if dbool .User.HideCollections}} checked{{end}}>
+    	<label for="hide-collections">Hide followers, followed accounts, and favourites to other users</label>
+    </div>
+    {{- else}}
+    <input name="hide-collections" type="hidden" value="ignore">
+    {{- end}}
+	{{- if .User.Pleroma}}
+	<div class="form-field">
+		<input id="hide-favourites" name="hide-favourites" type="checkbox" value="true"{{if .User.Pleroma.HideFavorites}} checked{{end}}>
+		<label for="hide-favourites">Hide your favourites from other users</label>
+	</div>
+	{{- else}}
+		<input name="hide-favourites" type="hidden" value="ignore">
+	{{- end}}
+	{{- if .User.Pleroma}}
+	<div class="form-field">
+		<input id="hide-followers" name="hide-followers" type="checkbox" value="true"{{if .User.Pleroma.HideFollowers}} checked{{end}}>
+		<label for="hide-followers">Hide your list of followers from other users</label>
+	</div>
+	{{- else}}
+	<input name="hide-followers" type="hidden" value="ignore">
+	{{- end}}
+	{{- if .User.Pleroma}}
+	<div class="form-field">
+		<input id="hide-followers-count" name="hide-followers-count" type="checkbox" value="true"{{if .User.Pleroma.HideFollowersCount}} checked{{end}}>
+		<label for="hide-followers-count">Hide your number of followers from other users</label>
+		</div>
+	{{- else}}
+		<input name="hide-followers-count" type="hidden" value="ignore">
+	{{- end}}
+	{{- if .User.Pleroma}}
+	<div class="form-field">
+		<input id="hide-follows" name="hide-follows" type="checkbox" value="true" {{if .User.Pleroma.HideFollows}} checked{{end}}>
+		<label for="hide-follows">Hide who you're following from other users</label>
+	</div>
+	{{- else}}
+	<input name="hide-follows" type="hidden" value="ignore">
+	{{- end}}
+	{{- if .User.Pleroma}}
+	<div class="form-field">
+		<input id="hide-follows-count" name="hide-follows-count" type="checkbox" value="true"{{if .User.Pleroma.HideFollowsCount}} checked{{end}}>
+		<label for="hide-follows-count">Hide the number of people you're following from other users</label>
+	</div>
+	{{- else}}
+	<input name="hide-follows-count" type="hidden" value="ignore">
+	{{- end}}
+	<br class="hidden">
+	<button type="submit">Save</button>
+	<button type="reset">Reset</button>
+</form>
+{{- template "footer.tmpl"}}
+{{- end}}

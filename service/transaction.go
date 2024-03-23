@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
@@ -54,6 +53,7 @@ func (c *Transaction) getSession() (sess *Session, err error) {
 }
 
 func (c *Transaction) unsetSession() {
+	c.RevokeToken(c.Ctx)
 	http.SetCookie(c.W, &http.Cookie{
 		Name:    "session",
 		Value:   "",
@@ -140,10 +140,6 @@ func newSession(t *Transaction, instance string) (rurl string, sess *Session, er
 		instanceURL = "https://" + instance
 	}
 
-	sid, err := NewSessionID()
-	if err != nil {
-		return
-	}
 	csrf, err := NewCSRFToken()
 	if err != nil {
 		return
@@ -161,7 +157,6 @@ func newSession(t *Transaction, instance string) (rurl string, sess *Session, er
 		return
 	}
 	sess = &Session{
-		ID:           sid,
 		Instance:     instance,
 		ClientID:     app.ClientID,
 		ClientSecret: app.ClientSecret,
@@ -169,24 +164,11 @@ func newSession(t *Transaction, instance string) (rurl string, sess *Session, er
 		Settings:     *render.NewSettings(),
 	}
 
-	u, err := url.Parse("/oauth/authorize")
-	if err != nil {
-		return
-	}
-
-	q := make(url.Values)
-	q.Set("scope", "read write follow")
-	q.Set("client_id", app.ClientID)
-	q.Set("response_type", "code")
-	q.Set("redirect_uri", t.Conf.ClientWebsite+"/oauth_callback")
-	u.RawQuery = q.Encode()
-
-	rurl = instanceURL + u.String()
+	rurl = app.AuthURI
 	return
 }
 
 type Session struct {
-	ID           string          `json:"id,omitempty"`
 	UserID       string          `json:"uid,omitempty"`
 	Instance     string          `json:"ins,omitempty"`
 	ClientID     string          `json:"cid,omitempty"`

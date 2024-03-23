@@ -1,6 +1,6 @@
 {{- with .Data}}
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title"> Liked By </div>
+<h1>Liked By</h1>
 {{- template "userlist.tmpl" (WithContext .Users $.Ctx)}}
 {{- template "footer.tmpl"}}
 {{- end}}

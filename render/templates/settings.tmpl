@@ -1,12 +1,12 @@
 {{- with .Data}}
 {{- template "header.tmpl" $.Ctx}}
 <div class="page-title"> Settings </div>
-<form id="settings-form" action="/settings" method="POST">
+<form action="/settings" method="POST">
 	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 	{{- if .PostFormats}}
-	<div class="settings-form-field">
-		<label for="post-format"> Default format </label>
+	<div class="form-field">
+		<label for="post-format">Default format</label>
 		{{- $defFormat := .Settings.DefaultFormat}}
 		<select id="post-format" name="format">
 			{{- range .PostFormats}} 
@@ -15,7 +15,7 @@
 		</select>
 	</div>
 	{{- end}}
-	<div class="settings-form-field">
+	<div class="form-field">
 		<label for="visibility"> Default scope </label>
 		<select id="visibility" name="visibility">
 			<option value="public" {{if eq .Settings.DefaultVisibility "public"}}selected{{end}}>Public</option>
@@ -25,7 +25,7 @@
 			<option value="direct" {{if eq .Settings.DefaultVisibility "direct"}}selected{{end}}>Direct</option>
 		</select>
 	</div>
-	<div class="settings-form-field">
+	<div class="form-field">
 		<label for="notification-interval"> Refresh Notifications </label>
 		<select id="notification-interval" name="notification_interval">
 			<option value="0" {{if eq .Settings.NotificationInterval 0}}selected{{end}}>Disabled</option>
@@ -36,45 +36,45 @@
 			<option value="600" {{if eq .Settings.NotificationInterval 600}}selected{{end}}>After 10m</option>
 		</select>
 	</div>
-	<div class="settings-form-field">
+	<div class="form-field">
 		<input id="copy-scope" name="copy_scope" type="checkbox" value="true" {{if .Settings.CopyScope}}checked{{end}}>
 		<label for="copy-scope"> Copy scope when replying </label>
 	</div>
-	<div class="settings-form-field">
+	<div class="form-field">
 		<input id="thread-tab" name="thread_in_new_tab" type="checkbox" value="true" {{if .Settings.ThreadInNewTab}}checked{{end}}>
 		<label for="thread-tab"> Open threads in new tab from timeline </label>
 	</div>
-	<div class="settings-form-field">
+	<div class="form-field">
 		<input id="hide-attachments" name="hide_attachments" type="checkbox" value="true" {{if .Settings.HideAttachments}}checked{{end}}>
 		<label for="hide-attachments"> Hide attachments </label>
 	</div>
-	<div class="settings-form-field">
+	<div class="form-field">
 		<input id="mask-nsfw" name="mask_nsfw" type="checkbox" value="true" {{if .Settings.MaskNSFW}}checked{{end}}>
 		<label for="mask-nsfw"> Collapse NSFW attachments </label>
 	</div>
-	<div class="settings-form-field">
+	<div class="form-field">
 		<input id="fluoride-mode" name="fluoride_mode" type="checkbox" value="true" {{if .Settings.FluorideMode}}checked{{end}}>
 		<label for="fluoride-mode"> Enable <abbr title="Enable JavaScript based functionality, e.g., like/retweet without page reload and reply preview on thread page">fluoride mode</abbr> </label>
 	</div>
-	<div class="settings-form-field">
+	<div class="form-field">
 		<input id="anti-dopamine-mode" name="anti_dopamine_mode" type="checkbox"
 		value="true" {{if .Settings.AntiDopamineMode}}checked{{end}}>
 		<label for="anti-dopamine-mode"> Enable <abbr title="Remove like/retweet/unread notification count and disable like/retweet/follow notifications">anti-dopamine mode</abbr> </label>
 	</div>
-	<div class="settings-form-field">
+	<div class="form-field">
 		<input id="hide-unsupported-notifs" name="hide_unsupported_notifs" type="checkbox"
 		value="true" {{if .Settings.HideUnsupportedNotifs}}checked{{end}}>
 		<label for="hide-unsupported-notifs"> Hide unsupported notifications </label>
 	</div>
-	<div class="settings-form-field">
+	<div class="form-field">
 		<input id="dark-mode" name="dark_mode" type="checkbox" value="true" {{if .Settings.DarkMode}}checked{{end}}>
 		<label for="dark-mode"> Use dark theme </label>
 	</div>
-	<div class="settings-form-field">
+	<div class="form-field">
 		<label for="css"> Custom CSS: </label>
 	</div>
-	<div>
-		<textarea id="css" name="css" cols="80" rows="8">{{.Settings.CSS}}</textarea>
+	<div class="form-field">
+		<textarea id="css" class="monospace" name="css" cols="80" rows="8">{{.Settings.CSS}}</textarea>
 	</div>
 	<button type="submit"> Save </button>
 </form>

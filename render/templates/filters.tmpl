@@ -1,6 +1,6 @@
 {{- with .Data}}
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title"> Filters </div>
+<h1>Filters</h1>
 {{- if .Filters}}
 <table class="filters">
 	{{- range .Filters}}
@@ -19,19 +19,13 @@
 {{- else}}
 	<div class="filters"> No filters added </div>
 {{- end}}
-<div class="page-title"> Add filter </div>
+<h1> Add filter </h1>
 <form action="/filter" method="POST">
 	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
-	<span class="settings-form-field">
-		<label for="phrase"> Phrase </label>
-		<input id="phrase" name="phrase" required>
-	</span>
-	<span class="settings-form-field">
-		<input id="whole-word" name="whole_word" type="checkbox" value="true" checked>
-		<label for="whole-word"> Whole word </label>
-	</span>
-	<button type="submit"> Add </button>
+	<label>Phrase <input type="text" name="phrase" required></label>
+	<label><input name="whole_word" type="checkbox" value="true" checked>Whole word</label>
+	<button type="submit">Add</button>
 </form>
 {{- template "footer.tmpl"}}
 {{- end}}

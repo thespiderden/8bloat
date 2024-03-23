@@ -1,6 +1,6 @@
 {{- with .Ctx}}
 {{- template "header.tmpl" .}}
-<div class="page-title"> About 8bloat </div>
+<h1>About 8bloat</h1>
 <div>
 	<p>
 		A web client for the <a href="https://pleroma.social" target="_blank">Mastadon Network</a>.
@@ -9,7 +9,7 @@
 		The source code is released under the
 		<a href="https://www.gnu.org/licenses/agpl-3.0.txt" target="_blank">AGPLv3</a> 
 		and is available on 
-		<a href="https://git.sr.ht/~webb/bloat" target="_blank">SourceHut</a>.
+		<a href="https://git.sr.ht/~webb/8bloat" target="_blank">SourceHut</a>.
 		<br>
 		Based on
 		<a href="https://git.freesoftwareextremist.com/bloat" target="_blank">bloat</a> 
@@ -17,7 +17,7 @@
 		<a href="https://freesoftwareextremist.com/r" target="_blank">@r@freesoftwareextremist.com</a>.
 	</p>
 </div>
-<div class="page-title"> Keyboard shortcuts </div>
+<h2>Keyboard shortcuts</h2>
 <div>
 	<table class="keyboard-shortcuts">
 		<tr>
@@ -110,15 +110,7 @@
 		which is generally <kbd>Alt</kbd> + <kbd>Shift</kbd>.
 	</p>
 </div>
-
-<div class="page-title"> About this instance </div>
-<ul>
-	<li>Version: {{version}}</li>
-{{- if .Conf.Instance}}
-	<li>Single instance: {{.Conf.Instance}}</li>
-{{- else}}
-	<li>Single instance: disabled</li>
-{{- end}}
-</ul>
+<h2>About this instance</h2>
+{{ template "aboutinstance.tmpl" .Conf}}
 {{- template "footer.tmpl"}}
 {{- end}}
