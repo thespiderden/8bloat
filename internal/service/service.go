@@ -75,6 +75,10 @@ func (s *Service) StartAndListen(ctx context.Context, config conf.Configuration)
 		return errors.New("unable to create snowflake node: " + err.Error())
 	}
 
+	if config.AssetStamp == "random" || config.AssetStamp == "snowflake" {
+		config.AssetStamp = s.sfnode.Generate().Base64()
+	}
+
 	errch := make(chan error)
 	s.confchonce.Do(func() { s.confch = make(chan conf.Configuration) })
 	s.client = newClient(config)
