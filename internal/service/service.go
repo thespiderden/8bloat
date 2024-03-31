@@ -38,7 +38,6 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if h == nil {
-		fmt.Println("path", r.URL.Path, r.Method)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
