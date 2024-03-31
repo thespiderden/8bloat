@@ -10,7 +10,7 @@ Features
 Requirements
 ------------
 
-- Go 1.20
+- Go 1.22
 - A network connection, if you're building directly from Git.
 
 == BUILDING ==
