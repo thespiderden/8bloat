@@ -3,10 +3,10 @@ package render
 import (
 	"fmt"
 	"net/http"
+	"spiderden.org/8b/internal/conf"
 	"strings"
 	"time"
 
-	"spiderden.org/8b/conf"
 	"spiderden.org/masta"
 )
 

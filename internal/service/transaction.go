@@ -4,24 +4,27 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"github.com/bwmarrin/snowflake"
 	"net/http"
+	"spiderden.org/8b/internal/conf"
 	"strings"
 	"time"
 
-	"spiderden.org/8b/conf"
-	"spiderden.org/8b/render"
+	"spiderden.org/8b/internal/render"
 
 	"spiderden.org/masta"
 )
 
 type Transaction struct {
 	*masta.Client
-	W       http.ResponseWriter
+	h       *http.Client
 	R       *http.Request
 	Conf    *conf.Configuration
 	Session *Session
-	Ctx     context.Context
 	Rctx    *render.Context
+	sfnode  *snowflake.Node
+	Ctx     context.Context
+	W       http.ResponseWriter
 	Vars    map[string]string
 	Qry     map[string]string
 }
@@ -113,12 +116,15 @@ func (t *Transaction) authenticate(am authMode) (err error) {
 	}
 
 	t.Session = sess
-	t.Client = newMastaClient(&masta.Config{
+	t.Client = masta.NewClient(&masta.Config{
 		Server:       "https://" + t.Session.Instance,
 		ClientID:     t.Session.ClientID,
 		ClientSecret: t.Session.ClientSecret,
 		AccessToken:  t.Session.AccessToken,
 	})
+
+	t.Client.UserAgent = t.Conf.UserAgent
+	t.Client.Client = *t.h
 
 	if am != authSessCSRF {
 		return
@@ -146,7 +152,7 @@ func newSession(t *Transaction, instance string) (rurl string, sess *Session, er
 	}
 
 	app, err := masta.RegisterApp(t.Ctx, &masta.AppConfig{
-		Client:       client,
+		Client:       *t.h,
 		Server:       instanceURL,
 		ClientName:   t.Conf.ClientName,
 		Scopes:       t.Conf.ClientScope,

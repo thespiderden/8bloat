@@ -3,17 +3,19 @@ package service
 import (
 	"embed"
 	"fmt"
+	"github.com/bwmarrin/snowflake"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"reflect"
+	"spiderden.org/8b/internal/conf"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"spiderden.org/8b/conf"
-	"spiderden.org/8b/render"
+	"spiderden.org/8b/internal/render"
 	"spiderden.org/masta"
 )
 
@@ -26,24 +28,50 @@ const (
 var router = httprouter.New()
 
 type handle struct {
-	meth   string
 	am     authMode
 	f      handler
 	notype bool
+	meth   string
 }
 
 func (h handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	cfgv := r.Context().Value("conf")
+	cfg, ok := cfgv.(conf.Configuration)
+	if !ok {
+		log.Println("error reading conf context value, type:", reflect.TypeOf(cfgv))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	clv := r.Context().Value("client")
+	cl, ok := clv.(*http.Client)
+	if !ok {
+		log.Println("error reading client context value")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	sfv := r.Context().Value("sfnode")
+	sf, ok := sfv.(*snowflake.Node)
+	if !ok {
+		log.Println("error reading sfnode context value")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	var err error
 
 	vars := httprouter.ParamsFromContext(r.Context())
 
 	t := &Transaction{
-		Ctx:  r.Context(),
-		W:    w,
-		R:    r,
-		Conf: conf.Get(),
-		Vars: make(map[string]string, len(vars)),
-		Qry:  make(map[string]string, len(r.URL.Query())),
+		Ctx:    r.Context(),
+		W:      w,
+		R:      r,
+		Conf:   &cfg,
+		h:      cl,
+		sfnode: sf,
+		Vars:   make(map[string]string, len(vars)),
+		Qry:    make(map[string]string, len(r.URL.Query())),
 	}
 
 	err = t.authenticate(h.am)
@@ -72,20 +100,18 @@ func (h handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "text/html; charset=utf-8")
 	}
 
-	conf := conf.Get()
-
 	t.W.Header().Set("Cache-Control", "private")
 	t.W.Header().Set("Content-Security-Policy",
-		"default-src "+conf.ClientWebsite+"/;"+
-			"style-src "+conf.ClientWebsite+"/session/css "+conf.ClientWebsite+"/static/;"+
-			"script-src "+conf.ClientWebsite+"/static/;"+
+		"default-src "+cfg.ClientWebsite+"/;"+
+			"style-src "+cfg.ClientWebsite+"/session/css "+cfg.ClientWebsite+"/static/;"+
+			"script-src "+cfg.ClientWebsite+"/static/;"+
 			"img-src *;"+
 			"media-src *",
 	)
 	t.W.Header().Set("Referer-Policy", "same-origin")
 
 	if t.Session != nil {
-		t.Rctx.Conf = conf
+		t.Rctx.Conf = &cfg
 		t.Rctx.UserID = t.Session.UserID
 		t.Rctx.Settings = t.Session.Settings
 		t.Rctx.CSRFToken = t.Session.CSRFToken
@@ -645,11 +671,15 @@ func handleOAuthCallback(t *Transaction) error {
 		return errInvalidArgument
 	}
 
-	t.Client = newMastaClient(&masta.Config{
+	mclient := masta.NewClient(&masta.Config{
 		Server:       "https://" + t.Session.Instance,
 		ClientID:     t.Session.ClientID,
 		ClientSecret: t.Session.ClientSecret,
 	})
+	mclient.Client = *t.h
+	mclient.UserAgent = t.Conf.UserAgent
+
+	t.Client = mclient
 
 	err := t.AuthenticateToken(t.Ctx, code, t.Conf.ClientWebsite+"/oauth_callback")
 	if err != nil {
@@ -1054,7 +1084,7 @@ func handleSetSettings(t *Transaction) error {
 		AntiDopamineMode:      antiDopamineMode,
 		HideUnsupportedNotifs: hideUnsupportedNotifs,
 		CSS:                   css,
-		Stamp:                 conf.ID(),
+		Stamp:                 t.sfnode.Generate().String(),
 	}
 
 	switch settings.NotificationInterval {
@@ -1521,12 +1551,6 @@ func handleUserCSS(t *Transaction) error {
 //go:embed static/*
 var embedfs embed.FS
 
-var assetfs = &staticfs{
-	underlying: embedfs,
-}
-
-var fserve = http.FileServer(http.FS(assetfs))
-
 func init() { reg(handleStatic, http.MethodGet, "/static/:asset", noType, noAuth) }
 func handleStatic(t *Transaction) error {
 	stamp := t.Qry["stamp"]
@@ -1534,6 +1558,11 @@ func handleStatic(t *Transaction) error {
 		t.W.Header().Set("Cache-Control", "public, immutable, max-age=31556952, stale-while-revalidate=31556952")
 	}
 
-	fserve.ServeHTTP(t.W, t.R)
+	http.FileServerFS(
+		&staticfs{
+			cfg:        *t.Conf,
+			underlying: embedfs,
+		},
+	).ServeHTTP(t.W, t.R)
 	return nil
 }

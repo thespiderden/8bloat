@@ -2,13 +2,13 @@ package service
 
 import (
 	"io/fs"
+	"spiderden.org/8b/internal/conf"
 	"strings"
-
-	"spiderden.org/8b/conf"
 )
 
 type staticfs struct {
 	underlying fs.FS
+	cfg        conf.Configuration
 }
 
 func (s *staticfs) Open(path string) (fs.File, error) {
@@ -26,6 +26,6 @@ func (s *staticfs) Open(path string) (fs.File, error) {
 }
 
 func (s staticfs) stripPath(path string) string {
-	cut, _ := strings.CutSuffix(path, conf.Get().AssetStamp)
+	cut, _ := strings.CutSuffix(path, s.cfg.AssetStamp)
 	return cut
 }

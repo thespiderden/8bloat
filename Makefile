@@ -6,19 +6,19 @@ PREFIX=/usr/local
 BINPATH=$(PREFIX)/bin
 
 
-GOSRC=main.go         \
-	conf/*.go         \
-	conf/bloat.conf   \
-	render/*.go       \
-	service/static/*  \
-	service/*.go 	  \
+GOSRC=cmd/main.go             \
+	internal/conf/*.go        \
+	internal/conf/bloat.conf  \
+	internal/render/*.go      \
+	internal/service/static/* \
+	internal/service/*.go 	  \
 
-TMPLSRC=render/templates/*.tmpl
+TMPLSRC=internal/render/templates/*.tmpl
 
 all: 8bloat
 
 8bloat: $(SRC) $(TMPLSRC)
-	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -o 8b
+	CGO_ENABLED=0 $(GO) build $(GOFLAGS) ./cmd/8b
 
 install: 8b
 	mkdir -p $(DESTDIR)$(BINPATH)

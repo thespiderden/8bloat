@@ -33,7 +33,7 @@ frontend address.
 8bloat supports the go install command.
 
 $ PATH=$PATH:$home/go/bin
-$ go install spiderden.org/8b@latest
+$ go install spiderden.org/8b/cmd/8b@latest
 
 If you want to take it out for a spin, this command will run the client on your
 machine at http://localhost:8080.

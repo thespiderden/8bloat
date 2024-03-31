@@ -5,12 +5,12 @@ import (
 	"embed"
 	"html/template"
 	"regexp"
+	"spiderden.org/8b/internal/conf"
 	"strconv"
 	"strings"
 	"time"
 
 	"golang.org/x/net/html"
-	"spiderden.org/8b/conf"
 	"spiderden.org/masta"
 )
 
