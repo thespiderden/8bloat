@@ -2,5 +2,5 @@ bloat
 database
 bloat.gen.conf
 *.tar
-./8b
+/8b
 8bloat
