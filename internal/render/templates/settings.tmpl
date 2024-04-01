@@ -1,6 +1,6 @@
 {{- with .Data}}
 {{- template "header.tmpl" $.Ctx}}
-<div class="page-title"> Settings </div>
+<h1>Settings</h1>
 <form action="/settings" method="POST">
 	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
