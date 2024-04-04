@@ -7,7 +7,7 @@ import (
 	"github.com/bwmarrin/snowflake"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
-	"spiderden.org/8b/internal/conf"
+	"spiderden.org/8bloat/internal/conf"
 	"sync"
 )
 

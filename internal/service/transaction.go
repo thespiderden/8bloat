@@ -6,11 +6,11 @@ import (
 	"encoding/json"
 	"github.com/bwmarrin/snowflake"
 	"net/http"
-	"spiderden.org/8b/internal/conf"
+	"spiderden.org/8bloat/internal/conf"
 	"strings"
 	"time"
 
-	"spiderden.org/8b/internal/render"
+	"spiderden.org/8bloat/internal/render"
 
 	"spiderden.org/masta"
 )

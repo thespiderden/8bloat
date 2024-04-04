@@ -2,7 +2,7 @@ package service
 
 import (
 	"net/http"
-	"spiderden.org/8b/internal/conf"
+	"spiderden.org/8bloat/internal/conf"
 	"time"
 )
 

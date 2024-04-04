@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/url"
-	"spiderden.org/8b/internal/conf"
+	"spiderden.org/8bloat/internal/conf"
 	ptemplate "text/template"
 )
 

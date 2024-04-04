@@ -1,4 +1,4 @@
-module spiderden.org/8b
+module spiderden.org/8bloat
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0

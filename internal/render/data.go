@@ -2,7 +2,7 @@ package render
 
 import (
 	"io"
-	"spiderden.org/8b/internal/conf"
+	"spiderden.org/8bloat/internal/conf"
 	"strings"
 
 	"spiderden.org/masta"

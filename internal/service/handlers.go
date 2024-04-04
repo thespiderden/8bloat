@@ -9,13 +9,13 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
-	"spiderden.org/8b/internal/conf"
+	"spiderden.org/8bloat/internal/conf"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"spiderden.org/8b/internal/render"
+	"spiderden.org/8bloat/internal/render"
 	"spiderden.org/masta"
 )
 

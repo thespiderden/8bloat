@@ -8,8 +8,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"spiderden.org/8b/internal/conf"
-	"spiderden.org/8b/internal/service"
+	"spiderden.org/8bloat/internal/conf"
+	"spiderden.org/8bloat/internal/service"
 	"syscall"
 )
 

@@ -5,7 +5,7 @@ import (
 	"embed"
 	"html/template"
 	"regexp"
-	"spiderden.org/8b/internal/conf"
+	"spiderden.org/8bloat/internal/conf"
 	"strconv"
 	"strings"
 	"time"
