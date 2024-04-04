@@ -216,19 +216,20 @@ func (r *ReplyContext) ReifiedSubjectHeader() string {
 }
 
 type Settings struct {
-	DefaultVisibility     string `json:"dv,omitempty"`
-	DefaultFormat         string `json:"df,omitempty"`
-	CopyScope             bool   `json:"cs,omitempty"`
-	ThreadInNewTab        bool   `json:"tnt,omitempty"`
-	HideAttachments       bool   `json:"ha,omitempty"`
-	MaskNSFW              bool   `json:"mn,omitempty"`
-	NotificationInterval  int    `json:"ni,omitempty"`
-	FluorideMode          bool   `json:"fm,omitempty"`
-	DarkMode              bool   `json:"dm,omitempty"`
-	AntiDopamineMode      bool   `json:"adm,omitempty"`
-	HideUnsupportedNotifs bool   `json:"hun,omitempty"`
-	CSS                   string `json:"css,omitempty"`
-	Stamp                 string `json:"stamp,omitempty"`
+	DefaultVisibility     string            `json:"dv,omitempty"`
+	DefaultFormat         string            `json:"df,omitempty"`
+	CopyScope             bool              `json:"cs,omitempty"`
+	ThreadInNewTab        bool              `json:"tnt,omitempty"`
+	HideAttachments       bool              `json:"ha,omitempty"`
+	MaskNSFW              bool              `json:"mn,omitempty"`
+	Theme                 string            `json:"theme,omitempty"`
+	NotificationInterval  int               `json:"ni,omitempty"`
+	FluorideMode          bool              `json:"fm,omitempty"`
+	AntiDopamineMode      bool              `json:"adm,omitempty"`
+	HideUnsupportedNotifs bool              `json:"hun,omitempty"`
+	CSS                   string            `json:"css,omitempty"`
+	ThemeCSS              map[string]string `json:"theme_css,omitempty"`
+	Stamp                 string            `json:"stamp,omitempty"`
 }
 
 func NewSettings() *Settings {
@@ -239,9 +240,9 @@ func NewSettings() *Settings {
 		ThreadInNewTab:        false,
 		HideAttachments:       false,
 		MaskNSFW:              true,
+		Theme:                 conf.DefaultTheme,
 		NotificationInterval:  0,
 		FluorideMode:          false,
-		DarkMode:              false,
 		AntiDopamineMode:      false,
 		HideUnsupportedNotifs: false,
 		CSS:                   "",

@@ -2,6 +2,7 @@
 {{- template "header.tmpl" $.Ctx}}
 <h1>Settings</h1>
 <form action="/settings" method="POST">
+	<h2>Composition</h2>
 	<input type="hidden" name="csrf_token" value="{{$.Ctx.CSRFToken}}">
 	<input type="hidden" name="referrer" value="{{$.Ctx.Referrer}}">
 	{{- if .PostFormats}}
@@ -16,7 +17,7 @@
 	</div>
 	{{- end}}
 	<div class="form-field">
-		<label for="visibility"> Default scope </label>
+		<label for="visibility">Default scope</label>
 		<select id="visibility" name="visibility">
 			<option value="public" {{if eq .Settings.DefaultVisibility "public"}}selected{{end}}>Public</option>
 			<option value="unlisted" {{if eq .Settings.DefaultVisibility "unlisted"}}selected{{end}}>Unlisted</option>
@@ -26,7 +27,12 @@
 		</select>
 	</div>
 	<div class="form-field">
-		<label for="notification-interval"> Refresh Notifications </label>
+    	<input id="copy-scope" name="copy_scope" type="checkbox" value="true" {{if .Settings.CopyScope}}checked{{end}}>
+    	<label for="copy-scope">Copy scope when replying</label>
+    </div>
+	<h2>Behaviour</h2>
+	<div class="form-field">
+		<label for="notification-interval">Refresh Notifications</label>
 		<select id="notification-interval" name="notification_interval">
 			<option value="0" {{if eq .Settings.NotificationInterval 0}}selected{{end}}>Disabled</option>
 			<option value="30" {{if eq .Settings.NotificationInterval 30}}selected{{end}}>After 30s</option>
@@ -37,24 +43,21 @@
 		</select>
 	</div>
 	<div class="form-field">
-		<input id="copy-scope" name="copy_scope" type="checkbox" value="true" {{if .Settings.CopyScope}}checked{{end}}>
-		<label for="copy-scope"> Copy scope when replying </label>
-	</div>
-	<div class="form-field">
 		<input id="thread-tab" name="thread_in_new_tab" type="checkbox" value="true" {{if .Settings.ThreadInNewTab}}checked{{end}}>
-		<label for="thread-tab"> Open threads in new tab from timeline </label>
+		<label for="thread-tab">Open threads in new tab from timeline</label>
 	</div>
+	<h2>Display</h2>
 	<div class="form-field">
 		<input id="hide-attachments" name="hide_attachments" type="checkbox" value="true" {{if .Settings.HideAttachments}}checked{{end}}>
-		<label for="hide-attachments"> Hide attachments </label>
+		<label for="hide-attachments">Hide attachments</label>
 	</div>
 	<div class="form-field">
 		<input id="mask-nsfw" name="mask_nsfw" type="checkbox" value="true" {{if .Settings.MaskNSFW}}checked{{end}}>
-		<label for="mask-nsfw"> Collapse NSFW attachments </label>
+		<label for="mask-nsfw">Collapse NSFW attachments</label>
 	</div>
 	<div class="form-field">
 		<input id="fluoride-mode" name="fluoride_mode" type="checkbox" value="true" {{if .Settings.FluorideMode}}checked{{end}}>
-		<label for="fluoride-mode"> Enable <abbr title="Enable JavaScript based functionality, e.g., like/retweet without page reload and reply preview on thread page">fluoride mode</abbr> </label>
+		<label for="fluoride-mode">Enable <abbr title="Enable JavaScript based functionality, e.g., like/retweet without page reload and reply preview on thread page">fluoride mode</abbr> </label>
 	</div>
 	<div class="form-field">
 		<input id="anti-dopamine-mode" name="anti_dopamine_mode" type="checkbox"
@@ -64,19 +67,31 @@
 	<div class="form-field">
 		<input id="hide-unsupported-notifs" name="hide_unsupported_notifs" type="checkbox"
 		value="true" {{if .Settings.HideUnsupportedNotifs}}checked{{end}}>
-		<label for="hide-unsupported-notifs"> Hide unsupported notifications </label>
+		<label for="hide-unsupported-notifs">Hide unsupported notifications</label>
+	</div>
+	<h2>Customisation</h2>
+	<div class="form-field">
+		<label for="theme">Theme</label>
+		<select id="theme" name="theme">
+	{{- range themes}}
+			<option value="{{.Name}}" {{if eq $.Ctx.Settings.Theme .Name}}selected{{end}}>{{.UIName}}</option>
+	{{- end}}
+		</select>
 	</div>
 	<div class="form-field">
-		<input id="dark-mode" name="dark_mode" type="checkbox" value="true" {{if .Settings.DarkMode}}checked{{end}}>
-		<label for="dark-mode"> Use dark theme </label>
-	</div>
-	<div class="form-field">
-		<label for="css"> Custom CSS: </label>
+		<label for="css">Global CSS</label>
 	</div>
 	<div class="form-field">
 		<textarea id="css" class="monospace" name="css" cols="80" rows="8">{{.Settings.CSS}}</textarea>
 	</div>
-	<button type="submit"> Save </button>
+	<div class="form-field">
+    	<label for="theme-css">Theme CSS: <strong>{{themeUIName .Settings.Theme}}</strong></label>
+    </div>
+    <div class="form-field">
+    	<input type="hidden" name="theme-css-target" value="{{.Settings.Theme}}">
+    	<textarea id="theme-css" class="monospace" name="theme-css" cols="80" rows="8">{{index .Settings.ThemeCSS .Settings.Theme}}</textarea>
+    </div>
+	<button type="submit">Save</button>
 </form>
 {{- template "footer.tmpl"}}
 {{- end}}

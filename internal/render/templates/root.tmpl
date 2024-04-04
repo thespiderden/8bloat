@@ -5,17 +5,17 @@
 	{{- if and .Settings .Settings.CSS}}
 	<link rel="stylesheet" href="/session/css?stamp={{.Settings.Stamp}}">
 	{{- end}}
-	<link rel="stylesheet" href="/static/style.css?stamp={{.Conf.AssetStamp}}">
+	<link rel="stylesheet" href="/theme/{{.Settings.Theme}}?stamp={{.Conf.AssetStamp}}">
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
 	<link rel="icon" type="image/png" href="/static/favicon.png?stamp={{.Conf.AssetStamp}}">
-	<title>{{$.Ctx.Title}}</title>
+	<title>{{.Title}}</title>
 </head>
-<frameset cols="424px,*" {{if .Settings.DarkMode}}class="dark"{{end}}>
-	<frameset rows="327px,*"{{if .Settings.DarkMode}}class="dark"{{end}}>
-		<frame name="nav" src="/nav"{{if .Settings.DarkMode}}class="dark"{{end}}> 
-		<frame name="notification" src="/notifications"{{if .Settings.DarkMode}}class="dark"{{end}}> 
-	</frameset {{if .Settings.DarkMode}}class="dark"{{end}}>
-	<frame name="main" src="/timeline/home" {{if .Settings.DarkMode}}class="dark"{{end}}> 
+<frameset cols="424px,*">
+	<frameset rows="327px,*">
+		<frame name="nav" src="/nav">
+		<frame name="notification" src="/notifications">
+	</frameset>
+	<frame name="main" src="/timeline/home">
 </frameset>
 </html>
 {{end}}

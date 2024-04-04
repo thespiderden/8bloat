@@ -1,0 +1,26 @@
+Themes are CSS template files with access to a single method, .Import.
+Creating a theme is pretty simple:
+
+1. Create a file under themes/. You should name this "$NAME.css"
+
+2. Write your CSS. You can import and modify another theme by writing
+{{.Import "foo"}} at the top. This will inject a CSS @import statement
+with the theme's location. It's important you don't manually write
+@import statements because the location of the CSS will be dynamic in
+the future, and may not be at the root of the site.
+
+3. Register your theme using registerTheme. You can see an example
+of this in themes_init.go. It would be smart to create a new file
+for your fork, to prevent git conflicts. Simply wrap the calls to
+registration in an init function and it will be automatically ran
+when the program starts up.
+
+We don't include a way to specify themes at runtime as we consider
+them code, and we use an AGPLv3 license. We want to discourage
+laziness, and it's good hygiene to do proper version control, so
+we expect you to release the source code in a git repository proper.
+
+Do keep in mind that you should exercise caution when patching in
+themes from other places, as they may be unsafe. Only use themes
+you trust. Further, make sure the licensing is correct. We also
+use text/template, so there's no sanitisation.

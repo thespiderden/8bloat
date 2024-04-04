@@ -1,3 +1,7 @@
 package conf
 
-const MaxPagination = 20
+// TODO: Make these configurable.
+const (
+	MaxPagination = 20
+	DefaultTheme  = "slate"
+)

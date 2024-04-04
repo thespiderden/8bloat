@@ -16,17 +16,19 @@
 	{{- if .RefreshInterval}}
 	<meta http-equiv="refresh" content="{{.RefreshInterval}}">
 	{{- end}}
-	{{- if .Settings.DarkMode}}<meta name="color-scheme" content="dark">{{end}}
 	<title>{{if gt .Count 0}}({{.Count}}){{end}} {{.Title}}</title>
-	<link rel="stylesheet" href="/static/style.css?stamp={{.Conf.AssetStamp}}">
 	{{- if .Settings.FluorideMode}}
 	<script src="/static/fluoride.js?stamp={{.Conf.AssetStamp}}"></script>
 	{{- end}}
+	<link rel="stylesheet" href="/theme/{{.Settings.Theme}}?stamp={{.Conf.AssetStamp}}">
 	{{- if .Settings.CSS}}
 	<link rel="stylesheet" href="/session/css?stamp={{.Settings.Stamp}}">
+	{{- end}}
+	{{- if index .Settings.ThemeCSS .Settings.Theme}}
+	<link rel="stylesheet" href="/session/css/{{.Settings.Theme}}?stamp={{.Settings.Stamp}}">
 	{{- end}}
 	{{- if .Title}}
 	<title>{{.Title}}</title>
 	{{- end}}
 </head>
-<body {{if .Settings.DarkMode}}class="dark"{{end}}>
+<body>

@@ -1,0 +1,57 @@
+{{.Import "foil"}}
+
+body {
+    background-color: #222222;
+    background-image: none;
+    color: #eaeaea;
+}
+
+a {
+    color: #81a2be;
+}
+
+textarea {
+    background-color: #333333;
+    border: 1px solid #444444;
+    color: #eaeaea;
+}
+
+.subject-header-box {
+    background-color: #333333;
+    border: 1px solid #444444;
+    color: #eaeaea;
+}
+
+#reply-popup,
+#reply-to-popup {
+    background-color: #222222;
+    border-color: #444444;
+}
+
+.status-container-container.highlight {
+    background-color: #333333;
+}
+
+.btn-link {
+    color: #81a2be;
+}
+
+a:hover,
+.btn-link:hover {
+    color: #497091;
+}
+
+.status-visibility {
+    color: #eaeaea;
+}
+
+.more-content {
+    background-color: #222222;
+    border-color: #444444;
+}
+
+kbd {
+    background-color: #333333;
+    border-color: #444444;
+    color: #eaeaea;
+}

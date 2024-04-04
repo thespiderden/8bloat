@@ -1,0 +1,111 @@
+{{.Import "slate"}}
+
+body,
+.more-content {
+    background-color: #0f0f0f;
+    color: #dcdcdc;
+}
+
+.status-container-container,
+.emoji-item-container {
+    background-color: #181818;
+}
+
+.notification-container {
+    background-color: #202020;
+}
+
+.notification-container.unread {
+    border-left: 4px solid #777;
+}
+
+#reply-popup,
+#reply-to-popup {
+    background-color: #181818;
+}
+
+*:focus-visible {
+    outline: 1px solid #dcdcdc;
+}
+
+#reply-popup,
+#reply-to-popup,
+.more-content {
+    border-color: #333333;
+}
+
+kbd {
+    background-color: #181818;
+    border: 2px solid #333333;
+}
+
+blockquote,
+.quote {
+    color: #779c3b;
+}
+
+input[type=text],
+textarea {
+    color: #dcdcdc;
+    background-color: #0c0c0c;
+    border: 2px solid #333333;
+}
+
+.post-content,
+#subject-header-box {
+    background-color: #111111;
+}
+
+input[type=submit],
+button,
+select,
+input::file-selector-button {
+    color: #dcdcdc;
+    background-color: #242424;
+    border: 2px solid #333333;
+}
+
+input[type=text]:hover,
+textarea:hover {
+    border: 2px solid #555555;
+}
+
+input[type=submit]:hover,
+button:hover,
+select:hover,
+input::file-selector-button:hover {
+    background-color: #2f2f2f;
+    border: 2px solid #555555;
+}
+
+
+input[type=submit]:active,
+button:active,
+select:active,
+input::file-selector-button:active {
+    background-color: #3f3f3f;
+}
+
+input[type=submit]:disabled,
+button:disabled,
+select:disabled,
+input:disabled::file-selector-button {
+    color: #666666;
+    background-color: #242424;
+    border: 2px solid #333333;
+}
+
+a,
+.btn-link,
+input.btn-link {
+    color: #6090a3;
+}
+
+a:hover,
+.btn-link:hover {
+    color: #497091;
+}
+
+.btn-link:disabled {
+    color: #666666;
+}

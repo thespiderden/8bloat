@@ -103,7 +103,7 @@ func (h handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.W.Header().Set("Cache-Control", "private")
 	t.W.Header().Set("Content-Security-Policy",
 		"default-src "+cfg.ClientWebsite+"/;"+
-			"style-src "+cfg.ClientWebsite+"/session/css "+cfg.ClientWebsite+"/static/;"+
+			"style-src "+cfg.ClientWebsite+"/session/css "+cfg.ClientWebsite+"/session/css/ "+cfg.ClientWebsite+"/theme/;"+
 			"script-src "+cfg.ClientWebsite+"/static/;"+
 			"img-src *;"+
 			"media-src *",
@@ -1066,10 +1066,27 @@ func handleSetSettings(t *Transaction) error {
 	maskNSFW := t.R.FormValue("mask_nsfw") == "true"
 	ni, _ := strconv.Atoi(t.R.FormValue("notification_interval"))
 	fluorideMode := t.R.FormValue("fluoride_mode") == "true"
-	darkMode := t.R.FormValue("dark_mode") == "true"
+	theme := t.R.FormValue("theme")
 	antiDopamineMode := t.R.FormValue("anti_dopamine_mode") == "true"
 	hideUnsupportedNotifs := t.R.FormValue("hide_unsupported_notifs") == "true"
 	css := t.R.FormValue("css")
+	themeCSS := t.R.FormValue("theme-css")
+	themeCSSTarget := t.R.FormValue("theme-css-target")
+
+	if _, ok := render.LookupTheme(theme); !ok {
+		theme = conf.DefaultTheme
+	}
+
+	sessionTCSS := t.Session.Settings.ThemeCSS
+
+	if _, ok := render.LookupTheme(themeCSSTarget); ok {
+		if sessionTCSS == nil {
+			sessionTCSS = map[string]string{themeCSSTarget: themeCSS}
+		} else {
+			sessionTCSS[themeCSSTarget] = themeCSS
+		}
+
+	}
 
 	settings := &render.Settings{
 		DefaultVisibility:     visibility,
@@ -1080,12 +1097,15 @@ func handleSetSettings(t *Transaction) error {
 		MaskNSFW:              maskNSFW,
 		NotificationInterval:  ni,
 		FluorideMode:          fluorideMode,
-		DarkMode:              darkMode,
+		Theme:                 theme,
 		AntiDopamineMode:      antiDopamineMode,
 		HideUnsupportedNotifs: hideUnsupportedNotifs,
 		CSS:                   css,
+		ThemeCSS:              sessionTCSS,
 		Stamp:                 t.sfnode.Generate().String(),
 	}
+
+	fmt.Println(settings)
 
 	switch settings.NotificationInterval {
 	case 0, 30, 60, 120, 300, 600:
@@ -1548,6 +1568,28 @@ func handleUserCSS(t *Transaction) error {
 	return nil
 }
 
+func init() { reg(handleUserThemeCSS, http.MethodGet, "/session/css/:theme", noType) }
+func handleUserThemeCSS(t *Transaction) error {
+	if t.Vars["theme"] == "" {
+		http.NotFound(t.W, t.R)
+		return nil
+	}
+
+	stamp := t.Qry["stamp"]
+	if stamp != "" && stamp != t.Session.Settings.Stamp {
+		http.NotFound(t.W, t.R)
+		return nil
+	}
+
+	if stamp != "" {
+		t.W.Header().Set("Cache-Control", "public, immutable, max-age=31556952, stale-while-revalidate=31556952")
+	}
+
+	t.W.Header().Set("Content-Type", "text/css")
+	t.W.Write([]byte(t.Session.Settings.ThemeCSS[t.Vars["theme"]]))
+	return nil
+}
+
 //go:embed static/*
 var embedfs embed.FS
 
@@ -1565,4 +1607,22 @@ func handleStatic(t *Transaction) error {
 		},
 	).ServeHTTP(t.W, t.R)
 	return nil
+}
+
+func init() { reg(handleTheme, http.MethodGet, "/theme/:name", noType, noAuth) }
+func handleTheme(t *Transaction) error {
+	theme := t.Vars["name"]
+	_, ok := render.LookupTheme(theme)
+	if !ok {
+		fmt.Println("theme", theme)
+		t.W.WriteHeader(http.StatusNotFound)
+		return nil
+	}
+
+	t.W.Header().Set("Content-Type", "text/css")
+	if t.Qry["stamp"] != "" {
+		t.W.Header().Set("Cache-Control", "public, immutable, max-age=31556952, stale-while-revalidate=31556952")
+	}
+
+	return render.RenderTheme(theme, *t.Conf, t.W)
 }
