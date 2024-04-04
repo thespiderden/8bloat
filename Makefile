@@ -22,6 +22,9 @@ all: 8bloat
 	mkdir -p oupt
 	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -o oupt/8b ./cmd/8b
 
+run: 8bloat
+	oupt/8b
+
 install: 8b
 	mkdir -p $(DESTDIR)$(BINPATH)
 	cp oupt/8b $(DESTDIR)$(BINPATH)/8b

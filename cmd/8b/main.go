@@ -35,7 +35,7 @@ func main() {
 
 	if *file == "" {
 		var path string
-		for _, path = range []string{"8bloat.conf", "/etc/8bloat.conf", "bloat.conf", "/etc/bloat.conf"} {
+		for _, path = range []string{"8bloat.local.conf", "8bloat.conf", "/etc/8bloat.conf", "bloat.conf", "/etc/bloat.conf"} {
 			stat, err := os.Stat(path)
 			if err != nil {
 				if errors.Is(err, fs.ErrNotExist) {
