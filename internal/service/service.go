@@ -75,7 +75,7 @@ func (s *Service) StartAndListen(ctx context.Context, config conf.Configuration)
 	}
 
 	if config.AssetStamp == "random" || config.AssetStamp == "snowflake" {
-		config.AssetStamp = s.sfnode.Generate().Base64()
+		s.cfg.AssetStamp = s.sfnode.Generate().Base64()
 	}
 
 	errch := make(chan error)
@@ -96,6 +96,11 @@ func (s *Service) StartAndListen(ctx context.Context, config conf.Configuration)
 			go func() { server.Shutdown(context.TODO()) }()
 			<-errch
 
+			if config.AssetStamp == "random" || config.AssetStamp == "snowflake" {
+				config.AssetStamp = s.sfnode.Generate().Base64()
+			}
+
+			s.cfg = config
 			s.client = newClient(config)
 			s.sfnode, err = snowflake.NewNode(config.Node)
 			if err != nil {
