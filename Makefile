@@ -18,18 +18,19 @@ TMPLSRC=internal/render/templates/*.tmpl
 all: 8bloat
 
 8bloat: $(SRC) $(TMPLSRC)
-	CGO_ENABLED=0 $(GO) build $(GOFLAGS) ./cmd/8b
+	mkdir -p oupt
+	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -o oupt/8b ./cmd/8b
 
 install: 8b
 	mkdir -p $(DESTDIR)$(BINPATH)
-	cp 8b $(DESTDIR)$(BINPATH)/8b
+	cp oupt/8b $(DESTDIR)$(BINPATH)/8b
 	chmod 0755 $(DESTDIR)$(BINPATH)/8b
 
 uninstall:
 	rm -f $(DESTDIR)$(BINPATH)/8b
 
 clean: 
-	rm -f 8b
+	rm -f oupt
 	rm -f bloat.gen.conf
 
 # ExportRemove
@@ -49,5 +50,5 @@ export:
 	sed -i '/# ExportRemove/,$$d' $(TMPDIR)/Makefile
 	sed -i "s/^GOFLAGS.*/GOFLAGS=-ldflags=\"-s -w -X 'spiderden.org\/8b\/conf.version=$(REF)$(WORKING)'\"/" $(TMPDIR)/Makefile
 	sed -i 's/asset_stamp=random/asset_stamp=-$(REF)/g' $(TMPDIR)/bloat.conf
-	tar -cvf 8bloat-$(REF)-src.tar -C $(TMPDIR)/ .
+	tar -cvf oupt/8bloat-$(REF)-src.tar -C $(TMPDIR)/ .
 	rm -rf /tmp/8bloat-export-*
