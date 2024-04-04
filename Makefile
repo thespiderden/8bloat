@@ -14,10 +14,11 @@ GOSRC=cmd/main.go             \
 	internal/service/*.go 	  \
 
 TMPLSRC=internal/render/templates/*.tmpl
+THEMESRC=internal/render/themes/*
 
 all: 8bloat
 
-8bloat: $(SRC) $(TMPLSRC)
+8bloat: $(SRC) $(TMPLSRC) $(THEMESRC)
 	mkdir -p oupt
 	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -o oupt/8b ./cmd/8b
 
