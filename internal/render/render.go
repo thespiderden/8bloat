@@ -33,7 +33,6 @@ var tmpl *template.Template = template.Must(template.New("default").Funcs(
 		"wrapRawStatus":           wrapRawStatus,
 		"version":                 conf.Version,
 		"dbool":                   func(b *bool) bool { return *b },
-		"kvf":                     func(k any, v any, f any) kvf { return kvf{k: k, v: v, f: f} }, // triplet tuple
 		"themes":                  Themes,
 		"themeUIName":             func(name string) string { return themeRegistry[name].UIName },
 		"defaultTheme":            func() string { return conf.DefaultTheme },
@@ -49,24 +48,6 @@ type Page string
 type TemplateData struct {
 	Data interface{}
 	Ctx  *Context
-}
-
-type kvf struct {
-	k any
-	v any
-	f any
-}
-
-func (k kvf) K() any {
-	return k.k
-}
-
-func (k kvf) V() any {
-	return k.v
-}
-
-func (k kvf) F() any {
-	return k.f
 }
 
 func emojiHTML(e masta.Emoji, height string) string {
