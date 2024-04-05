@@ -34,7 +34,7 @@ func RenderTheme(name string, config conf.Configuration, w io.Writer) error {
 		return errors.New("template does not exist")
 	}
 
-	return theme.template.Execute(w, themer(config.ClientWebsite))
+	return theme.template.Execute(w, themer{stamp: config.AssetStamp, clientWebsite: config.ClientWebsite})
 }
 
 func LookupTheme(name string) (uiName string, ok bool) {
@@ -46,7 +46,7 @@ func LookupTheme(name string) (uiName string, ok bool) {
 
 func registerTheme(name string, uiName string, template string) {
 	// We test the Theme, and panic if invalid.
-	var t themer = "bloat.example.com"
+	var t themer = themer{stamp: "test", clientWebsite: "https://test.example.com/"}
 	templ := themes.Lookup(template)
 	if templ == nil {
 		panic("Theme template does not exist: " + template)
@@ -62,13 +62,16 @@ func registerTheme(name string, uiName string, template string) {
 	themeList = append(themeList, &theme)
 }
 
-type themer string
+type themer struct {
+	stamp         string
+	clientWebsite string
+}
 
 func (t themer) Import(theme string) string {
-	url, err := url.JoinPath(string(t), "/theme/", theme)
+	url, err := url.JoinPath(t.clientWebsite, "/theme/", theme)
 	if err != nil {
 		panic(err)
 	}
 
-	return `@import url("` + url + `");`
+	return `@import url("` + url + `?stamp=` + t.stamp + `");`
 }
