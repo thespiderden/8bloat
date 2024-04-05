@@ -5,7 +5,11 @@
 	{{- if and .Settings .Settings.CSS}}
 	<link rel="stylesheet" href="/session/css?stamp={{.Settings.Stamp}}">
 	{{- end}}
+	{{- if .Settings.Theme}}
 	<link rel="stylesheet" href="/theme/{{.Settings.Theme}}?stamp={{.Conf.AssetStamp}}">
+	{{- else}}
+	<link rel="stylesheet" href="/theme/{{defaultTheme}}?stamp={{.Conf.AssetStamp}}">
+	{{- end}}
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
 	<link rel="icon" type="image/png" href="/static/favicon.png?stamp={{.Conf.AssetStamp}}">
 	<title>{{.Title}}</title>

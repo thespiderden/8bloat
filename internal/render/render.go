@@ -36,6 +36,7 @@ var tmpl *template.Template = template.Must(template.New("default").Funcs(
 		"kvf":                     func(k any, v any, f any) kvf { return kvf{k: k, v: v, f: f} }, // triplet tuple
 		"themes":                  Themes,
 		"themeUIName":             func(name string) string { return themeRegistry[name].UIName },
+		"defaultTheme":            func() string { return conf.DefaultTheme },
 	}).ParseFS(templateFS, "templates/*.tmpl"),
 )
 

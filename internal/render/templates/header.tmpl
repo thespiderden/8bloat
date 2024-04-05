@@ -20,7 +20,11 @@
 	{{- if .Settings.FluorideMode}}
 	<script src="/static/fluoride.js?stamp={{.Conf.AssetStamp}}"></script>
 	{{- end}}
+	{{- if .Settings.Theme}}
 	<link rel="stylesheet" href="/theme/{{.Settings.Theme}}?stamp={{.Conf.AssetStamp}}">
+	{{- else}}
+    <link rel="stylesheet" href="/theme/{{defaultTheme}}?stamp={{.Conf.AssetStamp}}">
+    {{- end}}
 	{{- if .Settings.CSS}}
 	<link rel="stylesheet" href="/session/css?stamp={{.Settings.Stamp}}">
 	{{- end}}
