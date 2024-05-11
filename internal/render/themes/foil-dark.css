@@ -45,6 +45,8 @@ a:hover,
     color: #eaeaea;
 }
 
+frame,
+body,
 .more-content {
     background-color: #222222;
     border-color: #444444;
