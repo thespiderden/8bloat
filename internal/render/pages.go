@@ -74,6 +74,7 @@ func RootPage(rctx *Context) (err error) {
 }
 
 func ProfilePage(rctx *Context, acct *masta.Account) (err error) {
+	rctx.title = "edit profile // 8bloat"
 	return render(rctx, ProfilePageTmpl, ProfileData{User: acct})
 }
 
